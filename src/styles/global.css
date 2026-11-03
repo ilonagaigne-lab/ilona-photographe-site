@@ -189,7 +189,9 @@ textarea.saisie { padding: 14px 16px; min-height: 120px; resize: vertical; }
 
 /* Fil d'Ariane */
 .fil { padding-top: 8px; }
-.fil ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; font-size: 14px; }
+.fil ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: nowrap; gap: 4px; font-size: 14px; white-space: nowrap; min-width: 0; }
+.fil li { flex: none; }
+.fil li:last-child { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .fil li + li::before { content: "/"; margin: 0 8px; opacity: .5; }
 .fil a { color: var(--encre); display: inline-block; padding: 10px 0; }
 .fil [aria-current] { display: inline-block; padding: 10px 0; color: var(--rose-profond); font-weight: 500; }
