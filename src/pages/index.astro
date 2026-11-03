@@ -4,6 +4,8 @@ import Photo from '../components/Photo.astro';
 import Prix from '../components/Prix.astro';
 import Reel from '../components/Reel.astro';
 import Coeur from '../components/Coeur.astro';
+import Instagram from '../components/Instagram.astro';
+import contenuContact from '../contenu/contact.json';
 import { Image } from 'astro:assets';
 import { contact, seances, concours, temoignages, prixMinSeance, prixMinConcours } from '../data';
 import { photo, cadrage, surligne, lignes, paragraphe } from '../lib/contenu';
@@ -175,6 +177,8 @@ const univers = t.univers.liste.map((u, i) => ({ titre: u.titre, chip: u.etiquet
       </div>
     </section>
   )}
+
+  <Instagram textes={t.instagram} flux={contenuContact.fluxInstagram ?? ''} />
 
   <section class="sombre" data-reveal aria-labelledby="segur">
     <div class="wrap row entre centre g48" style="padding-block: clamp(64px, 8vw, 120px)">

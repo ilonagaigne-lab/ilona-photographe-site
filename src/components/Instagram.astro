@@ -1,0 +1,107 @@
+---
+// Derniers posts Instagram d'Ilona, lus dans son flux Behold (behold.so) : service qui garde la connexion
+// à Instagram et renvoie les posts en JSON, avec des images déjà allégées. Le flux est chargé quand la
+// section approche de l'écran, pour ne pas ralentir le haut de la page. Sans flux réglé, rien ne s'affiche.
+import { contact } from '../data';
+import { surligne, paragraphe } from '../lib/contenu';
+
+interface Props {
+  textes: { surtitre: string; titre: string; texte: string; nombre?: number };
+  flux: string;
+}
+const { textes, flux } = Astro.props;
+const nombre = Math.min(Math.max(Number(textes.nombre) || 6, 3), 12);
+---
+{flux && (
+  <section class="wrap section sans-haut stack g32 insta" data-reveal aria-labelledby="instagram" data-flux={flux} data-nombre={nombre}>
+    <div class="row entre bas g20">
+      <div class="stack g12">
+        <p class="lbl"><span class="chip pervenche">Instagram</span> {textes.surtitre}</p>
+        <h2 id="instagram" class="d h2" set:html={surligne(textes.titre)} />
+        {textes.texte && <p class="texte" style="max-width: 520px; margin: 0" set:html={paragraphe(textes.texte)} />}
+      </div>
+      <a class="btn contour" href={contact.instagramLien} rel="noopener" target="_blank">Suivre {contact.instagram}</a>
+    </div>
+    <ul class="insta-grille" data-grille aria-busy="true">
+      {Array.from({ length: nombre }, () => <li class="insta-case" aria-hidden="true"></li>)}
+    </ul>
+  </section>
+)}
+
+<style is:global>
+  /* Global : les cases sont créées par le script, hors de la portée des styles de composant. */
+  .insta .lbl { display: flex; align-items: center; gap: 10px; }
+  .insta .insta-grille { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+  .insta .insta-case { position: relative; aspect-ratio: 4 / 5; border-radius: 8px; overflow: hidden; background: linear-gradient(110deg, #e4e0d6 30%, #efebe3 50%, #e4e0d6 70%) 0 0 / 200% 100%; }
+  .insta .insta-grille[aria-busy="true"] .insta-case { animation: attente 1.4s linear infinite; }
+  @keyframes attente { to { background-position: -200% 0; } }
+  .insta .insta-case a { position: absolute; inset: 0; display: block; color: #fff; }
+  .insta .insta-case img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--lumiere, ease); }
+  .insta .insta-case a:hover img, .insta .insta-case a:focus-visible img { transform: scale(1.05); }
+  .insta .insta-case .insta-legende {
+    position: absolute; inset: auto 0 0; padding: 28px 12px 12px; font-size: 13px; line-height: 1.4;
+    background: linear-gradient(transparent, rgba(34, 34, 34, .8)); opacity: 0; transform: translateY(8px); transition: opacity .3s, transform .3s;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .insta .insta-case a:hover .insta-legende, .insta .insta-case a:focus-visible .insta-legende { opacity: 1; transform: none; }
+  .insta .insta-case .insta-type { position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: rgba(34, 34, 34, .55); }
+  @media (max-width: 1100px) { .insta .insta-grille { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .insta .insta-grille { gap: 6px; } .insta .insta-case { border-radius: 4px; } }
+  @media (hover: none) { .insta .insta-case .insta-legende { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .insta .insta-grille[aria-busy="true"] .insta-case { animation: none; } .insta .insta-case img { transition: none; } }
+</style>
+
+<script>
+  const section = document.querySelector<HTMLElement>('.insta');
+  if (section) {
+    const grille = section.querySelector<HTMLElement>('[data-grille]')!;
+    const nombre = Number(section.dataset.nombre);
+    const icone = (type: string) => type === 'VIDEO'
+      ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>'
+      : type === 'CAROUSEL_ALBUM'
+        ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><rect x="7" y="7" width="13" height="13" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg>'
+        : '';
+    const echec = () => {
+      grille.removeAttribute('aria-busy');
+      grille.outerHTML = `<p class="texte" style="margin: 0">Retrouvez mes dernières séances sur <a href="${section.querySelector<HTMLAnchorElement>('.btn')!.href}" target="_blank" rel="noopener">Instagram</a>.</p>`;
+    };
+    async function charger() {
+      try {
+        const reponse = await fetch(section!.dataset.flux!);
+        if (!reponse.ok) throw new Error(String(reponse.status));
+        const donnees = await reponse.json();
+        const posts = (donnees.posts ?? []).slice(0, nombre);
+        if (!posts.length) return echec();
+        grille.replaceChildren(...posts.map((p: any) => {
+          const li = document.createElement('li');
+          li.className = 'insta-case';
+          const legende = (p.prunedCaption || p.caption || '').replace(/\s+/g, ' ').trim();
+          const court = legende.length > 110 ? `${legende.slice(0, 107)}…` : legende;
+          const t = p.sizes ?? {};
+          const a = document.createElement('a');
+          a.href = p.permalink; a.target = '_blank'; a.rel = 'noopener';
+          a.setAttribute('aria-label', `Voir la publication sur Instagram${court ? ` : ${court}` : ''}`);
+          const img = document.createElement('img');
+          img.src = t.medium?.mediaUrl || p.thumbnailUrl || p.mediaUrl;
+          if (t.small && t.medium && t.large) img.srcset = `${t.small.mediaUrl} ${t.small.width}w, ${t.medium.mediaUrl} ${t.medium.width}w, ${t.large.mediaUrl} ${t.large.width}w`;
+          img.sizes = '(max-width: 1100px) 33vw, 16vw';
+          img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'; img.width = 400; img.height = 500;
+          a.append(img);
+          if (court) { const l = document.createElement('span'); l.className = 'insta-legende'; l.textContent = court; a.append(l); }
+          const type = p.isReel ? 'VIDEO' : p.mediaType;
+          if (icone(type)) { const b = document.createElement('span'); b.className = 'insta-type'; b.innerHTML = icone(type); a.append(b); }
+          li.append(a);
+          return li;
+        }));
+        grille.removeAttribute('aria-busy');
+      } catch {
+        echec();
+      }
+    }
+    // Chargement quand la section approche de l'écran (avant d'y être, pour que les images soient prêtes).
+    const veille = new IntersectionObserver((entrees) => {
+      if (entrees.some((e) => e.isIntersecting)) { veille.disconnect(); charger(); }
+    }, { rootMargin: '800px 0px' });
+    veille.observe(section);
+  }
+</script>

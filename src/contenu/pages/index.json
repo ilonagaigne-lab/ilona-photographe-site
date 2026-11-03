@@ -244,5 +244,11 @@
   },
   "avis": {
     "titre": "Ils en *parlent*"
+  },
+  "instagram": {
+    "surtitre": "Mes derniers posts",
+    "titre": "En ce *moment*",
+    "texte": "Les dernières séances, tout juste sorties du pré.",
+    "nombre": 6
   }
 }

@@ -105,6 +105,7 @@ collections:
           - { label: Téléphone, name: telephone, widget: string, hint: "Format : 06 12 34 56 78" }
           - { label: E-mail, name: email, widget: string, pattern: ['^[^\s@]+@[^\s@]+\.[^\s@]{2,}$', "Adresse e-mail invalide"] }
           - { label: Compte Instagram, name: instagram, widget: string, hint: "Sans le @" }
+          - { label: Flux Instagram (Behold), name: fluxInstagram, widget: string, required: false, hint: "Adresse du flux donnée par behold.so (elle commence par https://feeds.behold.so/). Elle affiche vos derniers posts sur l’accueil. Vide = section masquée." }
 
   - name: contenu
     label: Agenda, avis et questions
@@ -340,6 +341,15 @@ collections:
             fields:
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
               - { label: Mention, name: mention, widget: string }
+          - label: Derniers posts Instagram
+            name: instagram
+            widget: object
+            hint: "Les posts se mettent à jour tout seuls. L’adresse du flux se règle dans « Coordonnées »."
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - { label: Texte, name: texte, widget: text, required: false }
+              - { label: Nombre de posts, name: nombre, widget: number, value_type: int, min: 3, max: 12, default: 6, hint: "6 conseillé : une rangée sur ordinateur, deux sur téléphone." }
 
       - name: page-seances
         label: "Page Séances"
