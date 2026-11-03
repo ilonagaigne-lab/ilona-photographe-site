@@ -1,0 +1,59 @@
+{
+  "referencement": {
+    "titre": "Préparer son cheval pour sa séance photo",
+    "nomCourt": "Préparer son cheval",
+    "description": "Pansage, crins, harnachement, tenue du cavalier : la liste simple à relire la veille de votre séance photo équestre."
+  },
+  "entete": {
+    "surtitre": "Journal · Avant la séance",
+    "titre": "Préparer son\ncheval pour\nsa *séance*",
+    "chapo": "Pansage, crins, tenue du cavalier : la liste simple à relire la veille, pour arriver serein et laisser la place à l’instant.",
+    "auteur": "Ilona",
+    "lecture": "5 min de lecture",
+    "avatar": { "image": "/src/assets/photos/portrait-ilona.jpg", "alt": "", "cadrage": "" }
+  },
+  "bandeau": { "image": "/src/assets/photos/cheval-selle-ecurie.jpg", "alt": "Selle en cuir posée sur un tréteau dans l’allée des écuries", "cadrage": "" },
+  "sections": [
+    {
+      "titre": "La veille",
+      "texte": "Un pansage complet la veille, puis un rapide coup de brosse avant la séance : la robe aura le temps de retrouver son brillant naturel. Démêlez crins et queue à la main ou avec un démêlant, sans tirer.",
+      "liste": [
+        "Pansage complet, sans oublier le dessous de l’encolure",
+        "Crins et queue démêlés",
+        "Pieds curés, sabots graissés juste avant les photos"
+      ]
+    },
+    {
+      "titre": "Le harnachement",
+      "texte": "Moins, c’est mieux. Un filet ou un licol en cuir propre met la tête en valeur ; laissez de côté tapis fluo et accessoires qui volent la vedette. Nettoyez le cuir et vérifiez les boucles : on les voit sur les gros plans.",
+      "citation": "« Un cheval détendu fera toujours une plus belle photo qu’un cheval *parfait*. »"
+    },
+    {
+      "titre": "Votre tenue",
+      "texte": "Choisissez des couleurs unies, qui s’accordent à la robe de votre cheval : des tons clairs ou naturels sur un alezan, du blanc ou du crème sur un cheval foncé. Évitez les grands logos et les motifs chargés.",
+      "photo": { "image": "/src/assets/photos/cheval-tete-frontal.jpg", "alt": "Tête d’un cheval alezan au filet noir, frontal pailleté", "cadrage": "" },
+      "legende": "Un filet propre, un frontal qui accroche la lumière : la tête est prête."
+    },
+    {
+      "titre": "Le jour J",
+      "texte": "Prévoyez des friandises, une longe et, si possible, une personne pour attirer l’attention de votre cheval derrière moi : un bruit de sachet suffit à faire pointer les oreilles. Et surtout, prenez votre temps."
+    }
+  ],
+  "memo": {
+    "surtitre": "À retenir",
+    "titre": "Le mémo de la veille",
+    "points": [
+      "Pansage complet, sabots graissés",
+      "Cuir propre, harnachement sobre",
+      "Tenue unie, accordée à la robe",
+      "Friandises, longe, un complice"
+    ]
+  },
+  "suite": {
+    "titre": "À lire *aussi*",
+    "etiquette": "Académie",
+    "article": "Lire la lumière du soir",
+    "resume": "Où placer votre cheval quand le soleil descend.",
+    "photo": { "image": "/src/assets/photos/cheval-deux-chevaux.jpg", "alt": "", "cadrage": "" }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "entete": {
+    "demo": "Démonstration : chaque client recevra un lien privé vers sa propre galerie.",
+    "galerie": "Galerie d’exemple",
+    "seance": "Séance Signature",
+    "surtitre": "Votre galerie privée",
+    "titre": "Choisissez vos *favoris*",
+    "vide": "Aucun favori pour l’instant. Touchez un cœur pour commencer."
+  },
+  "photos": [
+    { "image": "/src/assets/photos/cheval-cowgirl-isabelle.jpg", "alt": "Cavalière contre l’encolure d’un cheval isabelle", "on": true },
+    { "image": "/src/assets/photos/cheval-cowgirl-bai.jpg", "alt": "Cavalière tenant son cheval bai au pré", "on": true },
+    { "image": "/src/assets/photos/cheval-tete-frontal.jpg", "alt": "Tête d’un cheval alezan, frontal pailleté", "on": false },
+    { "image": "/src/assets/photos/cheval-deux-chevaux.jpg", "alt": "Deux chevaux alezans en fin d’été", "on": true },
+    { "image": "/src/assets/photos/cheval-cavaliere-poney.jpg", "alt": "Cavalière souriante sur son poney", "on": true },
+    { "image": "/src/assets/photos/hero-wide.jpg", "alt": "Ilona et son cheval au coucher du soleil", "on": false },
+    { "image": "/src/assets/photos/packshot-bijou-licol.jpg", "alt": "Bijou de licol en forme de tête de cheval", "on": true },
+    { "image": "/src/assets/photos/cheval-selle-ecurie.jpg", "alt": "Selle posée dans l’allée des écuries", "on": true },
+    { "image": "/src/assets/photos/horse-head.jpg", "alt": "Tête du cheval en contre-jour", "on": true },
+    { "image": "/src/assets/photos/portrait.jpg", "alt": "Portrait en robe blanche, devant le cheval", "on": false },
+    { "image": "/src/assets/photos/concours-saut.jpg", "alt": "Saut d’obstacle en concours", "on": true },
+    { "image": "/src/assets/photos/dress-field.jpg", "alt": "Robe blanche et jambe du cheval dans les herbes", "on": true }
+  ]
+}

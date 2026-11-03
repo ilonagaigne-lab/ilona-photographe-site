@@ -2,54 +2,45 @@
 import Base from '../../layouts/Base.astro';
 import Photo from '../../components/Photo.astro';
 import Reel from '../../components/Reel.astro';
-import s11 from '../../assets/photos/galoplan-still-11.jpg';
-import s21 from '../../assets/photos/galoplan-still-21.jpg';
-import s33 from '../../assets/photos/galoplan-still-33.jpg';
-import s43 from '../../assets/photos/galoplan-still-43.jpg';
 import { galoplan } from '../../data';
+import { photo, cadrage, surligne, lignes, paragraphe } from '../../lib/contenu';
+import t from '../../contenu/pages/galoplan.json';
 const schemaCas = { '@type': 'CreativeWork', name: 'GaloPlan à l’écurie : deux réels verticaux', about: 'Contenu vidéo pour GaloPlan, l’application du cheval partagé', creator: { '@id': 'https://ilonagaigne.com/#ilona' }, inLanguage: 'fr-FR', genre: 'Étude de cas' };
 ---
 <Base titre="Étude de cas GaloPlan" description="Deux réels verticaux tournés à l’écurie pour GaloPlan, l’app du cheval partagé : un film de lancement et un vlog de séance." page="marques" fil={[{ nom: 'Marques & réseaux', href: '/marques' }, { nom: 'Étude de cas GaloPlan', href: '/etudes-de-cas/galoplan' }]} schema={[schemaCas]}>
   <article>
     <section class="wrap" style="padding-top: clamp(24px, 4vw, 56px)" data-reveal aria-labelledby="titre">
-      <p class="lbl">Étude de cas · contenu vidéo</p>
-      <h1 id="titre" class="d h1 deborde" style="margin-top: 18px">
-        <span class="rv"><span>GaloPlan</span></span>
-        <span class="rv"><span style="--d: .2s">à <span class="hl" style="--d: .9s">l’écurie</span></span></span>
-      </h1>
-      <p class="apparait" style="max-width: 760px; margin: 32px 0 0; font-size: clamp(19px, 1.8vw, 26px); line-height: 1.45">Deux réels pour présenter l’app du cheval partagé là où elle sert vraiment : à l’écurie, entre deux séances.</p>
+      <p class="lbl">{t.entete.surtitre}</p>
+      <h1 id="titre" class="d h1 deborde" style="margin-top: 18px" set:html={lignes(t.entete.titre)} />
+      <p class="apparait" style="max-width: 760px; margin: 32px 0 0; font-size: clamp(19px, 1.8vw, 26px); line-height: 1.45" set:html={paragraphe(t.entete.chapo)} />
       <dl class="faits apparait" style="--d: .5s">
-        <div><dt class="lbl">Client</dt><dd>GaloPlan, application équestre</dd></div>
+        <div><dt class="lbl">Client</dt><dd>{t.entete.client}</dd></div>
         <div><dt class="lbl">Mission</dt><dd class="row g8"><span class="chip or">Vidéo</span><span class="chip pervenche">Réseaux</span></dd></div>
-        <div><dt class="lbl">Formats</dt><dd>2 réels verticaux, sous-titrés</dd></div>
-        <div><dt class="lbl">Durées</dt><dd>46 s et 52 s</dd></div>
+        <div><dt class="lbl">Formats</dt><dd>{t.entete.formats}</dd></div>
+        <div><dt class="lbl">Durées</dt><dd>{t.entete.durees}</dd></div>
       </dl>
     </section>
 
     <section class="sombre" style="margin-top: clamp(56px, 7vw, 96px)" aria-label="Les deux réels">
       <div class="wrap row" style="padding-block: clamp(56px, 7vw, 88px); justify-content: center; gap: 48px clamp(40px, 6vw, 96px)">
         <figure class="stack g12" style="margin: 0; flex: 0 1 360px">
-          <Reel video="galoplan-lancement" titre="GaloPlan, film de lancement" or />
-          <figcaption class="row entre" style="align-items: baseline"><span class="d" style="font-size: 30px">Film de lancement</span><span style="font-size: 14px; opacity: .85">46 s</span></figcaption>
+          <Reel video={t.reels.lancement.video} or />
+          <figcaption class="row entre" style="align-items: baseline"><span class="d" style="font-size: 30px">{t.reels.lancement.legende}</span><span style="font-size: 14px; opacity: .85">{t.reels.lancement.duree}</span></figcaption>
         </figure>
         <figure class="stack g12 decale" style="margin: 0; flex: 0 1 360px">
-          <Reel video="galoplan-vlog-seance" titre="GaloPlan, vlog de séance" or />
-          <figcaption class="row entre" style="align-items: baseline"><span class="d" style="font-size: 30px">Vlog de séance</span><span style="font-size: 14px; opacity: .85">52 s</span></figcaption>
+          <Reel video={t.reels.vlog.video} or />
+          <figcaption class="row entre" style="align-items: baseline"><span class="d" style="font-size: 30px">{t.reels.vlog.legende}</span><span style="font-size: 14px; opacity: .85">{t.reels.vlog.duree}</span></figcaption>
         </figure>
       </div>
     </section>
 
     <section class="wrap section stack" style="gap: 64px" data-reveal>
-      <div class="bloc"><h2 class="d" style="font-size: 48px">Le contexte</h2><p class="texte">GaloPlan réunit tous ceux qui s’occupent d’un même cheval : propriétaires et demi-pensionnaires partagent le planning, les soins et le carnet de l’écurie dans une seule application.</p></div>
-      <div class="bloc"><h2 class="d" style="font-size: 48px">Le défi</h2><p class="texte">Faire comprendre une application en moins d’une minute, sans tutoriel figé. Montrer la vraie vie à l’écurie, puis l’app au moment précis où elle rend service.</p></div>
-      <div class="bloc"><h2 class="d" style="font-size: 48px">Ce que j’ai fait</h2><ul class="liste li"><li>Tournage à l’écurie, à pied et à cheval</li><li>Coulisses du développement de l’application</li><li>Écrans réels filmés au téléphone, en situation</li><li>Montage vertical sous-titré, aux couleurs de la marque</li></ul></div>
+      {[t.recit.contexte, t.recit.defi].map((r) => <div class="bloc"><h2 class="d" style="font-size: 48px">{r.titre}</h2><p class="texte" set:html={paragraphe(r.texte)} /></div>)}
+      <div class="bloc"><h2 class="d" style="font-size: 48px">{t.recit.realisation.titre}</h2><ul class="liste li">{t.recit.realisation.points.map((p) => <li>{p}</li>)}</ul></div>
     </section>
 
     <section class="wrap section sans-haut grille" style="--min: 240px" data-reveal aria-label="Images extraites du vlog">
-      <Photo src={s11} alt="Cavalière sur un cheval noir à la selle rose, dans la carrière" cache="#EAE2D4" tailles="(max-width: 760px) 50vw, 25vw" />
-      <Photo src={s21} alt="Cavalière au trot sur un cheval gris, entre les obstacles" cache="#EAE2D4" delai=".3s" tailles="(max-width: 760px) 50vw, 25vw" class="decale" />
-      <Photo src={s33} alt="Main tenant un téléphone ouvert sur une séance dans l’application GaloPlan" cache="#EAE2D4" delai=".4s" tailles="(max-width: 760px) 50vw, 25vw" />
-      <Photo src={s43} alt="Cavalière casquée qui embrasse le chanfrein de son cheval gris" cache="#EAE2D4" delai=".5s" tailles="(max-width: 760px) 50vw, 25vw" class="decale" />
+      {t.images.map((im, i) => <Photo src={photo(im.image)} alt={im.alt ?? ''} pos={cadrage(im)} cache="#EAE2D4" delai={i ? `${(i + 2) / 10}s` : undefined} tailles="(max-width: 760px) 50vw, 25vw" class={i % 2 ? 'decale' : ''} />)}
     </section>
 
     {(galoplan.citation || galoplan.resultats.length > 0) && (
@@ -75,7 +66,7 @@ const schemaCas = { '@type': 'CreativeWork', name: 'GaloPlan à l’écurie : de
   </article>
 
   <section class="wrap section row entre bas g32" data-reveal aria-labelledby="suite">
-    <h2 id="suite" class="d" style="font-size: clamp(52px, 9vw, 140px); line-height: 1">Votre marque,<br>la <span class="hl">prochaine</span> ?</h2>
+    <h2 id="suite" class="d" style="font-size: clamp(52px, 9vw, 140px); line-height: 1" set:html={surligne(t.fin.titre)} />
     <a class="btn grand" href="/marques#contact">Parler de votre projet</a>
   </section>
 </Base>

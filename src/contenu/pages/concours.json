@@ -1,0 +1,21 @@
+{
+  "entete": {
+    "surtitre": "Photo & vidéo de concours",
+    "titre": "Le jour du\n*concours*",
+    "chapo": "Vous vous concentrez sur votre parcours, je m’occupe de le garder. Réservez avant l’épreuve : je repère votre passage et je ne vous lâche pas de l’objectif.",
+    "photo": { "image": "/src/assets/photos/concours-saut.jpg", "alt": "Cheval bai franchissant un obstacle coloré en concours de saut", "cadrage": "" }
+  },
+  "formats": { "titre": "Trois *formats*" },
+  "reel": {
+    "etiquette": "Réel souvenir",
+    "titre": "Revoir chaque *foulée*",
+    "texte": "Juliette et Bingo, du paddock au tour d’honneur. Un montage vertical d’une trentaine de secondes, prêt à partager.",
+    "video": { "fichier": "/videos/video-concours.mp4", "affiche": "/videos/video-concours-poster.jpg", "titre": "Réel de concours : Juliette et Bingo" }
+  },
+  "agenda": {
+    "titre": "Où me *trouver*",
+    "texte": "Votre épreuve n’y est pas ? Écrivez-moi, on regarde ensemble.",
+    "vide": "Les prochaines dates sont annoncées sur Instagram. Dites-moi sur quel concours vous montez : je vous confirme ma présence."
+  },
+  "fin": { "titre": "À vos *marques*" }
+}

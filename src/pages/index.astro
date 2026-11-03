@@ -5,53 +5,38 @@ import Prix from '../components/Prix.astro';
 import Reel from '../components/Reel.astro';
 import Coeur from '../components/Coeur.astro';
 import { Image } from 'astro:assets';
-import { contact, seances, concours, temoignages } from '../data';
-import cavaliere from '../assets/photos/cheval-cavaliere-poney.jpg';
-import chocolatier from '../assets/photos/marque-pochette-telephone.jpg';
-import hero from '../assets/photos/hero-coucher-large.jpg';
-import portrait from '../assets/photos/portrait-ilona.jpg';
-import isabelle from '../assets/photos/cheval-cowgirl-isabelle.jpg';
-import bai from '../assets/photos/cheval-cowgirl-bai.jpg';
-import tete from '../assets/photos/cheval-tete-frontal.jpg';
-import poney from '../assets/photos/cheval-cavaliere-poney.jpg';
-import saut from '../assets/photos/concours-saut.jpg';
-import champagne from '../assets/photos/evenement-champagne.jpg';
-import trio from '../assets/photos/packshot-trio-saint-valentin.jpg';
-import appli from '../assets/photos/galoplan-still-33.jpg';
-import deux from '../assets/photos/cheval-deux-chevaux.jpg';
-import selle from '../assets/photos/cheval-selle-ecurie.jpg';
+import { contact, seances, concours, temoignages, prixMinSeance, prixMinConcours } from '../data';
+import { photo, cadrage, surligne, lignes, paragraphe } from '../lib/contenu';
+import t from '../contenu/pages/index.json';
 
+// {prix-seance} / {prix-concours} dans un texte = prix le plus bas, tiré des formules.
+const prix = (texte = '') => texte.replaceAll('{prix-seance}', `${prixMinSeance} €`).replaceAll('{prix-concours}', `${prixMinConcours} €`);
+// Cadrages d'origine des images (utilisés tant qu'aucun cadrage n'est choisi dans le back office).
+const posPortes = ['50% 30%', '52% 50%', '50% 35%'];
+const posUnivers = ['50% 30%', '52% 50%', '45% 40%', '50% 50%', '50% 50%'];
+const posFavoris = ['50% 30%', '50% 62%', '50% 40%', '40% 40%'];
+const posArticles = ['50% 40%', '50% 55%'];
 const favorisDefaut = false;
-const favoris = [
-  { id: 'isabelle', src: isabelle, alt: 'Cavalière au chapeau de paille contre l’encolure d’un cheval isabelle', pos: '50% 30%', on: favorisDefaut },
-  { id: 'bai', src: bai, alt: 'Cavalière en chemise blanche tenant son cheval bai au pré', pos: '50% 62%', on: favorisDefaut },
-  { id: 'tete', src: tete, alt: 'Tête d’un cheval alezan, frontal pailleté', pos: '50% 40%', on: favorisDefaut },
-  { id: 'poney', src: poney, alt: 'Jeune cavalière souriante sur son poney', pos: '40% 40%', on: favorisDefaut },
-];
-const univers = [
-  { titre: 'Cheval', chip: 'Séances', classe: '', href: '/seances', src: isabelle, alt: 'Cavalière au chapeau de paille contre l’encolure d’un cheval isabelle', pos: '50% 30%' },
-  { titre: 'Concours', chip: 'CSO', classe: 'contour', href: '/concours', src: saut, alt: 'Cheval bai franchissant un obstacle coloré en concours', pos: '52% 50%' },
-  { titre: 'Événementiel', chip: 'Reportage', classe: 'pervenche', href: '/marques', src: champagne, alt: 'Invitée souriante, coupe de champagne à la main, lors d’une fête en plein air', pos: '45% 40%' },
-  { titre: 'Packshot', chip: 'Produit', classe: '', href: '/marques', src: trio, alt: 'Sac pailleté rose, porte-clés cœur et pochette, entourés de ballons cœurs', pos: '50% 50%' },
-  { titre: 'Réseaux', chip: 'Community', classe: 'pervenche', href: '/etudes-de-cas/galoplan', src: appli, alt: 'Téléphone ouvert sur l’application GaloPlan, filmé pour ses réseaux', pos: '50% 50%' },
-];
+// Identifiant d'une photo favorite : le nom du fichier (sert à retrouver les coups de cœur d'une visite à l'autre).
+const favoris = t.favoris.photos.map((f, i) => ({ id: f.image.split('/').pop()!.replace(/\.[^.]+$/, ''), src: photo(f.image), alt: f.alt ?? '', pos: cadrage(f, posFavoris[i]), on: favorisDefaut }));
+const univers = t.univers.liste.map((u, i) => ({ titre: u.titre, chip: u.etiquette, classe: u.couleur, href: u.lien, src: photo(u.photo.image), alt: u.photo.alt ?? '', pos: cadrage(u.photo, posUnivers[i]) }));
 ---
 <Base titre="Ilona Photographe · photographe et vidéaste équestre près de Toulouse" description="Ilona, photographe et vidéaste spécialisée dans l’univers équestre et la création de contenu de marque, près de Toulouse. Séances, concours, marques et réseaux sociaux." page="accueil">
 
   <section class="wrap" style="padding-top: clamp(24px, 4vw, 64px)" data-reveal aria-labelledby="titre">
-    <p class="lbl">Photographe &amp; vidéaste équestre · près de Toulouse</p>
+    <p class="lbl">{t.entete.surtitre}</p>
     <h1 id="titre" style="margin: 20px 0 0">
       <span class="sr">Surligner l’instant.</span>
       <span class="pochoir" aria-hidden="true">
         <span class="pochoir-trait"></span>
-        <video autoplay muted loop playsinline preload="auto" poster="/videos/titre-video-poster.jpg" tabindex="-1">
-          <source src="/videos/titre-video-mobile.mp4" type="video/mp4" media="(max-width: 760px)">
-          <source src="/videos/titre-video.mp4" type="video/mp4">
+        <video autoplay muted loop playsinline preload="auto" poster={t.entete.videoTitre.affiche || undefined} tabindex="-1">
+          <source src={t.entete.videoTitre.fichierMobile} type="video/mp4" media="(max-width: 760px)">
+          <source src={t.entete.videoTitre.fichier} type="video/mp4">
         </video>
       </span>
     </h1>
     <div class="row entre bas g32" style="margin-top: 44px">
-      <p class="chapo apparait" style="--d: .6s">Je photographie et filme les chevaux et leurs cavaliers, du pré au paddock, et je crée du contenu pour les marques équestres. Une séance, un concours, un lancement : je garde ce qui compte.</p>
+      <p class="chapo apparait" style="--d: .6s" set:html={paragraphe(t.entete.chapo)} />
       <div class="row g12 apparait" style="--d: .75s">
         <a class="btn" href="/reservation">Réserver une séance
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
@@ -59,77 +44,64 @@ const univers = [
       </div>
     </div>
     <ul class="reperes apparait" style="--d: .9s" aria-label="En bref">
-      <li><strong>Dès 90 €</strong> la séance</li>
-      <li><strong>Toulouse</strong> et alentours</li>
-      <li><strong>Photo &amp; vidéo</strong> au même rendez-vous</li>
-      <li><strong>-10 %</strong> Écuries d’En Ségur</li>
+      {t.entete.reperes.map((r) => <li><strong>{prix(r.fort)}</strong> {prix(r.texte)}</li>)}
     </ul>
   </section>
 
   <div data-reveal style="margin-top: clamp(40px, 6vw, 88px)">
-    <Photo src={hero} alt="Cavalière en robe blanche contre son cheval alezan, dans un pré au coucher du soleil" ratio="2.05 / 1" pos="56% 50%" prioritaire delai=".4s" tailles="100vw" style="max-height: 820px">
-      <figcaption class="chip" style="position: absolute; left: var(--marge); bottom: 24px; background: rgba(34,34,34,.78); color: var(--gres); text-transform: none; letter-spacing: 0; font-size: 13px; height: 36px; padding: 0 16px">Séance au coucher du soleil · Haute-Garonne</figcaption>
+    <Photo src={photo(t.grandePhoto.photo.image)} alt={t.grandePhoto.photo.alt ?? ''} ratio="2.05 / 1" pos={cadrage(t.grandePhoto.photo, '56% 50%')} prioritaire delai=".4s" tailles="100vw" style="max-height: 820px">
+      <figcaption class="chip" style="position: absolute; left: var(--marge); bottom: 24px; background: rgba(34,34,34,.78); color: var(--gres); text-transform: none; letter-spacing: 0; font-size: 13px; height: 36px; padding: 0 16px">{t.grandePhoto.legende}</figcaption>
     </Photo>
   </div>
 
   <section class="wrap section stack g32" data-reveal aria-labelledby="portes">
-    <h2 id="portes" class="d h2">Vous <span class="hl">êtes</span>…</h2>
+    <h2 id="portes" class="d h2" set:html={surligne(t.portes.titre)} />
     <div class="grille portes" style="--min: 280px">
-      <a class="porte" href="/trouver-ma-seance">
-        <Photo src={isabelle} alt="" pos="50% 30%" ratio="4 / 3" curseur={false} tailles="(max-width: 760px) 100vw, 33vw" />
-        <span class="porte-texte"><span class="d" style="font-size: clamp(30px, 3vw, 40px)">Cavalier ou propriétaire</span><span>Une séance avec votre cheval, dès 90 €. Trouvez la vôtre en 30 secondes.</span><span class="porte-fleche">Trouver ma séance →</span></span>
-      </a>
-      <a class="porte" href="/concours">
-        <Photo src={saut} alt="" pos="52% 50%" ratio="4 / 3" curseur={false} tailles="(max-width: 760px) 100vw, 33vw" />
-        <span class="porte-texte"><span class="d" style="font-size: clamp(30px, 3vw, 40px)">En concours</span><span>Votre parcours en photo, en vidéo ou en réel souvenir, dès 50 €.</span><span class="porte-fleche">Voir les formats →</span></span>
-      </a>
-      <a class="porte" href="/marques">
-        <Photo src={chocolatier} alt="" pos="50% 35%" ratio="4 / 3" curseur={false} tailles="(max-width: 760px) 100vw, 33vw" />
-        <span class="porte-texte"><span class="d" style="font-size: clamp(30px, 3vw, 40px)">Une marque</span><span>Photos, vidéos et réseaux sociaux pour les marques équestres. Sur devis.</span><span class="porte-fleche">Parler de mon projet →</span></span>
-      </a>
+      {t.portes.cartes.map((p, i) => (
+        <a class="porte" href={p.lien}>
+          <Photo src={photo(p.photo.image)} alt={p.photo.alt ?? ''} pos={cadrage(p.photo, posPortes[i] ?? '50% 50%')} ratio="4 / 3" curseur={false} tailles="(max-width: 760px) 100vw, 33vw" />
+          <span class="porte-texte"><span class="d" style="font-size: clamp(30px, 3vw, 40px)">{p.titre}</span><span>{prix(p.texte)}</span><span class="porte-fleche">{p.fleche}</span></span>
+        </a>
+      ))}
     </div>
   </section>
 
   <section class="wrap section sans-haut row centre" style="gap: clamp(40px, 6vw, 104px)" data-reveal aria-labelledby="moi">
-    <Photo src={portrait} alt="Portrait d’Ilona souriante, lunettes et cheveux longs, contre son cheval alezan au coucher du soleil" ratio="3 / 4" pos="50% 50%" style="flex: 1 1 320px; max-width: 500px" />
+    <Photo src={photo(t.moi.photo.image)} alt={t.moi.photo.alt ?? ''} ratio="3 / 4" pos={cadrage(t.moi.photo, '50% 50%')} style="flex: 1 1 320px; max-width: 500px" />
     <div class="stack g24" style="flex: 1 1 440px">
-      <p class="lbl">Bonjour, moi c’est Ilona</p>
-      <h2 id="moi" class="d h2">
-        <span class="rv"><span>Je photographie</span></span>
-        <span class="rv"><span style="--d: .2s">ce que vous</span></span>
-        <span class="rv"><span style="--d: .3s"><span class="hl" style="--d: 1s">ressentez</span> à cheval.</span></span>
-      </h2>
-      <p class="texte" style="max-width: 560px">Photographe et vidéaste spécialisée dans l’univers équestre et la création de contenu de marque. Je viens à vous, à l’écurie ou au pré, et je laisse le cheval donner le rythme.</p>
-      <ul class="liste li"><li>Photo animalière &amp; portrait</li><li>Vidéo &amp; montage</li><li>Community management</li></ul>
+      <p class="lbl">{t.moi.surtitre}</p>
+      <h2 id="moi" class="d h2" set:html={lignes(t.moi.titre, 0.1)} />
+      <p class="texte" style="max-width: 560px" set:html={paragraphe(t.moi.texte)} />
+      <ul class="liste li">{t.moi.liste.map((l) => <li>{l}</li>)}</ul>
       <a class="btn contour" href="/seances" style="align-self: flex-start">Mon approche</a>
     </div>
   </section>
 
   <section class="wrap section sans-haut stack g48" data-reveal aria-labelledby="offres">
     <div class="row entre bas g20">
-      <h2 id="offres" class="d h2">Trois façons<br>de <span class="hl">garder</span> l’instant</h2>
-      <p class="lbl">Séances · Concours · Marques</p>
+      <h2 id="offres" class="d h2" set:html={surligne(t.offres.titre)} />
+      <p class="lbl">{t.offres.mention}</p>
     </div>
     <div class="grille">
       <article class="carte stack g20" style="padding: 36px">
         <span class="chip" style="align-self: flex-start">Photo</span>
-        <h3 class="d h3">Séances équestres</h3>
-        <p style="margin: 0; display: flex; align-items: baseline; gap: 10px"><span style="font-size: 14px">dès</span><span class="prix" style="font-size: 80px"><Prix valeur={90} /></span></p>
+        <h3 class="d h3">{t.offres.seances}</h3>
+        <p style="margin: 0; display: flex; align-items: baseline; gap: 10px"><span style="font-size: 14px">dès</span><span class="prix" style="font-size: 80px"><Prix valeur={prixMinSeance} /></span></p>
         <ul class="tarifs" style="flex: 1">{seances.map((s) => <li>{s.nom}<span class="prix">{s.prix} €</span></li>)}</ul>
         <a class="btn clair" href="/seances" style="align-self: flex-start">Voir les séances</a>
       </article>
       <article class="carte stack g20" style="padding: 36px">
         <div class="row g8"><span class="chip">Photo</span><span class="chip or">Vidéo</span></div>
-        <h3 class="d h3">Concours</h3>
-        <p style="margin: 0; display: flex; align-items: baseline; gap: 10px"><span style="font-size: 14px">dès</span><span class="prix" style="font-size: 80px"><Prix valeur={50} /></span></p>
-        <ul class="tarifs" style="flex: 1">{concours.map((c) => <li>{c.nom.replace('Photo de concours', 'Photo')}<span class="prix">{c.prix} €</span></li>)}</ul>
+        <h3 class="d h3">{t.offres.concours}</h3>
+        <p style="margin: 0; display: flex; align-items: baseline; gap: 10px"><span style="font-size: 14px">dès</span><span class="prix" style="font-size: 80px"><Prix valeur={prixMinConcours} /></span></p>
+        <ul class="tarifs" style="flex: 1">{concours.map((c) => <li>{c.nomCourt}<span class="prix">{c.prix} €</span></li>)}</ul>
         <a class="btn clair" href="/concours" style="align-self: flex-start">Voir l’agenda</a>
       </article>
       <article class="carte stack g20" style="padding: 36px">
         <span class="chip pervenche" style="align-self: flex-start">Réseaux</span>
-        <h3 class="d h3">Marques &amp; réseaux</h3>
-        <p class="prix" style="font-size: clamp(56px, 15vw, 80px); margin: 0; white-space: nowrap">Sur devis</p>
-        <ul class="tarifs" style="flex: 1"><li>Contenu photo &amp; vidéo</li><li>Réels et formats courts</li><li>Community management</li></ul>
+        <h3 class="d h3">{t.offres.marques.titre}</h3>
+        <p class="prix" style="font-size: clamp(56px, 15vw, 80px); margin: 0; white-space: nowrap">{t.offres.marques.prix}</p>
+        <ul class="tarifs" style="flex: 1">{t.offres.marques.liste.map((l) => <li>{l}</li>)}</ul>
         <a class="btn clair" href="/marques" style="align-self: flex-start">Parler de votre projet</a>
       </article>
     </div>
@@ -138,9 +110,9 @@ const univers = [
   <section class="sombre" data-reveal aria-labelledby="quiz-titre">
     <div class="wrap row entre centre g32" style="padding-block: clamp(56px, 7vw, 96px)">
       <div class="stack g16" style="flex: 1 1 520px">
-        <p class="lbl">Vous hésitez entre deux formules ?</p>
-        <h2 id="quiz-titre" class="d" style="font-size: clamp(44px, 6vw, 88px); line-height: 1">Trouvez <span class="hl plein">votre séance</span><br>en 30 secondes</h2>
-        <p style="margin: 0; font-size: 17px; line-height: 1.6; max-width: 560px; opacity: .9">Trois questions sur vous et votre cheval : je vous conseille la formule, le prix et les prochains soirs de lumière dorée.</p>
+        <p class="lbl">{t.quiz.surtitre}</p>
+        <h2 id="quiz-titre" class="d" style="font-size: clamp(44px, 6vw, 88px); line-height: 1" set:html={surligne(t.quiz.titre, { plein: true })} />
+        <p style="margin: 0; font-size: 17px; line-height: 1.6; max-width: 560px; opacity: .9" set:html={paragraphe(t.quiz.texte)} />
       </div>
       <a class="btn clair grand" href="/trouver-ma-seance">Commencer le quiz →</a>
     </div>
@@ -148,8 +120,8 @@ const univers = [
 
   <section class="wrap section stack g48" data-reveal aria-labelledby="univers">
     <div class="row entre bas g20">
-      <h2 id="univers" class="d h2">Six <span class="hl">univers</span>,<br>un seul regard</h2>
-      <p class="texte" style="max-width: 380px; font-size: 16px">Du pré à la vitrine : les chevaux, les concours, les événements, les produits et les réseaux de ceux qui les aiment.</p>
+      <h2 id="univers" class="d h2" set:html={surligne(t.univers.titre)} />
+      <p class="texte" style="max-width: 380px; font-size: 16px" set:html={paragraphe(t.univers.texte)} />
     </div>
     <div class="grille univers" style="--min: 320px; row-gap: 40px">
       {univers.slice(0, 4).map((u) => (
@@ -159,8 +131,8 @@ const univers = [
         </a>
       ))}
       <div class="univers-it stack g12">
-        <Reel video="video-seance-platinium" titre="Réel : séance avec Platinium d’en Fer" style="aspect-ratio: 4 / 5; border-radius: 4px; box-shadow: none" />
-        <span class="row entre centre g12"><span class="d" style="font-size: 36px">Vidéo</span><span class="chip or">Réel</span></span>
+        <Reel video={t.univers.video.video} style="aspect-ratio: 4 / 5; border-radius: 4px; box-shadow: none" />
+        <span class="row entre centre g12"><span class="d" style="font-size: 36px">{t.univers.video.titre}</span><span class="chip or">{t.univers.video.etiquette}</span></span>
       </div>
       {univers.slice(4).map((u) => (
         <a class="univers-it stack g12" href={u.href}>
@@ -173,9 +145,9 @@ const univers = [
 
   <section class="wrap section sans-haut row centre" style="gap: clamp(40px, 6vw, 96px)" data-reveal aria-labelledby="favoris">
     <div class="stack g24" style="flex: 1 1 380px">
-      <p class="lbl">Votre galerie privée</p>
-      <h2 id="favoris" class="d h2">Choisissez<br>vos <span class="hl">favoris</span></h2>
-      <p class="texte" style="max-width: 480px">Touchez le cœur des images qui vous parlent : vos coups de cœur vous suivent jusqu’à la réservation, pour qu’Ilona sache tout de suite ce que vous aimez. Après la séance, c’est le même geste dans votre galerie privée.</p>
+      <p class="lbl">{t.favoris.surtitre}</p>
+      <h2 id="favoris" class="d h2" set:html={surligne(t.favoris.titre)} />
+      <p class="texte" style="max-width: 480px" set:html={paragraphe(t.favoris.texte)} />
       <p style="margin: 0; display: flex; align-items: baseline; gap: 14px" aria-live="polite"><span class="d" style="font-size: 72px" data-compte>0</span><span data-libelle>coup de cœur</span></p>
       <div class="row g12"><a class="btn" href="/reservation">Réserver avec mes coups de cœur</a><a class="btn contour" href="/galerie">Voir une galerie client</a></div>
     </div>
@@ -192,12 +164,12 @@ const univers = [
 
   {temoignages.length > 0 && (
     <section class="wrap section sans-haut stack g32" data-reveal aria-labelledby="avis">
-      <h2 id="avis" class="d h2">Ils en <span class="hl">parlent</span></h2>
+      <h2 id="avis" class="d h2" set:html={surligne(t.avis.titre)} />
       <div class="grille" style="--min: 300px">
-        {temoignages.map((t) => (
+        {temoignages.map((a) => (
           <figure class="carte stack g16" style="margin: 0; padding: 32px">
-            <blockquote style="margin: 0; font-size: 18px; line-height: 1.6">« {t.texte} »</blockquote>
-            <figcaption style="font-size: 14px"><strong>{t.auteur}</strong>{t.cheval && ` & ${t.cheval}`}{t.seance && ` · ${t.seance}`}</figcaption>
+            <blockquote style="margin: 0; font-size: 18px; line-height: 1.6">« {a.texte} »</blockquote>
+            <figcaption style="font-size: 14px"><strong>{a.auteur}</strong>{a.cheval && ` & ${a.cheval}`}{a.seance && ` · ${a.seance}`}</figcaption>
           </figure>
         ))}
       </div>
@@ -207,46 +179,39 @@ const univers = [
   <section class="sombre" data-reveal aria-labelledby="segur">
     <div class="wrap row entre centre g48" style="padding-block: clamp(64px, 8vw, 120px)">
       <div class="stack g12">
-        <p class="lbl">Pour les cavaliers des</p>
-        <h2 id="segur" class="d" style="font-size: clamp(40px, 5vw, 72px)">Écuries d’En Ségur</h2>
-        <p style="margin: 0; font-size: 15px; opacity: .85">Remise appliquée à la réservation, sur simple mention de votre écurie.</p>
+        <p class="lbl">{t.segur.surtitre}</p>
+        <h2 id="segur" class="d" style="font-size: clamp(40px, 5vw, 72px)">{t.segur.titre}</h2>
+        <p style="margin: 0; font-size: 15px; opacity: .85" set:html={paragraphe(t.segur.texte)} />
       </div>
-      <p class="d" style="font-size: clamp(46px, 7vw, 104px); line-height: 1.06; text-align: right; color: var(--encre)">
-        <span class="hl plein" style="--d: .3s">-10 % sur toutes</span><br>
-        <span class="hl plein" style="--d: .45s">mes prestations</span>
-      </p>
+      <p class="d" style="font-size: clamp(46px, 7vw, 104px); line-height: 1.06; text-align: right; color: var(--encre)" set:html={surligne(t.segur.remise, { plein: true, delai: '.3s' })} />
     </div>
   </section>
 
   <section class="wrap section stack g48" data-reveal aria-labelledby="apprendre">
     <div class="row entre bas g20">
-      <h2 id="apprendre" class="d h2"><span class="hl">Apprendre</span><br>avec Ilona</h2>
-      <p class="lbl">Académie · Journal</p>
+      <h2 id="apprendre" class="d h2" set:html={surligne(t.apprendre.titre)} />
+      <p class="lbl">{t.apprendre.mention}</p>
     </div>
     <div class="grille" style="row-gap: 40px">
-      <a class="article-carte stack g16" href="/academie/lire-la-lumiere-du-soir">
-        <Photo src={deux} alt="Deux chevaux alezans dans la lumière de fin d’été" ratio="16 / 10" pos="50% 40%" cache="#EAE2D4" tailles="(max-width: 760px) 100vw, 50vw" />
-        <span class="chip contour" style="align-self: flex-start">Leçon de l’Académie</span>
-        <span class="d h3">Lire la lumière du soir</span>
-        <span class="texte" style="font-size: 16px">Où placer votre cheval quand le soleil descend, et pourquoi la dernière heure vaut toute la journée.</span>
-      </a>
-      <a class="article-carte stack g16" href="/journal/preparer-son-cheval">
-        <Photo src={selle} alt="Selle posée sur un tréteau dans l’allée des écuries" ratio="16 / 10" pos="50% 55%" cache="#EAE2D4" tailles="(max-width: 760px) 100vw, 50vw" />
-        <span class="chip contour" style="align-self: flex-start">Journal</span>
-        <span class="d h3">Préparer son cheval pour sa séance</span>
-        <span class="texte" style="font-size: 16px">Pansage, crins, tenue du cavalier : la liste simple à relire la veille.</span>
-      </a>
+      {t.apprendre.articles.map((a, i) => (
+        <a class="article-carte stack g16" href={a.lien}>
+          <Photo src={photo(a.photo.image)} alt={a.photo.alt ?? ''} ratio="16 / 10" pos={cadrage(a.photo, posArticles[i] ?? '50% 50%')} cache="#EAE2D4" tailles="(max-width: 760px) 100vw, 50vw" />
+          <span class="chip contour" style="align-self: flex-start">{a.etiquette}</span>
+          <span class="d h3">{a.titre}</span>
+          <span class="texte" style="font-size: 16px">{a.texte}</span>
+        </a>
+      ))}
     </div>
   </section>
 
   <section class="wrap section sans-haut stack g32" data-reveal aria-labelledby="fin">
-    <h2 id="fin" class="d deborde" style="font-size: clamp(64px, 14vw, 210px); line-height: 1.02">On se retrouve<br>au <span class="hl">pré</span> ?</h2>
+    <h2 id="fin" class="d deborde" style="font-size: clamp(64px, 14vw, 210px); line-height: 1.02" set:html={surligne(t.fin.titre)} />
     <div class="row entre bas g32">
       <div class="stack g8" style="font-size: 17px">
         <a href={contact.telephoneLien} style="color: var(--encre); text-decoration: none; font-weight: 500; padding: 6px 0">{contact.telephone}</a>
         <a href={`mailto:${contact.email}`} style="color: var(--encre); padding: 6px 0">{contact.email}</a>
         <a href={contact.instagramLien} style="color: var(--encre); padding: 6px 0">{contact.instagram}</a>
-        <p class="li" style="margin: 8px 0 0; font-size: 15px">Basée près de Toulouse · frais de déplacement calculés à la réservation</p>
+        <p class="li" style="margin: 8px 0 0; font-size: 15px">{t.fin.mention}</p>
       </div>
       <a class="btn grand" href="/reservation">Réserver une séance
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>

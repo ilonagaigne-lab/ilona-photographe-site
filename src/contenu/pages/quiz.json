@@ -1,0 +1,102 @@
+{
+  "entete": {
+    "surtitre": "Trouvez votre séance · 30 secondes",
+    "titre": "Trouvez votre séance photo équestre"
+  },
+  "questions": [
+    {
+      "cle": "envie",
+      "titre": "Qu’aimeriez-vous garder de vous deux ?",
+      "options": [
+        { "valeur": "sport", "libelle": "Le sport et l’effort", "note": "Au travail, à l’obstacle" },
+        { "valeur": "complicite", "libelle": "Notre lien", "note": "Les regards, les câlins" },
+        { "valeur": "signature", "libelle": "Une image d’exception", "note": "Comme en magazine" },
+        { "valeur": "collection", "libelle": "Un peu de tout", "note": "Toutes les facettes" },
+        { "valeur": "concours-video", "libelle": "Mes parcours en concours", "note": "Photo et vidéo le jour J" }
+      ]
+    },
+    {
+      "cle": "caractere",
+      "titre": "Votre cheval est plutôt…",
+      "options": [
+        { "valeur": "calme", "libelle": "Calme et posé", "note": "" },
+        { "valeur": "joueur", "libelle": "Joueur, plein d’énergie", "note": "" },
+        { "valeur": "sensible", "libelle": "Sensible, vite inquiet", "note": "" }
+      ]
+    },
+    {
+      "cle": "quand",
+      "titre": "Pour quand ?",
+      "options": [
+        { "valeur": "vite", "libelle": "Le plus tôt possible", "note": "" },
+        { "valeur": "mois", "libelle": "Dans un à trois mois", "note": "" },
+        { "valeur": "idee", "libelle": "Je me renseigne", "note": "" }
+      ]
+    }
+  ],
+  "resultats": [
+    {
+      "id": "sport",
+      "nom": "Sport",
+      "titre": "Le geste, l’effort, la concentration",
+      "texte": "Votre couple en mouvement, au travail ou à l’obstacle : des images franches et dynamiques.",
+      "photos": [
+        { "image": "/src/assets/photos/cheval-cavaliere-poney.jpg", "alt": "Jeune cavalière sur son poney, en tenue de concours", "cadrage": "" },
+        { "image": "/src/assets/photos/cheval-deux-chevaux.jpg", "alt": "Deux chevaux alezans en fin d’été", "cadrage": "" }
+      ]
+    },
+    {
+      "id": "complicite",
+      "nom": "Complicité",
+      "titre": "Vous et lui, sans artifice",
+      "texte": "À pied, en douceur : les regards et les gestes qui racontent votre lien.",
+      "photos": [
+        { "image": "/src/assets/photos/cheval-cowgirl-isabelle.jpg", "alt": "Cavalière contre l’encolure d’un cheval isabelle", "cadrage": "" },
+        { "image": "/src/assets/photos/cheval-cowgirl-bai.jpg", "alt": "Cavalière et son cheval bai au pré", "cadrage": "" }
+      ]
+    },
+    {
+      "id": "signature",
+      "nom": "Signature",
+      "titre": "Une image d’exception",
+      "texte": "Lieu, lumière et tenue pensés ensemble avant le jour J, pour des photos dignes d’un magazine.",
+      "photos": [
+        { "image": "/src/assets/photos/hero-coucher-large.jpg", "alt": "Cavalière en robe blanche et son cheval au coucher du soleil", "cadrage": "" },
+        { "image": "/src/assets/photos/portrait-ilona.jpg", "alt": "Portrait souriant contre un cheval alezan, lumière dorée", "cadrage": "" }
+      ]
+    },
+    {
+      "id": "collection",
+      "nom": "Collection complète",
+      "titre": "Toutes les facettes de votre couple",
+      "texte": "Le sport, la complicité et le portrait réunis en une seule séance.",
+      "photos": [
+        { "image": "/src/assets/photos/cheval-tete-frontal.jpg", "alt": "Tête d’un cheval alezan, frontal pailleté", "cadrage": "" },
+        { "image": "/src/assets/photos/cheval-cowgirl-isabelle.jpg", "alt": "Cavalière contre l’encolure d’un cheval isabelle", "cadrage": "" }
+      ]
+    },
+    {
+      "id": "concours-video",
+      "nom": "Photo + vidéo de concours",
+      "titre": "Votre parcours, en images et en vidéo",
+      "texte": "Je repère votre passage et je vous suis du paddock au tour d’honneur.",
+      "photos": [
+        { "image": "/src/assets/photos/concours-saut.jpg", "alt": "Cheval bai franchissant un obstacle coloré en concours", "cadrage": "" },
+        { "image": "/src/assets/photos/cheval-cavaliere-poney.jpg", "alt": "Jeune cavalière sur son poney, en tenue de concours", "cadrage": "" }
+      ]
+    }
+  ],
+  "resultat": {
+    "surtitre": "Votre séance",
+    "titreConseil": "Le conseil d’Ilona",
+    "conseils": [
+      { "valeur": "calme", "texte": "Un cheval posé se prête aux plans rapprochés : on prendra le temps des détails, du regard et des mains." },
+      { "valeur": "joueur", "texte": "On jouera avec son énergie. Venez avec un complice et un sachet de friandises : c’est le secret des oreilles en avant." },
+      { "valeur": "sensible", "texte": "On commence à pied, sans précipitation, dans un lieu qu’il connaît. La séance avance à son rythme, pas au nôtre." }
+    ],
+    "titreSoirs": "Lumière dorée à Toulouse ces prochains samedis",
+    "noteSoirs": "Heures calculées pour Toulouse. Ilona confirme ses disponibilités à la réservation.",
+    "hesitation": "Vous hésitez encore ?",
+    "lienComparer": "Comparer les quatre formules"
+  }
+}

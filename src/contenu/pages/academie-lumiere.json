@@ -1,0 +1,46 @@
+{
+  "referencement": {
+    "titre": "Lire la lumière du soir",
+    "description": "Leçon de l’Académie : où placer votre cheval quand le soleil descend, contre-jour et lumière dorée, avec votre téléphone."
+  },
+  "sommaire": {
+    "surtitre": "Module · La lumière",
+    "lecons": [
+      "Comprendre la lumière naturelle",
+      "Midi : s’en sortir quand même",
+      "Lire la lumière du soir",
+      "Ciel gris, belles photos",
+      "L’exercice du module"
+    ]
+  },
+  "entete": {
+    "surtitre": "Académie · Leçon 03 · lecture 6 min",
+    "titre": "Lire la\n*lumière* du soir",
+    "chapo": "Où placer votre cheval quand le soleil descend, et pourquoi la dernière heure vaut toute la journée. Avec votre téléphone, c’est suffisant."
+  },
+  "photo": { "image": "/src/assets/photos/cheval-deux-chevaux.jpg", "alt": "Deux chevaux alezans éclairés par une lumière chaude de fin de journée", "cadrage": "" },
+  "sections": [
+    {
+      "titre": "Pourquoi la fin de journée",
+      "texte": "Quand le soleil est bas, sa lumière traverse plus d’atmosphère : elle devient plus chaude, plus douce, et elle arrive presque à l’horizontale. Les ombres s’allongent au lieu de tomber sous les yeux, et la robe du cheval prend du relief.\n\nVisez l’heure qui précède le coucher du soleil. Arrivez plus tôt : le cheval doit être prêt quand la lumière l’est."
+    },
+    {
+      "titre": "Le contre-jour, pas à pas",
+      "texte": "Placez le soleil derrière le cheval, légèrement de côté. Les crins et le contour du corps s’allument d’un liseré doré. Sur le téléphone, touchez l’œil du cheval pour faire la mise au point et l’exposition sur lui, pas sur le ciel.\n\nSi l’image est trop sombre, baissez-vous un peu pour cacher le soleil derrière l’encolure, ou éclaircissez légèrement l’exposition à l’écran."
+    },
+    {
+      "titre": "Le soleil dans votre dos",
+      "texte": "Pour des couleurs riches et un regard qui brille, tournez-vous : le soleil derrière vous, un peu de côté pour garder du volume. C’est la lumière la plus simple pour un portrait du cavalier avec son cheval."
+    }
+  ],
+  "exercice": {
+    "surtitre": "Exercice de la semaine",
+    "titre": "Trois photos, une heure",
+    "etapes": [
+      "Une photo en contre-jour, mise au point sur l’œil.",
+      "La même, soleil dans votre dos.",
+      "Une dernière quand le soleil touche l’horizon."
+    ],
+    "partage": "Partagez-les en identifiant"
+  }
+}

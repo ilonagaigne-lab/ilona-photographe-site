@@ -2,75 +2,66 @@
 import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
 import Reel from '../components/Reel.astro';
-import saut from '../assets/photos/concours-saut.jpg';
-import { agenda, contact } from '../data';
+import { agenda, contact, concours, listeConcours } from '../data';
+import { photo, cadrage, surligne, lignes, paragraphe } from '../lib/contenu';
+import t from '../contenu/pages/concours.json';
+
+// Formule du réel souvenir (bouton de la section vidéo) : sinon la première formule avec vidéo.
+const reel = concours.find((c) => c.id === 'concours-reel') ?? concours.find((c) => c.video);
 ---
-<Base titre="Photographe de concours équestre" description="Photographe de concours équestre près de Toulouse : photo 60 €, photo + vidéo 80 €, réel souvenir 50 €. Réservez avant l’épreuve." page="concours">
+<Base titre="Photographe de concours équestre" description={`Photographe de concours équestre près de Toulouse : ${listeConcours}. Réservez avant l’épreuve.`} page="concours">
 
   <section class="wrap row bas" style="padding-top: clamp(24px, 4vw, 64px); gap: 40px clamp(40px, 6vw, 96px)" data-reveal aria-labelledby="titre">
     <div style="flex: 2 1 560px">
-      <p class="lbl">Photo &amp; vidéo de concours</p>
-      <h1 id="titre" class="d" style="font-size: clamp(72px, 12vw, 200px); margin-top: 18px">
-        <span class="rv"><span>Le jour du</span></span>
-        <span class="rv"><span style="--d: .2s"><span class="hl" style="--d: .9s">concours</span></span></span>
-      </h1>
-      <p class="chapo apparait" style="margin-top: 32px">Vous vous concentrez sur votre parcours, je m’occupe de le garder. Réservez avant l’épreuve : je repère votre passage et je ne vous lâche pas de l’objectif.</p>
+      <p class="lbl">{t.entete.surtitre}</p>
+      <h1 id="titre" class="d" style="font-size: clamp(72px, 12vw, 200px); margin-top: 18px" set:html={lignes(t.entete.titre)} />
+      <p class="chapo apparait" style="margin-top: 32px" set:html={paragraphe(t.entete.chapo)} />
     </div>
-    <Photo src={saut} alt="Cheval bai franchissant un obstacle coloré en concours de saut" ratio="4 / 5" pos="52% 50%" prioritaire delai=".3s" tailles="(max-width: 760px) 100vw, 33vw" style="flex: 1 1 320px" />
+    <Photo src={photo(t.entete.photo.image)} alt={t.entete.photo.alt ?? ''} ratio="4 / 5" pos={cadrage(t.entete.photo, '52% 50%')} prioritaire delai=".3s" tailles="(max-width: 760px) 100vw, 33vw" style="flex: 1 1 320px" />
   </section>
 
   <section class="wrap section stack g48" data-reveal aria-labelledby="formats">
-    <h2 id="formats" class="d h2">Trois <span class="hl">formats</span></h2>
+    <h2 id="formats" class="d h2" set:html={surligne(t.formats.titre)} />
     <div class="grille">
-      <article class="carte stack g16" style="padding: 36px">
-        <span class="chip" style="align-self: flex-start">Photo</span>
-        <h3 class="d h3">Photo</h3>
-        <p class="prix" style="font-size: 88px; margin: 0">60 €</p>
-        <p style="margin: 0; font-size: 15px; line-height: 1.6; opacity: .9; flex: 1">Votre parcours en images, livré dans votre galerie privée.</p>
-        <a class="btn clair" href="/reservation?formule=concours-photo" style="align-self: flex-start">Réserver la photo</a>
-      </article>
-      <article class="carte stack g16" style="padding: 36px; box-shadow: 0 0 0 3px var(--or), var(--ombre)">
-        <div class="row g8"><span class="chip">Photo</span><span class="chip or">Vidéo</span></div>
-        <h3 class="d h3">Photo + vidéo</h3>
-        <p class="prix" style="font-size: 88px; margin: 0">80 €</p>
-        <p style="margin: 0; font-size: 15px; line-height: 1.6; opacity: .9; flex: 1">Les images et la vidéo de votre passage, pour revoir chaque foulée.</p>
-        <a class="btn clair" href="/reservation?formule=concours-video" style="align-self: flex-start">Réserver photo + vidéo</a>
-      </article>
-      <article class="carte stack g16" style="padding: 36px">
-        <span class="chip or" style="align-self: flex-start">Vidéo</span>
-        <h3 class="d h3">Réel souvenir</h3>
-        <p class="prix" style="font-size: 88px; margin: 0">50 €</p>
-        <p style="margin: 0; font-size: 15px; line-height: 1.6; opacity: .9; flex: 1">Un montage court et vertical, prêt à partager sur vos réseaux.</p>
-        <a class="btn clair" href="/reservation?formule=concours-reel" style="align-self: flex-start">Réserver le réel</a>
-      </article>
+      {concours.map((c) => (
+        <article class="carte stack g16" style={`padding: 36px${c.vedette ? '; box-shadow: 0 0 0 3px var(--or), var(--ombre)' : ''}`}>
+          {c.photo && c.video ? <div class="row g8"><span class="chip">Photo</span><span class="chip or">Vidéo</span></div>
+            : c.video ? <span class="chip or" style="align-self: flex-start">Vidéo</span>
+            : <span class="chip" style="align-self: flex-start">Photo</span>}
+          <h3 class="d h3">{c.nomCourt}</h3>
+          <p class="prix" style="font-size: 88px; margin: 0">{c.prix} €</p>
+          <p style="margin: 0; font-size: 15px; line-height: 1.6; opacity: .9; flex: 1">{c.description}</p>
+          <a class="btn clair" href={`/reservation?formule=${c.id}`} style="align-self: flex-start">Choisir {c.nomCourt}</a>
+        </article>
+      ))}
     </div>
   </section>
 
   <section class="wrap section sans-haut row centre" style="gap: 40px clamp(40px, 6vw, 96px)" data-reveal aria-labelledby="reel">
     <div class="stack g20" style="flex: 1 1 420px">
-      <span class="chip or" style="align-self: flex-start">Réel souvenir</span>
-      <h2 id="reel" class="d h2">Revoir chaque <span class="hl">foulée</span></h2>
-      <p class="texte" style="max-width: 520px">Juliette et Bingo, du paddock au tour d’honneur. Un montage vertical d’une trentaine de secondes, prêt à partager.</p>
-      <a class="btn contour" href="/reservation?formule=concours-reel" style="align-self: flex-start">Réserver mon réel · 50 €</a>
+      <span class="chip or" style="align-self: flex-start">{t.reel.etiquette}</span>
+      <h2 id="reel" class="d h2" set:html={surligne(t.reel.titre)} />
+      <p class="texte" style="max-width: 520px" set:html={paragraphe(t.reel.texte)} />
+      <a class="btn contour" href={reel ? `/reservation?formule=${reel.id}` : '/reservation'} style="align-self: flex-start">Réserver mon réel{reel && ` · ${reel.prix} €`}</a>
     </div>
-    <Reel video="video-concours" titre="Réel de concours : Juliette et Bingo" or style="flex: 0 1 380px" />
+    <Reel video={t.reel.video} or style="flex: 0 1 380px" />
   </section>
 
   <section class="wrap section sans-haut stack g32" data-reveal aria-labelledby="agenda">
     <div class="row entre bas g20">
-      <h2 id="agenda" class="d h2">Où me <span class="hl">trouver</span></h2>
-      <p class="texte" style="max-width: 380px; font-size: 15px">Votre épreuve n’y est pas ? Écrivez-moi, on regarde ensemble.</p>
+      <h2 id="agenda" class="d h2" set:html={surligne(t.agenda.titre)} />
+      <p class="texte" style="max-width: 380px; font-size: 15px" set:html={paragraphe(t.agenda.texte)} />
     </div>
     {agenda.length > 0 ? (
       <ul class="agenda">
         {agenda.map((a) => (
-          <li><p class="d" style="font-size: 40px">{a.date}</p><p style="font-weight: 600; font-size: 17px">{a.nom}</p><p class="li">{a.lieu} · {a.discipline}</p><a class="btn contour" href="/reservation?formule=concours-photo">Réserver ma photo</a></li>
+          <li><p class="d" style="font-size: 40px">{a.date}</p><p style="font-weight: 600; font-size: 17px">{a.nom}</p><p class="li">{[a.lieu, a.discipline].filter(Boolean).join(" · ")}</p><a class="btn contour" href="/reservation?formule=concours-photo">Réserver ma photo</a></li>
         ))}
       </ul>
     ) : (
       <div class="carte stack g16" style="padding: clamp(24px, 3vw, 40px); max-width: 760px">
         <p class="lbl">Agenda</p>
-        <p style="margin: 0; font-size: 18px; line-height: 1.6">Les prochaines dates sont annoncées sur Instagram. Dites-moi sur quel concours vous montez : je vous confirme ma présence.</p>
+        <p style="margin: 0; font-size: 18px; line-height: 1.6" set:html={paragraphe(t.agenda.vide)} />
         <div class="row g12"><a class="btn clair" href={`mailto:${contact.email}?subject=${encodeURIComponent('Photo de concours')}`}>Écrire à Ilona</a><a class="btn clair" href={contact.instagramLien} style="background: var(--pervenche)">Voir Instagram</a></div>
       </div>
     )}
@@ -78,7 +69,7 @@ import { agenda, contact } from '../data';
 
   <section class="sombre" data-reveal aria-labelledby="cta">
     <div class="wrap row entre centre g32" style="padding-block: clamp(64px, 8vw, 96px)">
-      <h2 id="cta" class="d" style="font-size: clamp(52px, 8vw, 120px)">À vos <span class="hl plein">marques</span></h2>
+      <h2 id="cta" class="d" style="font-size: clamp(52px, 8vw, 120px)" set:html={surligne(t.fin.titre, { plein: true })} />
       <a class="btn clair grand" href="/reservation?formule=concours-photo">Réserver mon concours</a>
     </div>
   </section>

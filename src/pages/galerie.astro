@@ -3,45 +3,22 @@ import Base from '../layouts/Base.astro';
 import Coeur from '../components/Coeur.astro';
 import { Image } from 'astro:assets';
 import { galerieDemo } from '../data';
-import isabelle from '../assets/photos/cheval-cowgirl-isabelle.jpg';
-import bai from '../assets/photos/cheval-cowgirl-bai.jpg';
-import tete from '../assets/photos/cheval-tete-frontal.jpg';
-import deux from '../assets/photos/cheval-deux-chevaux.jpg';
-import poney from '../assets/photos/cheval-cavaliere-poney.jpg';
-import hero from '../assets/photos/hero-wide.jpg';
-import licol from '../assets/photos/packshot-bijou-licol.jpg';
-import selle from '../assets/photos/cheval-selle-ecurie.jpg';
-import horseHead from '../assets/photos/horse-head.jpg';
-import portrait from '../assets/photos/portrait.jpg';
-import saut from '../assets/photos/concours-saut.jpg';
-import robe from '../assets/photos/dress-field.jpg';
+import { photo, surligne } from '../lib/contenu';
+import t from '../contenu/pages/galerie.json';
 
-const photos = [
-  { src: isabelle, alt: 'Cavalière contre l’encolure d’un cheval isabelle', pos: '50% 30%', on: true },
-  { src: bai, alt: 'Cavalière tenant son cheval bai au pré', pos: '50% 62%', on: true },
-  { src: tete, alt: 'Tête d’un cheval alezan, frontal pailleté', pos: '50% 40%', on: false },
-  { src: deux, alt: 'Deux chevaux alezans en fin d’été', pos: '50% 40%', on: true },
-  { src: poney, alt: 'Cavalière souriante sur son poney', pos: '40% 40%', on: true },
-  { src: hero, alt: 'Ilona et son cheval au coucher du soleil', pos: '55% 50%', on: false },
-  { src: licol, alt: 'Bijou de licol en forme de tête de cheval', pos: '50% 50%', on: true },
-  { src: selle, alt: 'Selle posée dans l’allée des écuries', pos: '50% 50%', on: true },
-  { src: horseHead, alt: 'Tête du cheval en contre-jour', pos: '50% 30%', on: true },
-  { src: portrait, alt: 'Portrait en robe blanche, devant le cheval', pos: '50% 22%', on: false },
-  { src: saut, alt: 'Saut d’obstacle en concours', pos: '52% 50%', on: true },
-  { src: robe, alt: 'Robe blanche et jambe du cheval dans les herbes', pos: '50% 40%', on: true },
-];
+const photos = t.photos;
 const { quota, prixPhoto } = galerieDemo;
 ---
 <Base titre="Votre galerie privée" description="Galerie privée : choisissez vos photos favorites après votre séance." page="galerie" indexer={false}>
   <a slot="entete-action" class="nl" href="/" style="font-size: 14px">Se déconnecter</a>
 
   <section class="wrap" style="padding-top: 24px; padding-bottom: 48px" data-reveal id="galerie" data-quota={quota} data-prix={prixPhoto}>
-    <p class="demo">Démonstration : chaque client recevra un lien privé vers sa propre galerie.</p>
-    <p style="margin: 0 0 32px; font-size: 14px"><strong style="font-weight: 600">Galerie d’exemple</strong> · Séance Signature · 12 photos</p>
+    <p class="demo">{t.entete.demo}</p>
+    <p style="margin: 0 0 32px; font-size: 14px"><strong style="font-weight: 600">{t.entete.galerie}</strong> · {t.entete.seance} · {photos.length} photos</p>
     <div class="row entre bas g24" style="margin-bottom: 32px">
       <div class="stack g12">
-        <p class="lbl">Votre galerie privée</p>
-        <h1 class="d" style="font-size: clamp(52px, 7vw, 104px)">Choisissez vos <span class="hl">favoris</span></h1>
+        <p class="lbl">{t.entete.surtitre}</p>
+        <h1 class="d" style="font-size: clamp(52px, 7vw, 104px)" set:html={surligne(t.entete.titre)} />
         <p class="texte" style="max-width: 620px; font-size: 16px">Votre formule inclut {quota} photos. Touchez le cœur (ou Tab puis Espace) pour choisir. Au-delà, chaque photo s’ajoute à {prixPhoto} €.</p>
       </div>
       <div class="row g8" role="group" aria-label="Filtrer les photos">
@@ -52,14 +29,14 @@ const { quota, prixPhoto } = galerieDemo;
     <ul class="grille-photos">
       {photos.map((p, i) => (
         <li class:list={['tuile', { choisie: p.on }]} data-curseur="choisir">
-          <Image src={p.src} alt={p.alt} widths={[400, 700]} sizes="(max-width: 760px) 50vw, 25vw" />
+          <Image src={photo(p.image)} alt={p.alt ?? ''} widths={[400, 700]} sizes="(max-width: 760px) 50vw, 25vw" />
           <span class="flash" aria-hidden="true"></span><span class="cadre" aria-hidden="true"></span>
           <span class="num">N° {String(i + 1).padStart(2, '0')}</span>
-          <Coeur choisie={p.on} nom={p.alt} />
+          <Coeur choisie={p.on} nom={p.alt ?? ''} />
         </li>
       ))}
     </ul>
-    <p data-vide hidden style="margin: 24px 0 0">Aucun favori pour l’instant. Touchez un cœur pour commencer.</p>
+    <p data-vide hidden style="margin: 24px 0 0">{t.entete.vide}</p>
   </section>
 
   <div class="barre sombre" aria-live="polite">

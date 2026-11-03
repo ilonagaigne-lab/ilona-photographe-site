@@ -1,0 +1,8 @@
+{
+  "entete": {
+    "surtitre": "Erreur 404",
+    "titre": "Hors\n*champ*.",
+    "texte": "Cette page est sortie du cadre. Elle a peut-être changé d’adresse, ou elle n’a jamais existé."
+  },
+  "photo": { "image": "/src/assets/photos/cheval-tete-frontal.jpg", "alt": "", "cadrage": "" }
+}

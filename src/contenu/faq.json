@@ -1,0 +1,20 @@
+{
+  "questions": [
+    {
+      "question": "Comment réserver ?",
+      "reponse": "En quatre étapes sur la page Réservation : prestation, lieu et date, coordonnées, récapitulatif. Ilona confirme ensuite la date et le prix final par e-mail. Rien n’est payé en ligne au moment de la demande."
+    },
+    {
+      "question": "Comment reçoit-on ses photos ?",
+      "reponse": "Dans une galerie privée en ligne. Vous choisissez vos favoris : la formule en inclut un nombre, et les photos supplémentaires s’ajoutent à l’unité."
+    },
+    {
+      "question": "Est-ce que vous faites aussi de la vidéo ?",
+      "reponse": "Oui : réels verticaux pour les réseaux, vidéo de concours, films et contenus pour les marques équestres."
+    },
+    {
+      "question": "Y a-t-il une remise pour les Écuries d’En Ségur ?",
+      "reponse": "Oui, les cavaliers des Écuries d’En Ségur bénéficient de 10 % de remise sur toutes les prestations, sur simple mention de leur écurie à la réservation."
+    }
+  ]
+}

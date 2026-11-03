@@ -1,13 +1,17 @@
 ---
+import type { VideoSaisie } from '../lib/contenu';
+
 interface Props {
-  video: string;
-  titre: string;
+  // Nom d'une vidéo de /public/videos (sans extension), ou vidéo choisie dans le back office.
+  video: string | VideoSaisie;
+  titre?: string;
   or?: boolean;
   class?: string;
   style?: string;
 }
 const { video, titre, or = false, class: classe = '', style = '' } = Astro.props;
+const v = typeof video === 'string' ? { fichier: `/videos/${video}.mp4`, affiche: `/videos/${video}-poster.jpg`, titre } : video;
 ---
 <div class:list={['reel', { or }, classe]} style={style} data-curseur="lecture">
-  <video src={`/videos/${video}.mp4`} poster={`/videos/${video}-poster.jpg`} controls playsinline preload="none" aria-label={titre}></video>
+  <video src={v.fichier} poster={v.affiche || undefined} controls playsinline preload={v.affiche ? 'none' : 'metadata'} aria-label={titre || v.titre || 'Vidéo'}></video>
 </div>

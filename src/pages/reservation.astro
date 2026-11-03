@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { seances, concours, contact } from '../data';
+import { seances, concours, contact, seanceVedette, deplacement, depart } from '../data';
 const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
 ---
 <Base titre="Réserver une séance" description="Réservez votre séance photo équestre, votre photo de concours ou votre réel en quatre étapes." page="reservation" entete="simple">
@@ -12,19 +12,21 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
       {etapes.map((e, i) => <li data-etape={i + 1} aria-current={i === 0 ? 'step' : undefined}><span class="n">{i + 1}</span><span class="t">{e}</span></li>)}
     </ol>
 
-    <form id="resa" class="row" style="gap: 40px; align-items: flex-start" novalidate>
+    <form id="resa" class="row" data-gratuit={deplacement.gratuitJusqua} data-km={deplacement.prixKm} style="gap: 40px; align-items: flex-start" novalidate>
       <div style="flex: 2 1 560px; min-width: 0">
         <fieldset class="pane" data-pane="1">
           <legend class="d" style="font-size: 44px">Quelle prestation ?</legend>
           <p class="lbl" style="color: var(--encre)">Séances équestres</p>
-          <div class="choix">{seances.map((s) => <button type="button" class="option" data-formule={s.id} data-nom={s.nom} data-prix={s.prix} aria-pressed={s.id === 'signature' ? 'true' : 'false'}><strong>{s.nom}</strong><span class="d" style="font-size: 32px; color: var(--rose-profond)">{s.prix} €</span></button>)}</div>
+          <div class="choix">{seances.map((s) => <button type="button" class="option" data-formule={s.id} data-nom={s.nom} data-prix={s.prix} aria-pressed={s.id === seanceVedette?.id ? 'true' : 'false'}><strong>{s.nom}</strong><span class="d" style="font-size: 32px; color: var(--rose-profond)">{s.prix} €</span></button>)}</div>
           <p class="lbl" style="color: var(--encre)">Concours</p>
           <div class="choix">{concours.map((c) => <button type="button" class="option" data-formule={c.id} data-nom={c.nom} data-prix={c.prix} aria-pressed="false"><strong>{c.nom}</strong><span class="d" style="font-size: 32px; color: var(--rose-profond)">{c.prix} €</span></button>)}</div>
         </fieldset>
 
         <fieldset class="pane" data-pane="2" hidden>
           <legend class="d" style="font-size: 44px">Où et quand ?</legend>
-          <label class="champ">Commune ou nom de l’écurie<input class="saisie" name="lieu" data-libelle="Lieu" type="text" placeholder="Ex. Muret" required></label>
+          <label class="champ">Commune de la séance<input class="saisie" id="lieu" name="lieu" data-libelle="Lieu" type="text" placeholder="Ex. Muret" required></label>
+          <p class="li" data-trajet aria-live="polite" style="margin: -8px 0 0; font-size: 14px">Choisissez votre commune dans la liste : je calcule le déplacement.</p>
+          <label class="champ">Nom de l’écurie (facultatif)<input class="saisie" name="ecurie" data-libelle="Écurie" type="text"></label>
           <label class="champ" style="max-width: 320px">Date souhaitée (facultatif)<input class="saisie" name="date" data-libelle="Date souhaitée" type="date" aria-describedby="soleil"></label>
           <p id="soleil" class="soleil" aria-live="polite">Choisissez une date : je vous indique l’heure de la lumière dorée à Toulouse.</p>
           <div class="stack g12">
@@ -83,9 +85,9 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
 
       <aside class="carte stack g12 resume" aria-label="Votre réservation">
         <p class="lbl">Votre réservation</p>
-        <p style="margin: 0; font-size: 18px; font-weight: 600" data-r-nom>Signature</p>
-        <p class="prix" style="font-size: 72px; margin: 0"><span data-r-total>180</span> €</p>
-        <p style="margin: 0; font-size: 14px; line-height: 1.55; opacity: .9"><span data-r-remise hidden>Remise En Ségur de 10 % incluse. </span>Déplacement calculé selon votre commune, offert près de Toulouse.</p>
+        <p style="margin: 0; font-size: 18px; font-weight: 600" data-r-nom>{seanceVedette?.nom}</p>
+        <p class="prix" style="font-size: 72px; margin: 0"><span data-r-total>{seanceVedette?.prix}</span> €</p>
+        <p style="margin: 0; font-size: 14px; line-height: 1.55; opacity: .9"><span data-r-remise hidden>Remise En Ségur de 10 % incluse. </span><span data-r-deplacement>Déplacement calculé selon votre commune, offert jusqu’à {deplacement.gratuitJusqua} km de {depart.ville}.</span></p>
         <div class="coups" data-coups hidden>
           <p style="margin: 0; font-size: 14px; font-weight: 500">Vos coups de cœur</p>
           <ul data-coups-liste></ul>
@@ -130,6 +132,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
 <script>
   import { ouvrirMail, lignesDuFormulaire, envoyerDemande } from '../scripts/mail.js';
   import { lumiereDuSoir, heure, jour } from '../scripts/soleil.js';
+  import { brancherCommune, prixDeplacement } from '../scripts/distance.js';
   const form = document.getElementById('resa') as HTMLFormElement;
   const $ = <T extends HTMLElement>(s: string) => form.querySelector<T>(s)!;
   let etape = 1;
@@ -146,13 +149,26 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
   const moment = () => $<HTMLButtonElement>('[data-moment][aria-pressed="true"]');
   const segur = () => $<HTMLInputElement>('[name="segur"]').checked;
 
+  // Déplacement estimé une fois la commune reconnue (null tant qu'elle ne l'est pas).
+  let trajet: { nom: string; km: number; prix: number } | null = null;
+  const texteTrajet = () => trajet ? (trajet.prix ? `${trajet.prix} € (${trajet.km} km par la route)` : `offert (${trajet.km} km par la route)`) : 'calculé par Ilona';
+
   function resume() {
     const f = formule();
-    const prix = Number(f.dataset.prix);
+    const total = Number(f.dataset.prix) + (trajet?.prix ?? 0);
     $('[data-r-nom]').textContent = f.dataset.nom!;
-    $('[data-r-total]').textContent = String(segur() ? Math.round(prix * 0.9) : prix);
+    $('[data-r-total]').textContent = String(segur() ? Math.round(total * 0.9) : total);
     $('[data-r-remise]').hidden = !segur();
+    if (trajet) $('[data-r-deplacement]').textContent = `Déplacement ${trajet.prix ? `de ${trajet.prix} € inclus` : 'offert'} (${trajet.km} km).`;
   }
+
+  brancherCommune($<HTMLInputElement>('#lieu'), (r: { nom: string; km: number } | null) => {
+    const sortie = $('[data-trajet]');
+    if (!r) { trajet = null; sortie.textContent = 'Commune non reconnue : Ilona calculera le déplacement.'; resume(); return; }
+    trajet = { ...r, prix: prixDeplacement(r.km, Number(form.dataset.gratuit), Number(form.dataset.km)) };
+    sortie.textContent = `${r.nom} : ${r.km} km par la route, déplacement ${trajet.prix ? `estimé à ${trajet.prix} €` : 'offert'}.`;
+    resume();
+  });
 
   function afficher(n: number) {
     etape = n;
@@ -179,13 +195,14 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
     const date = v('date') ? v('date').split('-').reverse().join('/') : 'à convenir';
     const lignes: [string, string][] = [
       ['Prestation', `${formule().dataset.nom} · ${formule().dataset.prix} €`],
-      ['Lieu', v('lieu')],
+      ['Lieu', [v('lieu'), v('ecurie')].filter(Boolean).join(' · ')],
+      ['Déplacement', texteTrajet()],
       ['Date', `${date} · ${moment().dataset.moment}`],
       ['Contact', `${v('prenom')} ${v('nom')} · ${v('email')}`],
       ['Remise', segur() ? 'Écuries d’En Ségur, -10 %' : 'Aucune'],
     ];
     const dl = $('[data-recap]');
-    const etapeDe: Record<string, number> = { Prestation: 1, Lieu: 2, Date: 2, Contact: 3, Remise: 3 };
+    const etapeDe: Record<string, number> = { Prestation: 1, Lieu: 2, Déplacement: 2, Date: 2, Contact: 3, Remise: 3 };
     dl.replaceChildren(...lignes.flatMap(([a, b]) => {
       const dt = document.createElement('dt'); dt.textContent = a;
       const dd = document.createElement('dd'); dd.textContent = b + ' ';
@@ -243,7 +260,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
     e.preventDefault();
     if (!valide(etape)) return;
     if (etape < 4) return afficher(etape + 1);
-    const lignes = [`Prestation : ${formule().dataset.nom} (${formule().dataset.prix} €)`, `Moment : ${moment().dataset.moment}`, ...lignesDuFormulaire(form),
+    const lignes = [`Prestation : ${formule().dataset.nom} (${formule().dataset.prix} €)`, `Déplacement : ${texteTrajet()}`, `Total estimé : ${$('[data-r-total]').textContent} €`, `Moment : ${moment().dataset.moment}`, ...lignesDuFormulaire(form),
       coups.length ? `Coups de cœur sur le site : ${coups.map((c) => c.alt).join(' ; ')}` : '',
       new URLSearchParams(location.search).get('source') === 'quiz' ? 'Formule conseillée par le quiz du site' : ''];
     texteDemande = lignes.join('\n');

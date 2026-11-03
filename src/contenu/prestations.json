@@ -1,0 +1,100 @@
+{
+  "seances": [
+    {
+      "id": "sport",
+      "nom": "Sport",
+      "prix": 90,
+      "accroche": "Votre couple en mouvement : le geste, l’effort, la concentration.",
+      "details": [],
+      "photo": {
+        "image": "/src/assets/photos/cheval-cavaliere-poney.jpg",
+        "alt": "Jeune cavalière sur son poney, en tenue de concours",
+        "cadrage": ""
+      },
+      "video": false,
+      "vedette": false
+    },
+    {
+      "id": "complicite",
+      "nom": "Complicité",
+      "prix": 110,
+      "accroche": "Vous et lui, à pied, en douceur. Les regards et les gestes qui ne trompent pas.",
+      "details": [],
+      "photo": {
+        "image": "/src/assets/photos/cheval-cowgirl-isabelle.jpg",
+        "alt": "Cavalière contre l’encolure d’un cheval isabelle",
+        "cadrage": ""
+      },
+      "video": false,
+      "vedette": false
+    },
+    {
+      "id": "signature",
+      "nom": "Signature",
+      "prix": 180,
+      "accroche": "La séance éditoriale : lieu, lumière et tenue pensés ensemble avant le jour J.",
+      "details": [],
+      "photo": {
+        "image": "/src/assets/photos/cheval-cowgirl-bai.jpg",
+        "alt": "Cavalière et son cheval bai au pré, en fin de journée",
+        "cadrage": ""
+      },
+      "video": false,
+      "vedette": true
+    },
+    {
+      "id": "collection",
+      "nom": "Collection complète",
+      "prix": 250,
+      "accroche": "Toutes les facettes de votre couple réunies en une seule séance.",
+      "details": [],
+      "photo": {
+        "image": "/src/assets/photos/cheval-tete-frontal.jpg",
+        "alt": "Tête d’un cheval alezan, frontal pailleté",
+        "cadrage": ""
+      },
+      "video": true,
+      "vedette": false
+    }
+  ],
+  "concours": [
+    {
+      "id": "concours-photo",
+      "nom": "Photo de concours",
+      "nomCourt": "Photo",
+      "prix": 60,
+      "description": "Votre parcours en images, livré dans votre galerie privée.",
+      "photo": true,
+      "video": false,
+      "vedette": false
+    },
+    {
+      "id": "concours-video",
+      "nom": "Photo + vidéo",
+      "nomCourt": "Photo + vidéo",
+      "prix": 80,
+      "description": "Les images et la vidéo de votre passage, pour revoir chaque foulée.",
+      "photo": true,
+      "video": true,
+      "vedette": true
+    },
+    {
+      "id": "concours-reel",
+      "nom": "Réel souvenir",
+      "nomCourt": "Réel souvenir",
+      "prix": 50,
+      "description": "Un montage court et vertical, prêt à partager sur vos réseaux.",
+      "photo": false,
+      "video": true,
+      "vedette": false
+    }
+  ],
+  "deplacement": {
+    "gratuitJusqua": 20,
+    "prixKm": 0.5
+  },
+  "galerieDemo": {
+    "quota": 8,
+    "prixPhoto": 15
+  }
+}

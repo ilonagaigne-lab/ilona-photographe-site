@@ -1,0 +1,782 @@
+# Back office d'Ilona (Decap CMS). Chaque enregistrement crée une modification sur GitHub,
+# puis Vercel remet le site en ligne en une à deux minutes.
+# Fichier assemblé : les pages viennent de fragments (une entrée par page sous « Pages du site »).
+backend:
+  name: github
+  repo: ilonagaigne-lab/ilona-photographe-site
+  branch: main
+  base_url: https://ilonagaigne.com
+  auth_endpoint: api/auth
+  commit_messages:
+    update: "Back office : {{slug}} mis à jour"
+    uploadMedia: "Back office : ajout de {{path}}"
+    deleteMedia: "Back office : suppression de {{path}}"
+
+# Sur l'ordinateur de développement uniquement (npx decap-server) : modifie les fichiers en local.
+local_backend: true
+
+locale: fr
+site_url: https://ilonagaigne.com
+display_url: https://ilonagaigne.com
+logo_url: /favicon.svg
+# Photos : rangées avec celles du site, puis optimisées automatiquement à la mise en ligne.
+media_folder: src/assets/photos
+public_folder: /src/assets/photos
+
+collections:
+  - name: reglages
+    label: Formules et coordonnées
+    editor: { preview: false }
+    files:
+      - name: prestations
+        label: Formules et tarifs
+        file: src/contenu/prestations.json
+        description: Les prix et contenus saisis ici s’appliquent partout sur le site (pages, réservation, quiz, questions fréquentes, Google).
+        fields:
+          - label: Séances équestres
+            name: seances
+            widget: list
+            summary: "{{fields.nom}} · {{fields.prix}} €"
+            fields:
+              - { label: Identifiant, name: id, widget: hidden }
+              - { label: Nom, name: nom, widget: string }
+              - { label: Prix (€), name: prix, widget: number, value_type: int, min: 0 }
+              - { label: Accroche, name: accroche, widget: text }
+              - label: Ce qui est inclus
+                name: details
+                widget: list
+                required: false
+                hint: "Une ligne par élément, ex. : 1 h de séance, 15 photos retouchées"
+                field: { label: Élément, name: element, widget: string }
+              - label: Photo
+                name: photo
+                widget: object
+                fields: &champs-photo
+                  - { label: Image, name: image, widget: image, choose_url: false, hint: "Photo en JPG, de préférence moins de 10 Mo." }
+                  - { label: Description de la photo, name: alt, widget: string, required: false, hint: "Ce que montre la photo, pour Google et les personnes malvoyantes. Ex. : Cavalière et son cheval bai au pré." }
+                  - label: Cadrage
+                    name: cadrage
+                    widget: select
+                    required: false
+                    default: ""
+                    hint: "Partie de la photo à garder visible quand elle est recadrée. Vide = réglage d’origine."
+                    options:
+                      - { label: "Réglage d’origine", value: "" }
+                      - { label: Centre, value: centre }
+                      - { label: Haut, value: haut }
+                      - { label: Bas, value: bas }
+                      - { label: Gauche, value: gauche }
+                      - { label: Droite, value: droite }
+              - { label: Comprend de la vidéo, name: video, widget: boolean, default: false }
+              - { label: Mise en avant, name: vedette, widget: boolean, default: false, hint: "Formule entourée de rose et choisie par défaut. Une seule à la fois." }
+          - label: Prestations en concours
+            name: concours
+            widget: list
+            summary: "{{fields.nom}} · {{fields.prix}} €"
+            fields:
+              - { label: Identifiant, name: id, widget: hidden }
+              - { label: Nom, name: nom, widget: string, hint: "Ex. : Photo + vidéo" }
+              - { label: Nom court, name: nomCourt, widget: string, required: false, hint: "Utilisé dans les listes et les boutons. Ex. : Photo + vidéo" }
+              - { label: Prix (€), name: prix, widget: number, value_type: int, min: 0 }
+              - { label: Description, name: description, widget: text }
+              - { label: Comprend de la photo, name: photo, widget: boolean, default: true }
+              - { label: Comprend de la vidéo, name: video, widget: boolean, default: false }
+              - { label: Mise en avant, name: vedette, widget: boolean, default: false }
+          - label: Déplacement
+            name: deplacement
+            widget: object
+            hint: "Le départ est votre adresse, à saisir dans « Coordonnées »."
+            fields:
+              - { label: Offert jusqu’à (km), name: gratuitJusqua, widget: number, value_type: int, min: 0 }
+              - { label: Prix par km au-delà (€), name: prixKm, widget: number, value_type: float, min: 0, step: 0.05 }
+          - label: Galerie client
+            name: galerieDemo
+            widget: object
+            fields:
+              - { label: Photos incluses, name: quota, widget: number, value_type: int, min: 0 }
+              - { label: Prix d’une photo en plus (€), name: prixPhoto, widget: number, value_type: int, min: 0 }
+
+      - name: contact
+        label: Coordonnées
+        file: src/contenu/contact.json
+        fields:
+          - { label: Adresse de départ, name: adresse, widget: string, hint: "Votre adresse ou votre commune : point de départ du calcul des déplacements. Seule la commune apparaît sur le site." }
+          - { label: Téléphone, name: telephone, widget: string, hint: "Format : 06 12 34 56 78" }
+          - { label: E-mail, name: email, widget: string, pattern: ['^[^\s@]+@[^\s@]+\.[^\s@]{2,}$', "Adresse e-mail invalide"] }
+          - { label: Compte Instagram, name: instagram, widget: string, hint: "Sans le @" }
+
+  - name: contenu
+    label: Agenda, avis et questions
+    editor: { preview: false }
+    files:
+      - name: agenda
+        label: Agenda des concours
+        file: src/contenu/agenda.json
+        description: Les concours où vous serez présente. Ils sont triés par date et disparaissent une fois passés.
+        fields:
+          - label: Concours
+            name: concours
+            widget: list
+            required: false
+            add_to_top: true
+            summary: "{{fields.date | date('DD/MM/YYYY')}} · {{fields.nom}}"
+            fields:
+              - { label: Date, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "DD/MM/YYYY", time_format: false, picker_utc: true }
+              - { label: Nom du concours, name: nom, widget: string }
+              - { label: Lieu, name: lieu, widget: string, required: false, hint: "Ex. : Écuries d’En Ségur, Muret" }
+              - { label: Discipline, name: discipline, widget: string, required: false, hint: "Ex. : CSO, dressage, complet" }
+
+      - name: temoignages
+        label: Témoignages
+        file: src/contenu/temoignages.json
+        description: Avis de clients, publiés sur l’accueil. Demandez-leur l’accord avant de les mettre en ligne.
+        fields:
+          - label: Témoignages
+            name: temoignages
+            widget: list
+            required: false
+            summary: "{{fields.auteur}}"
+            fields:
+              - { label: Texte, name: texte, widget: text, hint: "Sans guillemets, ils sont ajoutés automatiquement." }
+              - { label: Prénom du client, name: auteur, widget: string }
+              - { label: Nom du cheval, name: cheval, widget: string, required: false }
+              - { label: Séance, name: seance, widget: string, required: false, hint: "Ex. : Séance Complicité" }
+
+      - name: faq
+        label: Questions fréquentes
+        file: src/contenu/faq.json
+        description: Affichées sur la page Séances, et lues par Google et les assistants IA. Les questions « Où se déroulent les séances ? » et « Combien coûte une séance ? » s’écrivent toutes seules à partir des formules.
+        fields:
+          - label: Questions
+            name: questions
+            widget: list
+            summary: "{{fields.question}}"
+            fields:
+              - { label: Question, name: question, widget: string }
+              - { label: Réponse, name: reponse, widget: text }
+
+      - name: galoplan
+        label: Résultats GaloPlan
+        file: src/contenu/galoplan.json
+        description: La section « Résultats » de l’étude de cas s’affiche dès qu’une citation ou un chiffre est rempli.
+        fields:
+          - { label: Citation du client, name: citation, widget: text, required: false }
+          - { label: Auteur de la citation, name: auteur, widget: string, required: false, hint: "Ex. : Fondateur de GaloPlan" }
+          - label: Chiffres clés
+            name: resultats
+            widget: list
+            required: false
+            summary: "{{fields.valeur}} {{fields.libelle}}"
+            fields:
+              - { label: Chiffre, name: valeur, widget: string, hint: "Ex. : +40 %" }
+              - { label: Signification, name: libelle, widget: string, hint: "Ex. : de téléchargements le premier mois" }
+
+  - name: pages
+    label: Pages du site
+    description: "Textes, photos et vidéos de chaque page. Dans les titres, entourez un mot d’astérisques pour le surligner en rose : *pré*."
+    editor: { preview: false }
+    files:
+
+      - name: page-seances
+        label: "Page Séances"
+        file: src/contenu/pages/seances.json
+        fields:
+          - label: En-tête
+            name: entete
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Introduction, name: chapo, widget: text }
+          - { label: Photo du bandeau, name: bandeau, widget: object, fields: *champs-photo }
+          - label: Formules
+            name: formules
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - { label: Mention, name: mention, widget: string }
+          - label: Vidéo
+            name: video
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - { label: Texte, name: texte, widget: text }
+              - label: Vidéo
+                name: video
+                widget: object
+                fields: &champs-video
+                  - { label: Fichier vidéo, name: fichier, widget: file, choose_url: false, media_folder: /public/videos, public_folder: /videos, hint: "MP4, moins de 25 Mo. Vertical (9:16) pour les réels." }
+                  - { label: Image d’attente, name: affiche, widget: image, required: false, choose_url: false, media_folder: /public/videos, public_folder: /videos, hint: "Image montrée avant la lecture (même cadrage que la vidéo)." }
+                  - { label: Description de la vidéo, name: titre, widget: string, hint: "Pour les personnes malvoyantes. Ex. : Réel de concours de Juliette et Bingo." }
+          - label: Comment ça se passe
+            name: deroule
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string }
+              - label: Étapes
+                name: etapes
+                widget: list
+                summary: "{{fields.titre}}"
+                fields:
+                  - { label: Titre, name: titre, widget: string }
+                  - { label: Texte, name: texte, widget: text }
+          - label: Calculateur
+            name: calcul
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+          - label: Questions fréquentes
+            name: faq
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose. Les questions se modifient dans « Agenda, avis et questions »." }
+          - label: Fin de page
+            name: fin
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné (aplat rose)." }
+
+      - name: page-index
+        label: "Page Accueil"
+        file: src/contenu/pages/index.json
+        fields:
+          - label: En-tête
+            name: entete
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - label: Vidéo du grand titre « Surligner l’instant »
+                name: videoTitre
+                widget: object
+                hint: "La vidéo qui apparaît à l’intérieur des lettres du grand titre."
+                fields:
+                  - { label: Vidéo (ordinateur), name: fichier, widget: file, media_folder: /public/videos, public_folder: /videos }
+                  - { label: Vidéo (téléphone), name: fichierMobile, widget: file, media_folder: /public/videos, public_folder: /videos, hint: "Version plus légère, affichée sur téléphone." }
+                  - { label: Image d’attente, name: affiche, widget: image, required: false, media_folder: /public/videos, public_folder: /videos, hint: "Image affichée le temps que la vidéo se charge." }
+              - { label: Introduction, name: chapo, widget: text }
+              - label: Repères (sous l’introduction)
+                name: reperes
+                widget: list
+                summary: "{{fields.fort}} {{fields.texte}}"
+                hint: "{prix-seance} = le prix de la séance la moins chère, mis à jour tout seul."
+                fields:
+                  - { label: Mot en gras, name: fort, widget: string, hint: "{prix-seance} = le prix de la séance la moins chère, mis à jour tout seul." }
+                  - { label: Suite, name: texte, widget: string }
+          - label: Grande photo
+            name: grandePhoto
+            widget: object
+            fields:
+              - { label: Photo, name: photo, widget: object, fields: *champs-photo }
+              - { label: Légende, name: legende, widget: string }
+          - label: Vous êtes…
+            name: portes
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - label: Cartes
+                name: cartes
+                widget: list
+                summary: "{{fields.titre}}"
+                fields:
+                  - { label: Titre, name: titre, widget: string }
+                  - { label: Texte, name: texte, widget: text, hint: "{prix-seance} et {prix-concours} = le prix le plus bas, mis à jour tout seul." }
+                  - { label: Texte du lien, name: fleche, widget: string }
+                  - { label: Lien (adresse de la page), name: lien, widget: string, hint: "Par exemple /concours" }
+                  - { label: Photo, name: photo, widget: object, fields: *champs-photo }
+          - label: Bonjour, moi c’est Ilona
+            name: moi
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Texte, name: texte, widget: text }
+              - { label: Liste, name: liste, widget: list, field: { label: Ligne, name: ligne, widget: string } }
+              - { label: Photo, name: photo, widget: object, fields: *champs-photo }
+          - label: Trois façons de garder l’instant
+            name: offres
+            widget: object
+            hint: "Les prix des séances et des concours viennent de la page Tarifs."
+            fields:
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Mention, name: mention, widget: string }
+              - { label: Titre de la carte Séances, name: seances, widget: string }
+              - { label: Titre de la carte Concours, name: concours, widget: string }
+              - label: Carte Marques
+                name: marques
+                widget: object
+                fields:
+                  - { label: Titre, name: titre, widget: string }
+                  - { label: Prix affiché, name: prix, widget: string }
+                  - { label: Liste, name: liste, widget: list, field: { label: Ligne, name: ligne, widget: string } }
+          - label: Bandeau quiz
+            name: quiz
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Texte, name: texte, widget: text }
+          - label: Univers
+            name: univers
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Texte, name: texte, widget: text }
+              - label: Univers
+                name: liste
+                widget: list
+                summary: "{{fields.titre}}"
+                hint: "La vidéo se place après le 4e univers."
+                fields:
+                  - { label: Titre, name: titre, widget: string }
+                  - { label: Étiquette, name: etiquette, widget: string }
+                  - label: Couleur de l’étiquette
+                    name: couleur
+                    widget: select
+                    required: false
+                    default: ""
+                    options:
+                      - { label: Rose, value: "" }
+                      - { label: Contour, value: contour }
+                      - { label: Pervenche, value: pervenche }
+                  - { label: Lien (adresse de la page), name: lien, widget: string, hint: "Par exemple /marques" }
+                  - { label: Photo, name: photo, widget: object, fields: *champs-photo }
+              - label: Vidéo
+                name: video
+                widget: object
+                fields:
+                  - { label: Titre, name: titre, widget: string }
+                  - { label: Étiquette, name: etiquette, widget: string }
+                  - { label: Vidéo, name: video, widget: object, fields: *champs-video }
+          - label: Favoris
+            name: favoris
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Texte, name: texte, widget: text }
+              - { label: Photos, name: photos, widget: list, summary: "{{fields.alt}}", fields: *champs-photo }
+          - label: Témoignages
+            name: avis
+            widget: object
+            hint: "Les témoignages eux-mêmes se modifient dans « Témoignages »."
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+          - label: Écuries d’En Ségur
+            name: segur
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: string }
+              - { label: Texte, name: texte, widget: text }
+              - { label: Remise, name: remise, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+          - label: Apprendre avec Ilona
+            name: apprendre
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Mention, name: mention, widget: string }
+              - label: Articles
+                name: articles
+                widget: list
+                summary: "{{fields.titre}}"
+                fields:
+                  - { label: Étiquette, name: etiquette, widget: string }
+                  - { label: Titre, name: titre, widget: string }
+                  - { label: Texte, name: texte, widget: text }
+                  - { label: Lien (adresse de la page), name: lien, widget: string, hint: "Par exemple /journal/preparer-son-cheval" }
+                  - { label: Photo, name: photo, widget: object, fields: *champs-photo }
+          - label: Fin de page
+            name: fin
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Mention, name: mention, widget: string }
+
+      - name: page-concours
+        label: "Page Concours"
+        file: src/contenu/pages/concours.json
+        fields:
+          - label: En-tête
+            name: entete
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Introduction, name: chapo, widget: text }
+              - { label: Photo, name: photo, widget: object, fields: *champs-photo }
+          - label: Formats
+            name: formats
+            widget: object
+            hint: "Les formats et leurs prix se modifient dans la page Tarifs."
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+          - label: Réel souvenir
+            name: reel
+            widget: object
+            fields:
+              - { label: Étiquette, name: etiquette, widget: string }
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - { label: Texte, name: texte, widget: text }
+              - { label: Vidéo, name: video, widget: object, fields: *champs-video }
+          - label: Agenda
+            name: agenda
+            widget: object
+            hint: "Les dates de concours se modifient dans « Agenda »."
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - { label: Texte, name: texte, widget: text }
+              - { label: Message quand aucune date n’est prévue, name: vide, widget: text }
+          - label: Fin de page
+            name: fin
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+
+      - name: page-marques
+        label: "Page Marques & réseaux"
+        file: src/contenu/pages/marques.json
+        fields:
+          - label: En-tête
+            name: entete
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: text, hint: "Deux lignes : la seconde est décalée vers la droite. Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Introduction, name: chapo, widget: text }
+          - label: Formats pour les réseaux
+            name: formats
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - { label: Texte, name: texte, widget: text }
+              - label: Écran 1 (réel vidéo)
+                name: reel
+                widget: object
+                fields:
+                  - { label: Vidéo, name: video, widget: object, fields: *champs-video }
+                  - { label: Étiquette, name: etiquette, widget: string }
+                  - { label: Légende, name: legende, widget: string }
+              - label: Écran 2 (carrousel)
+                name: carrousel
+                widget: object
+                fields:
+                  - { label: Photo, name: photo, widget: object, fields: *champs-photo }
+                  - { label: Étiquette, name: etiquette, widget: string }
+                  - { label: Légende, name: legende, widget: string }
+              - label: Écran 3 (story)
+                name: story
+                widget: object
+                fields:
+                  - { label: Photo, name: photo, widget: object, fields: *champs-photo }
+                  - { label: Étiquette, name: etiquette, widget: string }
+                  - { label: Légende, name: legende, widget: string }
+          - label: Ce que je fais
+            name: services
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - label: Cartes
+                name: cartes
+                widget: list
+                summary: "{{fields.titre}}"
+                fields:
+                  - { label: Étiquette, name: etiquette, widget: string }
+                  - { label: Couleur de l'étiquette, name: couleur, widget: select, default: "", options: [{ label: Blanche, value: "" }, { label: Dorée, value: "or" }, { label: Pervenche, value: "pervenche" }] }
+                  - { label: Titre, name: titre, widget: string }
+                  - { label: Points, name: points, widget: list, field: { label: Point, name: point, widget: string } }
+          - label: Produits & événements
+            name: produits
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - label: Photos
+                name: photos
+                widget: list
+                summary: "{{fields.legende}}"
+                fields:
+                  - { label: Photo, name: photo, widget: object, fields: *champs-photo }
+                  - { label: Étiquette, name: etiquette, widget: string }
+                  - { label: Couleur de l'étiquette, name: couleur, widget: select, default: "", options: [{ label: Blanche, value: "" }, { label: Dorée, value: "or" }, { label: Pervenche, value: "pervenche" }] }
+                  - { label: Légende, name: legende, widget: string }
+          - label: Étude de cas
+            name: cas
+            widget: object
+            fields:
+              - { label: Photo, name: photo, widget: object, fields: *champs-photo }
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - { label: Texte, name: texte, widget: text }
+          - label: Les étapes
+            name: temps
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - label: Étapes
+                name: etapes
+                widget: list
+                summary: "{{fields.titre}}"
+                fields:
+                  - { label: Titre, name: titre, widget: string }
+                  - { label: Texte, name: texte, widget: text }
+          - label: Contact
+            name: contact
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - { label: Texte, name: texte, widget: text, hint: "L’e-mail et le téléphone s’affichent tout seuls en dessous." }
+
+      - name: page-galoplan
+        label: "Étude de cas GaloPlan (page)"
+        file: src/contenu/pages/galoplan.json
+        fields:
+          - label: En-tête
+            name: entete
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Introduction, name: chapo, widget: text }
+              - { label: Client, name: client, widget: string }
+              - { label: Formats, name: formats, widget: string }
+              - { label: Durées, name: durees, widget: string }
+          - label: Les deux réels
+            name: reels
+            widget: object
+            fields:
+              - label: Film de lancement
+                name: lancement
+                widget: object
+                fields:
+                  - { label: Vidéo, name: video, widget: object, fields: *champs-video }
+                  - { label: Légende, name: legende, widget: string }
+                  - { label: Durée, name: duree, widget: string }
+              - label: Vlog de séance
+                name: vlog
+                widget: object
+                fields:
+                  - { label: Vidéo, name: video, widget: object, fields: *champs-video }
+                  - { label: Légende, name: legende, widget: string }
+                  - { label: Durée, name: duree, widget: string }
+          - label: Le récit
+            name: recit
+            widget: object
+            fields:
+              - label: Le contexte
+                name: contexte
+                widget: object
+                fields:
+                  - { label: Titre, name: titre, widget: string }
+                  - { label: Texte, name: texte, widget: text }
+              - label: Le défi
+                name: defi
+                widget: object
+                fields:
+                  - { label: Titre, name: titre, widget: string }
+                  - { label: Texte, name: texte, widget: text }
+              - label: Ce que j’ai fait
+                name: realisation
+                widget: object
+                fields:
+                  - { label: Titre, name: titre, widget: string }
+                  - { label: Points, name: points, widget: list, field: { label: Point, name: point, widget: string } }
+          - label: Images du tournage
+            name: images
+            widget: list
+            summary: "{{fields.alt}}"
+            hint: "Une photo sur deux est décalée vers le bas."
+            fields: *champs-photo
+          - label: Fin de page
+            name: fin
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+
+      - name: page-quiz
+        label: "Quiz « Trouver ma séance »"
+        file: src/contenu/pages/quiz.json
+        fields:
+          - label: En-tête
+            name: entete
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: "Titre caché (lu par Google et les lecteurs d’écran)", name: titre, widget: string }
+          - label: Questions
+            name: questions
+            widget: list
+            summary: "{{fields.titre}}"
+            hint: "Gardez l’ordre des questions : la 1re choisit la séance, la 2e choisit le conseil."
+            allow_add: false
+            fields:
+              - { label: Code, name: cle, widget: hidden }
+              - { label: Question, name: titre, widget: string }
+              - label: Réponses
+                name: options
+                widget: list
+                summary: "{{fields.libelle}}"
+                allow_add: false
+                fields:
+                  - { label: Code, name: valeur, widget: hidden }
+                  - { label: Réponse, name: libelle, widget: string }
+                  - { label: Précision (petit texte sous la réponse), name: note, widget: string, required: false }
+          - label: Résultats (une fiche par séance)
+            name: resultats
+            widget: list
+            summary: "{{fields.nom}}"
+            hint: "Le prix s’affiche tout seul, depuis la page Prestations. Une séance retirée des prestations n’apparaît plus ici."
+            allow_add: false
+            fields:
+              - { label: Code de la séance, name: id, widget: hidden }
+              - { label: Nom affiché, name: nom, widget: string }
+              - { label: Phrase d’accroche, name: titre, widget: string }
+              - { label: Texte, name: texte, widget: text }
+              - label: Photos (deux)
+                name: photos
+                widget: list
+                summary: "{{fields.alt}}"
+                fields: *champs-photo
+          - label: Page de résultat
+            name: resultat
+            widget: object
+            fields:
+              - { label: Petit titre au-dessus de la séance, name: surtitre, widget: string }
+              - { label: Titre du conseil, name: titreConseil, widget: string }
+              - label: Conseils (selon le caractère du cheval)
+                name: conseils
+                widget: list
+                summary: "{{fields.valeur}}"
+                allow_add: false
+                fields:
+                  - { label: Caractère, name: valeur, widget: hidden }
+                  - { label: Conseil, name: texte, widget: text }
+              - { label: Titre des soirs de lumière dorée, name: titreSoirs, widget: string }
+              - { label: Petite note sous les soirs, name: noteSoirs, widget: string }
+              - { label: Phrase avant le lien, name: hesitation, widget: string }
+              - { label: Texte du lien vers les séances, name: lienComparer, widget: string }
+
+      - name: page-academie-lumiere
+        label: "Article Académie : la lumière du soir"
+        file: src/contenu/pages/academie-lumiere.json
+        fields:
+          - label: Référencement Google
+            name: referencement
+            widget: object
+            fields:
+              - { label: Titre de l’article (onglet du navigateur et Google), name: titre, widget: string }
+              - { label: Description pour Google, name: description, widget: text }
+          - label: Sommaire du module
+            name: sommaire
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Leçons, name: lecons, widget: list, hint: "La 3e leçon est celle de cette page ; les autres sont marquées « bientôt ».", field: { label: Leçon, name: lecon, widget: string } }
+          - label: En-tête
+            name: entete
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Introduction, name: chapo, widget: text }
+          - { label: Photo principale, name: photo, widget: object, fields: *champs-photo }
+          - label: Parties de l’article
+            name: sections
+            widget: list
+            summary: "{{fields.titre}}"
+            fields:
+              - { label: Intertitre, name: titre, widget: string }
+              - { label: Texte, name: texte, widget: text, hint: "Une ligne vide = un nouveau paragraphe." }
+          - label: Exercice
+            name: exercice
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: string }
+              - { label: Cases à cocher, name: etapes, widget: list, field: { label: Case, name: etape, widget: string } }
+              - { label: Phrase avant le compte Instagram, name: partage, widget: string }
+
+      - name: page-journal-preparer
+        label: "Article Journal : préparer son cheval"
+        file: src/contenu/pages/journal-preparer.json
+        fields:
+          - label: Référencement Google
+            name: referencement
+            widget: object
+            fields:
+              - { label: Titre de l’article (onglet du navigateur et Google), name: titre, widget: string }
+              - { label: Nom court (chemin de navigation en haut de page), name: nomCourt, widget: string }
+              - { label: Description pour Google, name: description, widget: text }
+          - label: En-tête
+            name: entete
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Introduction, name: chapo, widget: text }
+              - { label: Auteur, name: auteur, widget: string }
+              - { label: Temps de lecture, name: lecture, widget: string }
+              - { label: Photo de l’auteur, name: avatar, widget: object, fields: *champs-photo }
+          - { label: Grande photo, name: bandeau, widget: object, fields: *champs-photo }
+          - label: Parties de l’article
+            name: sections
+            widget: list
+            summary: "{{fields.titre}}"
+            fields:
+              - { label: Intertitre, name: titre, widget: string }
+              - { label: Texte, name: texte, widget: text, hint: "Une ligne vide = un nouveau paragraphe." }
+              - { label: Liste à puces (facultatif), name: liste, widget: list, required: false, field: { label: Point, name: point, widget: string } }
+              - { label: Photo (facultatif), name: photo, widget: object, required: false, collapsed: true, fields: *champs-photo }
+              - { label: Légende de la photo (facultatif), name: legende, widget: string, required: false }
+              - { label: Grande citation après cette partie (facultatif), name: citation, widget: text, required: false, hint: "*mot* = surligné en rose." }
+          - label: Mémo
+            name: memo
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: string }
+              - { label: Points à retenir, name: points, widget: list, field: { label: Point, name: point, widget: string } }
+          - label: « À lire aussi »
+            name: suite
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - { label: Étiquette, name: etiquette, widget: string }
+              - { label: Titre de l’article conseillé, name: article, widget: string }
+              - { label: Résumé, name: resume, widget: string }
+              - { label: Photo, name: photo, widget: object, fields: *champs-photo }
+
+      - name: page-galerie
+        label: "Galerie client (démo)"
+        file: src/contenu/pages/galerie.json
+        fields:
+          - label: En-tête
+            name: entete
+            widget: object
+            fields:
+              - { label: Bandeau « démonstration », name: demo, widget: string }
+              - { label: Nom de la galerie, name: galerie, widget: string }
+              - { label: Séance, name: seance, widget: string, hint: "Le nombre de photos s’ajoute tout seul." }
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - { label: Message quand aucun favori, name: vide, widget: string }
+          - label: Photos
+            name: photos
+            widget: list
+            summary: "{{fields.alt}}"
+            hint: "Les photos s’affichent entières, sans recadrage."
+            fields:
+              - { label: Photo, name: image, widget: image }
+              - { label: Description de la photo, name: alt, widget: string, required: false, hint: "Pour les personnes malvoyantes et Google." }
+              - { label: Déjà en favori (démo), name: on, widget: boolean, default: false }
+
+      - name: page-404
+        label: "Page introuvable (404)"
+        file: src/contenu/pages/404.json
+        fields:
+          - label: En-tête
+            name: entete
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Texte, name: texte, widget: text }
+          - { label: Photo, name: photo, widget: object, fields: *champs-photo }

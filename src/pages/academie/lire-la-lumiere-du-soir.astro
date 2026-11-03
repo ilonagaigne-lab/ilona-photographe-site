@@ -2,19 +2,18 @@
 import Base from '../../layouts/Base.astro';
 import Photo from '../../components/Photo.astro';
 import { contact } from '../../data';
-import deux from '../../assets/photos/cheval-deux-chevaux.jpg';
-const lecons = [
-  'Comprendre la lumière naturelle',
-  'Midi : s’en sortir quand même',
-  'Lire la lumière du soir',
-  'Ciel gris, belles photos',
-  'L’exercice du module',
-];
+import { photo, cadrage, lignes, paragraphe } from '../../lib/contenu';
+import t from '../../contenu/pages/academie-lumiere.json';
+
+const lecons = t.sommaire.lecons;
+// Une ligne vide dans le texte = un nouveau paragraphe.
+const paragraphes = (texte = '') => texte.split(/\r?\n\s*\r?\n/).filter((x) => x.trim());
+const { titre, description } = t.referencement;
 ---
-<Base titre="Lire la lumière du soir · Académie" description="Leçon de l’Académie : où placer votre cheval quand le soleil descend, contre-jour et lumière dorée, avec votre téléphone." page="academie" type="article" fil={[{ nom: 'Académie', href: '/academie/lire-la-lumiere-du-soir' }, { nom: 'Lire la lumière du soir', href: '/academie/lire-la-lumiere-du-soir' }]} schema={[{ '@type': ['Article', 'LearningResource'], headline: 'Lire la lumière du soir', description: 'Où placer votre cheval quand le soleil descend : contre-jour et lumière dorée, avec votre téléphone.', author: { '@id': 'https://ilonagaigne.com/#ilona' }, publisher: { '@id': 'https://ilonagaigne.com/#activite' }, inLanguage: 'fr-FR', learningResourceType: 'Leçon', educationalLevel: 'Débutant', timeRequired: 'PT6M' }]}>
+<Base titre={`${titre} · Académie`} description={description} page="academie" type="article" fil={[{ nom: 'Académie', href: '/academie/lire-la-lumiere-du-soir' }, { nom: titre, href: '/academie/lire-la-lumiere-du-soir' }]} schema={[{ '@type': ['Article', 'LearningResource'], headline: titre, description, author: { '@id': 'https://ilonagaigne.com/#ilona' }, publisher: { '@id': 'https://ilonagaigne.com/#activite' }, inLanguage: 'fr-FR', learningResourceType: 'Leçon', educationalLevel: 'Débutant', timeRequired: 'PT6M' }]}>
   <div class="wrap section row" style="padding-top: clamp(16px, 3vw, 40px); gap: 48px clamp(40px, 6vw, 96px); align-items: flex-start">
     <aside class="sommaire" aria-label="Leçons du module">
-      <p class="lbl">Module · La lumière</p>
+      <p class="lbl">{t.sommaire.surtitre}</p>
       <ol>
         {lecons.map((l, i) => (
           <li aria-current={i === 2 ? 'page' : undefined}><span class="d">{String(i + 1).padStart(2, '0')}</span><span class="t">{l}</span>{i !== 2 && <span class="bientot">bientôt</span>}</li>
@@ -23,35 +22,28 @@ const lecons = [
     </aside>
 
     <article style="flex: 3 1 560px; min-width: 0; max-width: 820px" data-reveal>
-      <p class="lbl">Académie · Leçon 03 · lecture 6 min</p>
-      <h1 class="d" style="font-size: clamp(56px, 8vw, 128px); margin-top: 18px">
-        <span class="rv"><span>Lire la</span></span>
-        <span class="rv"><span style="--d: .2s"><span class="hl" style="--d: .9s">lumière</span> du soir</span></span>
-      </h1>
-      <p class="apparait" style="margin: 28px 0 0; font-size: clamp(18px, 1.6vw, 21px); line-height: 1.6">Où placer votre cheval quand le soleil descend, et pourquoi la dernière heure vaut toute la journée. Avec votre téléphone, c’est suffisant.</p>
+      <p class="lbl">{t.entete.surtitre}</p>
+      <h1 class="d" style="font-size: clamp(56px, 8vw, 128px); margin-top: 18px" set:html={lignes(t.entete.titre)} />
+      <p class="apparait" style="margin: 28px 0 0; font-size: clamp(18px, 1.6vw, 21px); line-height: 1.6" set:html={paragraphe(t.entete.chapo)} />
 
-      <Photo src={deux} alt="Deux chevaux alezans éclairés par une lumière chaude de fin de journée" ratio="16 / 9" pos="50% 35%" prioritaire tailles="(max-width: 760px) 100vw, 820px" style="margin-top: 48px; border-radius: 16px" />
+      <Photo src={photo(t.photo.image)} alt={t.photo.alt ?? ''} ratio="16 / 9" pos={cadrage(t.photo, '50% 35%')} prioritaire tailles="(max-width: 760px) 100vw, 820px" style="margin-top: 48px; border-radius: 16px" />
 
       <div class="prose">
-        <h2>Pourquoi la fin de journée</h2>
-        <p>Quand le soleil est bas, sa lumière traverse plus d’atmosphère : elle devient plus chaude, plus douce, et elle arrive presque à l’horizontale. Les ombres s’allongent au lieu de tomber sous les yeux, et la robe du cheval prend du relief.</p>
-        <p>Visez l’heure qui précède le coucher du soleil. Arrivez plus tôt : le cheval doit être prêt quand la lumière l’est.</p>
-        <h2>Le contre-jour, pas à pas</h2>
-        <p>Placez le soleil derrière le cheval, légèrement de côté. Les crins et le contour du corps s’allument d’un liseré doré. Sur le téléphone, touchez l’œil du cheval pour faire la mise au point et l’exposition sur lui, pas sur le ciel.</p>
-        <p>Si l’image est trop sombre, baissez-vous un peu pour cacher le soleil derrière l’encolure, ou éclaircissez légèrement l’exposition à l’écran.</p>
-        <h2>Le soleil dans votre dos</h2>
-        <p>Pour des couleurs riches et un regard qui brille, tournez-vous : le soleil derrière vous, un peu de côté pour garder du volume. C’est la lumière la plus simple pour un portrait du cavalier avec son cheval.</p>
+        {t.sections.map((x) => (
+          <>
+            <h2>{x.titre}</h2>
+            {paragraphes(x.texte).map((p) => <p set:html={paragraphe(p)} />)}
+          </>
+        ))}
       </div>
 
       <section class="carte stack g16 exercice" aria-labelledby="exercice">
-        <p class="lbl">Exercice de la semaine</p>
-        <h2 id="exercice" class="d" style="font-size: clamp(32px, 3.4vw, 44px)">Trois photos, une heure</h2>
+        <p class="lbl">{t.exercice.surtitre}</p>
+        <h2 id="exercice" class="d" style="font-size: clamp(32px, 3.4vw, 44px)">{t.exercice.titre}</h2>
         <div>
-          <label class="case"><input type="checkbox">Une photo en contre-jour, mise au point sur l’œil.</label>
-          <label class="case"><input type="checkbox">La même, soleil dans votre dos.</label>
-          <label class="case"><input type="checkbox">Une dernière quand le soleil touche l’horizon.</label>
+          {t.exercice.etapes.map((e) => <label class="case"><input type="checkbox">{e}</label>)}
         </div>
-        <p class="li" style="margin: 0; font-size: 15px">Partagez-les en identifiant <a href={contact.instagramLien}>{contact.instagram}</a>.</p>
+        <p class="li" style="margin: 0; font-size: 15px">{t.exercice.partage} <a href={contact.instagramLien}>{contact.instagram}</a>.</p>
       </section>
 
       <nav class="row entre g16" style="margin-top: 56px" aria-label="Suite">

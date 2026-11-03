@@ -2,81 +2,85 @@
 import Base from '../../layouts/Base.astro';
 import Photo from '../../components/Photo.astro';
 import { Image } from 'astro:assets';
-import selle from '../../assets/photos/cheval-selle-ecurie.jpg';
-import tete from '../../assets/photos/cheval-tete-frontal.jpg';
-import deux from '../../assets/photos/cheval-deux-chevaux.jpg';
-import portrait from '../../assets/photos/portrait-ilona.jpg';
+import { photo, cadrage, surligne, lignes, paragraphe } from '../../lib/contenu';
+import t from '../../contenu/pages/journal-preparer.json';
+
+type Section = { titre: string; texte: string; liste?: string[]; photo?: { image: string; alt?: string; cadrage?: string }; legende?: string; citation?: string };
+// Une ligne vide dans le texte = un nouveau paragraphe.
+const paragraphes = (texte = '') => texte.split(/\r?\n\s*\r?\n/).filter((x) => x.trim());
+// Les sections sont regroupées en blocs de texte, coupés par les citations.
+const blocs: { sections: Section[]; citation?: string }[] = [{ sections: [] }];
+for (const x of t.sections as Section[]) {
+  blocs.at(-1)!.sections.push(x);
+  if (x.citation) blocs.push({ sections: [] });
+}
+blocs.forEach((b) => (b.citation = b.sections.at(-1)?.citation));
+const { titre, nomCourt, description } = t.referencement;
 ---
-<Base titre="Préparer son cheval pour sa séance photo · Journal" description="Pansage, crins, harnachement, tenue du cavalier : la liste simple à relire la veille de votre séance photo équestre." page="journal" type="article" fil={[{ nom: 'Journal', href: '/journal/preparer-son-cheval' }, { nom: 'Préparer son cheval', href: '/journal/preparer-son-cheval' }]} schema={[{ '@type': 'Article', headline: 'Préparer son cheval pour sa séance photo', description: 'Pansage, crins, harnachement, tenue du cavalier : la liste simple à relire la veille.', author: { '@id': 'https://ilonagaigne.com/#ilona' }, publisher: { '@id': 'https://ilonagaigne.com/#activite' }, inLanguage: 'fr-FR' }]}>
+<Base titre={`${titre} · Journal`} description={description} page="journal" type="article" fil={[{ nom: 'Journal', href: '/journal/preparer-son-cheval' }, { nom: nomCourt || titre, href: '/journal/preparer-son-cheval' }]} schema={[{ '@type': 'Article', headline: titre, description, author: { '@id': 'https://ilonagaigne.com/#ilona' }, publisher: { '@id': 'https://ilonagaigne.com/#activite' }, inLanguage: 'fr-FR' }]}>
   <article>
     <header class="wrap" style="padding-top: clamp(16px, 3vw, 48px)" data-reveal>
       <div class="colonne">
-        <p class="lbl">Journal · Avant la séance</p>
-        <h1 class="d" style="font-size: clamp(52px, 7.4vw, 108px); margin-top: 20px">
-          <span class="rv"><span>Préparer son</span></span>
-          <span class="rv"><span style="--d: .15s">cheval pour</span></span>
-          <span class="rv"><span style="--d: .25s">sa <span class="hl" style="--d: 1s">séance</span></span></span>
-        </h1>
-        <p class="apparait" style="margin: 28px 0 0; font-size: clamp(18px, 1.6vw, 21px); line-height: 1.6">Pansage, crins, tenue du cavalier : la liste simple à relire la veille, pour arriver serein et laisser la place à l’instant.</p>
+        <p class="lbl">{t.entete.surtitre}</p>
+        <h1 class="d" style="font-size: clamp(52px, 7.4vw, 108px); margin-top: 20px" set:html={lignes(t.entete.titre)} />
+        <p class="apparait" style="margin: 28px 0 0; font-size: clamp(18px, 1.6vw, 21px); line-height: 1.6" set:html={paragraphe(t.entete.chapo)} />
         <div class="row centre g12 apparait" style="margin-top: 28px; font-size: 14px; --d: .5s">
-          <Image src={portrait} alt="" width={88} height={88} style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; object-position: 52% 32%" />
-          <span><strong style="font-weight: 600">Ilona</strong> · 5 min de lecture</span>
+          <Image src={photo(t.entete.avatar.image)} alt={t.entete.avatar.alt ?? ''} width={88} height={88} style={`width: 44px; height: 44px; border-radius: 50%; object-fit: cover; object-position: ${cadrage(t.entete.avatar, '52% 32%')}`} />
+          <span><strong style="font-weight: 600">{t.entete.auteur}</strong> · {t.entete.lecture}</span>
         </div>
       </div>
     </header>
 
     <div data-reveal style="margin-top: clamp(48px, 6vw, 80px)">
-      <Photo src={selle} alt="Selle en cuir posée sur un tréteau dans l’allée des écuries" ratio="21 / 9" pos="50% 52%" prioritaire tailles="100vw" class="bandeau" />
+      <Photo src={photo(t.bandeau.image)} alt={t.bandeau.alt ?? ''} ratio="21 / 9" pos={cadrage(t.bandeau, '50% 52%')} prioritaire tailles="100vw" class="bandeau" />
     </div>
 
-    <div class="wrap">
-      <div class="colonne prose">
-        <h2>La veille</h2>
-        <p>Un pansage complet la veille, puis un rapide coup de brosse avant la séance : la robe aura le temps de retrouver son brillant naturel. Démêlez crins et queue à la main ou avec un démêlant, sans tirer.</p>
-        <ul>
-          <li>Pansage complet, sans oublier le dessous de l’encolure</li>
-          <li>Crins et queue démêlés</li>
-          <li>Pieds curés, sabots graissés juste avant les photos</li>
-        </ul>
-        <h2>Le harnachement</h2>
-        <p>Moins, c’est mieux. Un filet ou un licol en cuir propre met la tête en valeur ; laissez de côté tapis fluo et accessoires qui volent la vedette. Nettoyez le cuir et vérifiez les boucles : on les voit sur les gros plans.</p>
-      </div>
-    </div>
-
-    <div class="wrap" style="padding-block: 24px">
-      <blockquote class="d" style="margin: 0 auto; max-width: 1000px; font-size: clamp(36px, 5.4vw, 76px); line-height: 1">« Un cheval détendu fera toujours une plus belle photo qu’un cheval <span class="hl" style="animation: none">parfait</span>. »</blockquote>
-    </div>
-
-    <div class="wrap">
-      <div class="colonne prose">
-        <h2>Votre tenue</h2>
-        <p>Choisissez des couleurs unies, qui s’accordent à la robe de votre cheval : des tons clairs ou naturels sur un alezan, du blanc ou du crème sur un cheval foncé. Évitez les grands logos et les motifs chargés.</p>
-        <figure style="margin: 40px 0">
-          <Image src={tete} alt="Tête d’un cheval alezan au filet noir, frontal pailleté" widths={[600, 1000, 1400]} sizes="(max-width: 760px) 100vw, 720px" style="width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 40%; border-radius: 4px" />
-          <figcaption class="li" style="margin-top: 12px; font-size: 15px">Un filet propre, un frontal qui accroche la lumière : la tête est prête.</figcaption>
-        </figure>
-        <h2>Le jour J</h2>
-        <p>Prévoyez des friandises, une longe et, si possible, une personne pour attirer l’attention de votre cheval derrière moi : un bruit de sachet suffit à faire pointer les oreilles. Et surtout, prenez votre temps.</p>
-      </div>
-    </div>
+    {blocs.map((b) => (
+      <>
+        {b.sections.length > 0 && (
+          <div class="wrap">
+            <div class="colonne prose">
+              {b.sections.map((x) => (
+                <>
+                  <h2>{x.titre}</h2>
+                  {paragraphes(x.texte).map((p) => <p set:html={paragraphe(p)} />)}
+                  {x.liste && x.liste.length > 0 && <ul>{x.liste.map((l) => <li>{l}</li>)}</ul>}
+                  {x.photo?.image && (
+                    <figure style="margin: 40px 0">
+                      <Image src={photo(x.photo.image)} alt={x.photo.alt ?? ''} widths={[600, 1000, 1400]} sizes="(max-width: 760px) 100vw, 720px" style={`width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: ${cadrage(x.photo, '50% 40%')}; border-radius: 4px`} />
+                      {x.legende && <figcaption class="li" style="margin-top: 12px; font-size: 15px">{x.legende}</figcaption>}
+                    </figure>
+                  )}
+                </>
+              ))}
+            </div>
+          </div>
+        )}
+        {b.citation && (
+          <div class="wrap" style="padding-block: 24px">
+            <blockquote class="d" style="margin: 0 auto; max-width: 1000px; font-size: clamp(36px, 5.4vw, 76px); line-height: 1" set:html={surligne(b.citation).replaceAll('class="hl"', 'class="hl" style="animation: none"')} />
+          </div>
+        )}
+      </>
+    ))}
 
     <div class="wrap" style="padding-top: 40px">
       <section class="carte colonne stack g16" style="padding: clamp(24px, 3vw, 40px)" aria-labelledby="memo">
-        <p class="lbl">À retenir</p>
-        <h2 id="memo" class="d" style="font-size: clamp(30px, 3.2vw, 40px)">Le mémo de la veille</h2>
-        <ul class="liste li" style="font-size: 18px"><li>Pansage complet, sabots graissés</li><li>Cuir propre, harnachement sobre</li><li>Tenue unie, accordée à la robe</li><li>Friandises, longe, un complice</li></ul>
+        <p class="lbl">{t.memo.surtitre}</p>
+        <h2 id="memo" class="d" style="font-size: clamp(30px, 3.2vw, 40px)">{t.memo.titre}</h2>
+        <ul class="liste li" style="font-size: 18px">{t.memo.points.map((l) => <li>{l}</li>)}</ul>
       </section>
     </div>
   </article>
 
   <section class="wrap section stack g32" data-reveal aria-labelledby="suite">
     <div class="row entre bas g24">
-      <h2 id="suite" class="d h2">À lire <span class="hl">aussi</span></h2>
+      <h2 id="suite" class="d h2" set:html={surligne(t.suite.titre)} />
       <a class="btn" href="/reservation">Réserver ma séance</a>
     </div>
     <a class="suite" href="/academie/lire-la-lumiere-du-soir">
-      <Photo src={deux} alt="" ratio="16 / 10" pos="50% 35%" cache="#EAE2D4" tailles="(max-width: 760px) 100vw, 40vw" curseur={false} />
-      <span class="stack g12"><span class="chip contour" style="align-self: flex-start">Académie</span><span class="d h3">Lire la lumière du soir</span><span class="texte" style="font-size: 16px">Où placer votre cheval quand le soleil descend.</span></span>
+      <Photo src={photo(t.suite.photo.image)} alt={t.suite.photo.alt ?? ''} ratio="16 / 10" pos={cadrage(t.suite.photo, '50% 35%')} cache="#EAE2D4" tailles="(max-width: 760px) 100vw, 40vw" curseur={false} />
+      <span class="stack g12"><span class="chip contour" style="align-self: flex-start">{t.suite.etiquette}</span><span class="d h3">{t.suite.article}</span><span class="texte" style="font-size: 16px">{t.suite.resume}</span></span>
     </a>
   </section>
 </Base>

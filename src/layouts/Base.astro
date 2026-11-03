@@ -8,7 +8,7 @@ import '../styles/global.css';
 import { Image } from 'astro:assets';
 import logo from '../assets/logo-ink.webp';
 import logoBlanc from '../assets/logo-white.webp';
-import { contact, site, seances, concours } from '../data';
+import { contact, site, seances, concours, depart, fourchettePrix } from '../data';
 import anton from '@fontsource/anton/files/anton-latin-400-normal.woff2?url';
 
 interface Etape { nom: string; href: string; }
@@ -49,7 +49,7 @@ const activite = {
   logo: new URL('/favicon.svg', site.url).href,
   telephone: contact.telephoneInternational,
   email: contact.email,
-  priceRange: '50 € – 250 €',
+  priceRange: fourchettePrix,
   address: { '@type': 'PostalAddress', addressLocality: 'Toulouse', addressRegion: 'Occitanie', addressCountry: 'FR' },
   areaServed: [{ '@type': 'City', name: 'Toulouse' }, { '@type': 'AdministrativeArea', name: 'Haute-Garonne' }],
   founder: { '@id': `${site.url}/#ilona` },
@@ -76,7 +76,7 @@ const graphe = { '@context': 'https://schema.org', '@graph': [siteWeb, activite,
 const ctaFlottant = !['reservation', 'galerie'].includes(page);
 ---
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-depart={`${depart.lon},${depart.lat}`}>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">

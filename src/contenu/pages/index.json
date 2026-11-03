@@ -1,0 +1,248 @@
+{
+  "univers": {
+    "titre": "Six *univers*,\nun seul regard",
+    "texte": "Du pré à la vitrine : les chevaux, les concours, les événements, les produits et les réseaux de ceux qui les aiment.",
+    "liste": [
+      {
+        "titre": "Cheval",
+        "etiquette": "Séances",
+        "couleur": "",
+        "lien": "/seances",
+        "photo": {
+          "image": "/src/assets/photos/cheval-cowgirl-isabelle.jpg",
+          "alt": "Cavalière au chapeau de paille contre l’encolure d’un cheval isabelle",
+          "cadrage": ""
+        }
+      },
+      {
+        "titre": "Concours",
+        "etiquette": "CSO",
+        "couleur": "contour",
+        "lien": "/concours",
+        "photo": {
+          "image": "/src/assets/photos/concours-saut.jpg",
+          "alt": "Cheval bai franchissant un obstacle coloré en concours",
+          "cadrage": ""
+        }
+      },
+      {
+        "titre": "Événementiel",
+        "etiquette": "Reportage",
+        "couleur": "pervenche",
+        "lien": "/marques",
+        "photo": {
+          "image": "/src/assets/photos/evenement-champagne.jpg",
+          "alt": "Invitée souriante, coupe de champagne à la main, lors d’une fête en plein air",
+          "cadrage": ""
+        }
+      },
+      {
+        "titre": "Packshot",
+        "etiquette": "Produit",
+        "couleur": "",
+        "lien": "/marques",
+        "photo": {
+          "image": "/src/assets/photos/packshot-trio-saint-valentin.jpg",
+          "alt": "Sac pailleté rose, porte-clés cœur et pochette, entourés de ballons cœurs",
+          "cadrage": ""
+        }
+      },
+      {
+        "titre": "Réseaux",
+        "etiquette": "Community",
+        "couleur": "pervenche",
+        "lien": "/etudes-de-cas/galoplan",
+        "photo": {
+          "image": "/src/assets/photos/galoplan-still-33.jpg",
+          "alt": "Téléphone ouvert sur l’application GaloPlan, filmé pour ses réseaux",
+          "cadrage": ""
+        }
+      }
+    ],
+    "video": {
+      "titre": "Vidéo",
+      "etiquette": "Réel",
+      "video": {
+        "fichier": "/videos/video-seance-platinium.mp4",
+        "affiche": "/videos/video-seance-platinium-poster.jpg",
+        "titre": "Réel : séance avec Platinium d’en Fer"
+      }
+    }
+  },
+  "moi": {
+    "surtitre": "Bonjour, moi c’est Ilona",
+    "titre": "Je photographie\nce que vous\n*ressentez* à cheval.",
+    "texte": "Photographe et vidéaste spécialisée dans l’univers équestre et la création de contenu de marque. Je viens à vous, à l’écurie ou au pré, et je laisse le cheval donner le rythme.",
+    "liste": [
+      "Photo animalière & portrait",
+      "Vidéo & montage",
+      "Community management"
+    ],
+    "photo": {
+      "image": "/src/assets/photos/portrait-ilona.jpg",
+      "alt": "Portrait d’Ilona souriante, lunettes et cheveux longs, contre son cheval alezan au coucher du soleil",
+      "cadrage": ""
+    }
+  },
+  "favoris": {
+    "surtitre": "Votre galerie privée",
+    "titre": "Choisissez\nvos *favoris*",
+    "texte": "Touchez le cœur des images qui vous parlent : vos coups de cœur vous suivent jusqu’à la réservation, pour qu’Ilona sache tout de suite ce que vous aimez. Après la séance, c’est le même geste dans votre galerie privée.",
+    "photos": [
+      {
+        "image": "/src/assets/photos/cheval-cowgirl-isabelle.jpg",
+        "alt": "Cavalière au chapeau de paille contre l’encolure d’un cheval isabelle",
+        "cadrage": ""
+      },
+      {
+        "image": "/src/assets/photos/cheval-cowgirl-bai.jpg",
+        "alt": "Cavalière en chemise blanche tenant son cheval bai au pré",
+        "cadrage": ""
+      },
+      {
+        "image": "/src/assets/photos/cheval-tete-frontal.jpg",
+        "alt": "Tête d’un cheval alezan, frontal pailleté",
+        "cadrage": ""
+      },
+      {
+        "image": "/src/assets/photos/cheval-cavaliere-poney.jpg",
+        "alt": "Jeune cavalière souriante sur son poney",
+        "cadrage": ""
+      }
+    ]
+  },
+  "fin": {
+    "titre": "On se retrouve\nau *pré* ?",
+    "mention": "Basée près de Toulouse · frais de déplacement calculés à la réservation"
+  },
+  "entete": {
+    "surtitre": "Photographe & vidéaste équestre · près de Toulouse",
+    "videoTitre": {
+      "fichier": "/videos/titre-video.mp4",
+      "fichierMobile": "/videos/titre-video-mobile.mp4",
+      "affiche": "/videos/titre-video-poster.jpg"
+    },
+    "chapo": "Je photographie et filme les chevaux et leurs cavaliers, du pré au paddock, et je crée du contenu pour les marques équestres. Une séance, un concours, un lancement : je garde ce qui compte.",
+    "reperes": [
+      {
+        "fort": "Dès {prix-seance}",
+        "texte": "la séance"
+      },
+      {
+        "fort": "Toulouse",
+        "texte": "et alentours"
+      },
+      {
+        "fort": "Photo & vidéo",
+        "texte": "au même rendez-vous"
+      },
+      {
+        "fort": "-10 %",
+        "texte": "Écuries d’En Ségur"
+      }
+    ]
+  },
+  "portes": {
+    "titre": "Vous *êtes*…",
+    "cartes": [
+      {
+        "titre": "Cavalier ou propriétaire",
+        "texte": "Une séance avec votre cheval, dès {prix-seance}. Trouvez la vôtre en 30 secondes.",
+        "fleche": "Trouver ma séance →",
+        "lien": "/trouver-ma-seance",
+        "photo": {
+          "image": "/src/assets/photos/cheval-cowgirl-isabelle.jpg",
+          "alt": "",
+          "cadrage": ""
+        }
+      },
+      {
+        "titre": "En concours",
+        "texte": "Votre parcours en photo, en vidéo ou en réel souvenir, dès {prix-concours}.",
+        "fleche": "Voir les formats →",
+        "lien": "/concours",
+        "photo": {
+          "image": "/src/assets/photos/concours-saut.jpg",
+          "alt": "",
+          "cadrage": ""
+        }
+      },
+      {
+        "titre": "Une marque",
+        "texte": "Photos, vidéos et réseaux sociaux pour les marques équestres. Sur devis.",
+        "fleche": "Parler de mon projet →",
+        "lien": "/marques",
+        "photo": {
+          "image": "/src/assets/photos/marque-pochette-telephone.jpg",
+          "alt": "",
+          "cadrage": ""
+        }
+      }
+    ]
+  },
+  "offres": {
+    "titre": "Trois façons\nde *garder* l’instant",
+    "mention": "Séances · Concours · Marques",
+    "seances": "Séances équestres",
+    "concours": "Concours",
+    "marques": {
+      "titre": "Marques & réseaux",
+      "prix": "Sur devis",
+      "liste": [
+        "Contenu photo & vidéo",
+        "Réels et formats courts",
+        "Community management"
+      ]
+    }
+  },
+  "segur": {
+    "surtitre": "Pour les cavaliers des",
+    "titre": "Écuries d’En Ségur",
+    "texte": "Remise appliquée à la réservation, sur simple mention de votre écurie.",
+    "remise": "*-10 % sur toutes*\n*mes prestations*"
+  },
+  "quiz": {
+    "surtitre": "Vous hésitez entre deux formules ?",
+    "titre": "Trouvez *votre séance*\nen 30 secondes",
+    "texte": "Trois questions sur vous et votre cheval : je vous conseille la formule, le prix et les prochains soirs de lumière dorée."
+  },
+  "grandePhoto": {
+    "photo": {
+      "image": "/src/assets/photos/hero-coucher-large.jpg",
+      "alt": "Cavalière en robe blanche contre son cheval alezan, dans un pré au coucher du soleil",
+      "cadrage": ""
+    },
+    "legende": "Séance au coucher du soleil · Haute-Garonne"
+  },
+  "apprendre": {
+    "titre": "*Apprendre*\navec Ilona",
+    "mention": "Académie · Journal",
+    "articles": [
+      {
+        "etiquette": "Leçon de l’Académie",
+        "titre": "Lire la lumière du soir",
+        "texte": "Où placer votre cheval quand le soleil descend, et pourquoi la dernière heure vaut toute la journée.",
+        "lien": "/academie/lire-la-lumiere-du-soir",
+        "photo": {
+          "image": "/src/assets/photos/cheval-deux-chevaux.jpg",
+          "alt": "Deux chevaux alezans dans la lumière de fin d’été",
+          "cadrage": ""
+        }
+      },
+      {
+        "etiquette": "Journal",
+        "titre": "Préparer son cheval pour sa séance",
+        "texte": "Pansage, crins, tenue du cavalier : la liste simple à relire la veille.",
+        "lien": "/journal/preparer-son-cheval",
+        "photo": {
+          "image": "/src/assets/photos/cheval-selle-ecurie.jpg",
+          "alt": "Selle posée sur un tréteau dans l’allée des écuries",
+          "cadrage": ""
+        }
+      }
+    ]
+  },
+  "avis": {
+    "titre": "Ils en *parlent*"
+  }
+}

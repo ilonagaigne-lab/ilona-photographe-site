@@ -1,0 +1,34 @@
+{
+  "entete": {
+    "surtitre": "Étude de cas · contenu vidéo",
+    "titre": "GaloPlan\nà *l’écurie*",
+    "chapo": "Deux réels pour présenter l’app du cheval partagé là où elle sert vraiment : à l’écurie, entre deux séances.",
+    "client": "GaloPlan, application équestre",
+    "formats": "2 réels verticaux, sous-titrés",
+    "durees": "46 s et 52 s"
+  },
+  "reels": {
+    "lancement": {
+      "video": { "fichier": "/videos/galoplan-lancement.mp4", "affiche": "/videos/galoplan-lancement-poster.jpg", "titre": "GaloPlan, film de lancement" },
+      "legende": "Film de lancement",
+      "duree": "46 s"
+    },
+    "vlog": {
+      "video": { "fichier": "/videos/galoplan-vlog-seance.mp4", "affiche": "/videos/galoplan-vlog-seance-poster.jpg", "titre": "GaloPlan, vlog de séance" },
+      "legende": "Vlog de séance",
+      "duree": "52 s"
+    }
+  },
+  "recit": {
+    "contexte": { "titre": "Le contexte", "texte": "GaloPlan réunit tous ceux qui s’occupent d’un même cheval : propriétaires et demi-pensionnaires partagent le planning, les soins et le carnet de l’écurie dans une seule application." },
+    "defi": { "titre": "Le défi", "texte": "Faire comprendre une application en moins d’une minute, sans tutoriel figé. Montrer la vraie vie à l’écurie, puis l’app au moment précis où elle rend service." },
+    "realisation": { "titre": "Ce que j’ai fait", "points": ["Tournage à l’écurie, à pied et à cheval", "Coulisses du développement de l’application", "Écrans réels filmés au téléphone, en situation", "Montage vertical sous-titré, aux couleurs de la marque"] }
+  },
+  "images": [
+    { "image": "/src/assets/photos/galoplan-still-11.jpg", "alt": "Cavalière sur un cheval noir à la selle rose, dans la carrière", "cadrage": "" },
+    { "image": "/src/assets/photos/galoplan-still-21.jpg", "alt": "Cavalière au trot sur un cheval gris, entre les obstacles", "cadrage": "" },
+    { "image": "/src/assets/photos/galoplan-still-33.jpg", "alt": "Main tenant un téléphone ouvert sur une séance dans l’application GaloPlan", "cadrage": "" },
+    { "image": "/src/assets/photos/galoplan-still-43.jpg", "alt": "Cavalière casquée qui embrasse le chanfrein de son cheval gris", "cadrage": "" }
+  ],
+  "fin": { "titre": "Votre marque,\nla *prochaine* ?" }
+}

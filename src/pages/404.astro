@@ -1,24 +1,22 @@
 ---
 import Base from '../layouts/Base.astro';
 import { Image } from 'astro:assets';
-import tete from '../assets/photos/cheval-tete-frontal.jpg';
+import { photo, cadrage, lignes, paragraphe } from '../lib/contenu';
+import t from '../contenu/pages/404.json';
 ---
 <Base titre="Page introuvable" description="Cette page est sortie du cadre." indexer={false}>
   <section class="wrap row centre" style="min-height: 70vh; padding-block: 32px 64px; gap: 48px clamp(40px, 6vw, 96px)" data-reveal>
     <div class="stack g24" style="flex: 3 1 480px">
-      <p class="lbl">Erreur 404</p>
-      <h1 class="d" style="font-size: clamp(88px, 16vw, 240px)">
-        <span class="rv"><span>Hors</span></span>
-        <span class="rv"><span style="--d: .2s"><span class="hl" style="--d: .8s">champ</span>.</span></span>
-      </h1>
-      <p class="texte" style="max-width: 480px">Cette page est sortie du cadre. Elle a peut-être changé d’adresse, ou elle n’a jamais existé.</p>
+      <p class="lbl">{t.entete.surtitre}</p>
+      <h1 class="d" style="font-size: clamp(88px, 16vw, 240px)" set:html={lignes(t.entete.titre)} />
+      <p class="texte" style="max-width: 480px" set:html={paragraphe(t.entete.texte)} />
       <div class="row g12">
         <a class="btn" href="/">Revenir à l’accueil</a>
         <a class="btn contour" href="/seances">Voir les séances</a>
       </div>
     </div>
     <div class="hors-champ" aria-hidden="true">
-      <Image src={tete} alt="" widths={[400, 700]} sizes="(max-width: 760px) 100vw, 35vw" />
+      <Image src={photo(t.photo.image)} alt={t.photo.alt ?? ''} style={`object-position: ${cadrage(t.photo)}`} widths={[400, 700]} sizes="(max-width: 760px) 100vw, 35vw" />
     </div>
   </section>
 </Base>

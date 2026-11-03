@@ -1,0 +1,26 @@
+{
+  "entete": {
+    "surtitre": "Séances & tarifs · près de Toulouse",
+    "titre": "Séances\n*équestres*",
+    "chapo": "Quatre formules, du portrait sportif à la collection complète. Je viens à votre écurie ou au pré, et on avance au rythme de votre cheval."
+  },
+  "bandeau": { "image": "/src/assets/photos/cheval-deux-chevaux.jpg", "alt": "Deux chevaux alezans dans la lumière de fin d’été", "cadrage": "" },
+  "formules": { "titre": "Quatre *formules*", "mention": "Prix TTC · déplacement en sus" },
+  "video": {
+    "titre": "La séance, *en mouvement*",
+    "texte": "Platinium d’en Fer, à la tombée du jour. Ajoutez la vidéo à votre séance : un réel vertical, monté pour être partagé.",
+    "video": { "fichier": "/videos/video-seance-platinium.mp4", "affiche": "/videos/video-seance-platinium-poster.jpg", "titre": "Réel : séance avec Platinium d’en Fer" }
+  },
+  "calcul": { "titre": "Votre prix,\n*déplacement* compris" },
+  "deroule": {
+    "titre": "Comment ça se *passe*",
+    "etapes": [
+      { "titre": "Vous réservez", "texte": "Formule, lieu et date en quatre étapes. Je confirme sous quelques jours." },
+      { "titre": "On prépare", "texte": "Tenue, lieu, heure de lumière : je vous envoie mes conseils pour arriver serein." },
+      { "titre": "La séance", "texte": "Pas de pose forcée. Le cheval donne le rythme, je guette l’instant." },
+      { "titre": "Votre galerie", "texte": "Une galerie privée où vous choisissez vos favoris, et ajoutez des photos si le cœur vous en dit." }
+    ]
+  },
+  "faq": { "titre": "Vos *questions*" },
+  "fin": { "titre": "Une date *en tête* ?" }
+}
