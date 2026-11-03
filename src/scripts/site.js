@@ -1,6 +1,9 @@
 // Comportements communs : apparition au défilement, obturateur, curseur, menu mobile.
 const calme = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// Mouvement réduit : les vidéos décoratives restent sur leur première image.
+if (calme) document.querySelectorAll('video[autoplay]').forEach((v) => { v.removeAttribute('autoplay'); v.pause(); });
+
 // Les sections démarrent leurs animations quand elles entrent à l'écran.
 const sections = document.querySelectorAll('[data-reveal]');
 if ('IntersectionObserver' in window) {

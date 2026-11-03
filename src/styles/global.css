@@ -75,6 +75,10 @@ a:hover { color: var(--encre); }
 .rv + .rv { margin-top: -.04em; }
 .rv > span { display: block; animation: monte 1s var(--lumiere) both; animation-delay: var(--d, .1s); }
 
+/* Capsule vidéo dans un titre : elle s'ouvre comme un diaphragme */
+.capsule { display: inline-block; width: .95em; height: .62em; margin-left: .08em; border-radius: 999px; overflow: hidden; vertical-align: baseline; background: #4a3426; transform-origin: 0 70%; animation: capsule 1s var(--lumiere) both; animation-delay: var(--dc, .45s); }
+.capsule video { width: 100%; height: 100%; object-fit: cover; }
+
 /* Photos révélées par cadre */
 .ph { position: relative; overflow: hidden; margin: 0; background: #ddd; }
 .ph img, .ph video { width: 100%; height: 100%; object-fit: cover; }
@@ -86,9 +90,9 @@ a:hover { color: var(--encre); }
 
 /* Lecture au défilement : tout reste en pause tant que la section n'est pas visible */
 .js [data-reveal] .rv > span, .js [data-reveal] .hl::before, .js [data-reveal] .ph img, .js [data-reveal] .ph::after,
-.js [data-reveal] .odo .c, .js [data-reveal] .apparait { animation-play-state: paused; }
+.js [data-reveal] .odo .c, .js [data-reveal] .apparait, .js [data-reveal] .capsule { animation-play-state: paused; }
 .js [data-reveal].in .rv > span, .js [data-reveal].in .hl::before, .js [data-reveal].in .ph img, .js [data-reveal].in .ph::after,
-.js [data-reveal].in .odo .c, .js [data-reveal].in .apparait { animation-play-state: running; }
+.js [data-reveal].in .odo .c, .js [data-reveal].in .apparait, .js [data-reveal].in .capsule { animation-play-state: running; }
 .apparait { animation: fondu .8s var(--lumiere) both; animation-delay: var(--d, .3s); }
 
 /* Boutons qui se remplissent de rose */
@@ -220,6 +224,7 @@ textarea.saisie { padding: 14px 16px; min-height: 120px; resize: vertical; }
 @keyframes zoom { from { transform: scale(1.14); } }
 @keyframes roule { from { transform: translateY(0); } }
 @keyframes fondu { from { opacity: 0; transform: translateY(16px); } }
+@keyframes capsule { from { transform: scale(0); } }
 @keyframes flash { 0% { opacity: 0; } 25% { opacity: .85; } 100% { opacity: 0; } }
 @keyframes ouvre { from { transform: scaleY(1); } to { transform: scaleY(0); } }
 @keyframes ferme { from { transform: scaleY(0); } to { transform: scaleY(1); } }
