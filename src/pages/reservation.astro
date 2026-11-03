@@ -47,6 +47,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
           </div>
           <label class="case"><input type="checkbox" name="segur" data-libelle="Cavalier des Écuries d’En Ségur (-10 %)">Je monte aux Écuries d’En Ségur (-10 %)</label>
           <label class="champ">Un mot pour Ilona (facultatif)<textarea class="saisie" name="message" data-libelle="Message"></textarea></label>
+          <label class="piege" aria-hidden="true">Ne pas remplir<input name="site_web" type="text" tabindex="-1" autocomplete="off"></label>
         </fieldset>
 
         <fieldset class="pane" data-pane="4" hidden>
@@ -56,6 +57,11 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
         </fieldset>
 
         <div class="pane" data-pane="5" hidden>
+          <div data-ok hidden class="stack g16">
+            <h2 class="d" style="font-size: clamp(52px, 7vw, 104px)">Demande <span class="hl">reçue</span></h2>
+            <p class="texte">Merci ! Votre demande est bien arrivée chez Ilona. Elle vous répond par e-mail pour confirmer la date et le prix final, déplacement compris.</p>
+          </div>
+          <div data-secours hidden class="stack g16">
           <h2 class="d" style="font-size: clamp(52px, 7vw, 104px)">Demande <span class="hl">prête</span></h2>
           <p class="texte">Votre messagerie s’est ouverte avec la demande déjà rédigée : il ne reste qu’à l’envoyer. Ilona vous répond par e-mail pour confirmer la date.</p>
           <div class="carte stack g12" style="padding: 24px">
@@ -63,6 +69,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
             <p style="margin: 0; font-size: 15px; line-height: 1.6">Copiez votre demande et collez-la dans un e-mail à <a href={`mailto:${contact.email}`}>{contact.email}</a>, ou appelez le <a href={contact.telephoneLien}>{contact.telephone}</a>.</p>
             <button type="button" class="btn clair" data-copier style="align-self: flex-start">Copier ma demande</button>
             <p data-copie-ok role="status" style="margin: 0; font-size: 14px" hidden>Demande copiée.</p>
+          </div>
           </div>
           <a class="btn contour" href="/journal/preparer-son-cheval" style="align-self: flex-start">Préparer mon cheval</a>
         </div>
@@ -98,7 +105,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
   .etapes li[aria-current] .t { position: relative; z-index: 0; }
   .etapes li[aria-current] .t::before { content: ""; position: absolute; left: -3px; right: -3px; bottom: 2px; height: 9px; background: var(--rose); z-index: -1; transform-origin: 0 50%; animation: surligne .45s var(--declic) both; }
   .pane { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 22px; min-width: 0; animation: fondu .5s var(--lumiere) both; }
-  .pane[hidden] { display: none; }
+  .pane[hidden], .pane [hidden] { display: none; }
   .pane legend { padding: 0; margin-bottom: 22px; float: left; width: 100%; }
   .pane legend + * { clear: both; }
   .choix { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
@@ -108,6 +115,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
   .navigation { display: flex; justify-content: space-between; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid rgba(34,34,34,.2); }
   .navigation [hidden] { display: none; }
   .navigation .btn[data-suivant] { margin-left: auto; }
+  .piege { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .erreur { margin: 16px 0 0; color: var(--rose-profond); font-weight: 500; }
   .recap :global(.modifier) { margin-left: 8px; border: 0; background: none; padding: 10px 4px; color: var(--rose-profond); text-decoration: underline; font: 500 14px 'Poppins', sans-serif; cursor: pointer; }
   .resume { flex: 1 1 300px; padding: 32px; position: sticky; top: 24px; }
@@ -120,7 +128,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
 </style>
 
 <script>
-  import { ouvrirMail, lignesDuFormulaire } from '../scripts/mail.js';
+  import { ouvrirMail, lignesDuFormulaire, envoyerDemande } from '../scripts/mail.js';
   import { lumiereDuSoir, heure, jour } from '../scripts/soleil.js';
   const form = document.getElementById('resa') as HTMLFormElement;
   const $ = <T extends HTMLElement>(s: string) => form.querySelector<T>(s)!;
@@ -231,7 +239,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
     $('[data-coups-liste]').replaceChildren(...coups.map((c) => { const li = document.createElement('li'); const img = document.createElement('img'); img.src = c.src; img.alt = c.alt; li.append(img); return li; }));
   }
   $('[data-retour]').addEventListener('click', () => afficher(etape - 1));
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!valide(etape)) return;
     if (etape < 4) return afficher(etape + 1);
@@ -239,7 +247,14 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
       coups.length ? `Coups de cœur sur le site : ${coups.map((c) => c.alt).join(' ; ')}` : '',
       new URLSearchParams(location.search).get('source') === 'quiz' ? 'Formule conseillée par le quiz du site' : ''];
     texteDemande = lignes.join('\n');
-    ouvrirMail(form.closest('main')!.querySelector<HTMLAnchorElement>('a[href^="mailto:"]')!.href.replace('mailto:', ''), `Réservation · ${formule().dataset.nom}`, lignes);
+    const bouton = $<HTMLButtonElement>('[data-suivant]');
+    bouton.disabled = true; bouton.textContent = 'Envoi en cours…';
+    const v = (n: string) => ($<HTMLInputElement>(`[name="${n}"]`).value || '').trim();
+    const ok = await envoyerDemande({ type: 'reservation', nom: `${v('prenom')} ${v('nom')}`.trim(), email: v('email'), lignes: lignes.filter(Boolean), site_web: v('site_web') });
+    bouton.disabled = false;
+    if (!ok) ouvrirMail(form.closest('main')!.querySelector<HTMLAnchorElement>('a[href^="mailto:"]')!.href.replace('mailto:', ''), `Réservation · ${formule().dataset.nom}`, lignes);
+    $('[data-ok]').hidden = !ok;
+    $('[data-secours]').hidden = ok;
     afficher(5);
   });
   $('[data-copier]').addEventListener('click', async () => {

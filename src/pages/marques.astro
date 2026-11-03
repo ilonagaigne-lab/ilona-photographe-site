@@ -115,7 +115,8 @@ const galerie = [
       </fieldset>
       <label class="champ plein">Votre projet en quelques mots<textarea class="saisie" name="message" data-libelle="Projet"></textarea></label>
       <button class="btn plein" type="submit" style="justify-self: start">Envoyer ma demande</button>
-      <p class="plein" style="margin: 0; font-size: 13px">Votre messagerie s’ouvre avec la demande déjà rédigée.</p>
+      <label class="piege" aria-hidden="true">Ne pas remplir<input name="site_web" type="text" tabindex="-1" autocomplete="off"></label>
+      <p class="plein statut" data-statut-marque role="status" hidden></p>
     </form>
   </section>
 </Base>
@@ -128,6 +129,8 @@ const galerie = [
   .tel :global(.ecran img) { width: 100%; height: 100%; object-fit: cover; }
   .etape { display: flex; flex-direction: column; gap: 10px; padding-top: 20px; border-top: 1px solid rgba(34,34,34,.2); font-size: 15px; line-height: 1.6; }
   .etape strong { font-size: 19px; font-weight: 600; }
+  .piege { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .statut { margin: 0; padding: 14px 18px; border-radius: 12px; background: rgba(231,156,194,.35); font-size: 15px; font-weight: 500; }
   .formulaire { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
   .formulaire .plein { grid-column: 1 / -1; }
   @media (max-width: 900px) {
@@ -140,11 +143,25 @@ const galerie = [
 </style>
 
 <script>
-  import { ouvrirMail, lignesDuFormulaire } from '../scripts/mail.js';
+  import { ouvrirMail, lignesDuFormulaire, envoyerDemande } from '../scripts/mail.js';
   const form = document.getElementById('form-marque') as HTMLFormElement;
-  form.addEventListener('submit', (e) => {
+  const statut = document.querySelector('[data-statut-marque]') as HTMLElement;
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!form.reportValidity()) return;
-    ouvrirMail(form.dataset.email, 'Projet de marque', lignesDuFormulaire(form));
+    const bouton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    bouton.disabled = true; bouton.textContent = 'Envoi en cours…';
+    const champ = (n: string) => ((form.elements.namedItem(n) as HTMLInputElement)?.value || '').trim();
+    const lignes = lignesDuFormulaire(form).filter((l) => !l.startsWith('site_web'));
+    const ok = await envoyerDemande({ type: 'marque', nom: champ('nom'), email: champ('email'), lignes, site_web: champ('site_web') });
+    bouton.disabled = false; bouton.textContent = 'Envoyer ma demande';
+    if (ok) {
+      form.reset();
+      statut.textContent = 'Merci, votre demande est bien arrivée. Ilona revient vers vous très vite par e-mail.';
+    } else {
+      ouvrirMail(form.dataset.email!, 'Projet de marque', lignes);
+      statut.textContent = 'Votre messagerie s’est ouverte avec la demande rédigée : il ne reste qu’à l’envoyer.';
+    }
+    statut.hidden = false;
   });
 </script>

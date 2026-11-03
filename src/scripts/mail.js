@@ -4,6 +4,16 @@ export function ouvrirMail(destinataire, sujet, lignes) {
   location.href = `mailto:${destinataire}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`;
 }
 
+// Envoie la demande au serveur (Resend). Renvoie true si elle est bien partie.
+export async function envoyerDemande(donnees) {
+  try {
+    const r = await fetch('/api/demande', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(donnees) });
+    return r.ok && (await r.json()).ok === true;
+  } catch {
+    return false;
+  }
+}
+
 // Transforme les champs nommés d'un formulaire en lignes « Libellé : valeur ».
 export function lignesDuFormulaire(form) {
   const lignes = [];
