@@ -33,7 +33,9 @@ const nav = [
 ];
 const courant = (cle: string) => (cle === page ? 'page' : undefined);
 const titreComplet = page === 'accueil' ? titre : `${titre} · Ilona Photographe`;
-const canonique = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', site.url).href;
+// Adresse propre, sans « .html » ni « /index » (Vercel sert les pages sans extension).
+const chemin = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '').replace(/\/$/, '') || '/';
+const canonique = new URL(chemin, site.url).href;
 const imageAbsolue = new URL(image, site.url).href;
 
 // Fiche de l'activité, reprise sur chaque page (Google, IA conversationnelles).

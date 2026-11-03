@@ -20,14 +20,14 @@
 - Cavaliers des Écuries d’En Ségur : 10 % de remise sur toutes les prestations
 
 ## Pages
-- [Séances photo équestres et tarifs](https://ilona-photographe-site.vercel.app/seances) : les quatre formules, un calculateur de prix déplacement compris et les questions fréquentes.
-- [Trouvez votre séance](https://ilona-photographe-site.vercel.app/trouver-ma-seance) : quiz de trois questions qui conseille la formule adaptée, avec son prix et les heures de lumière dorée à Toulouse.
-- [Photographe de concours équestre](https://ilona-photographe-site.vercel.app/concours) : photo, vidéo et réel souvenir le jour du concours.
-- [Contenu de marque et réseaux sociaux](https://ilona-photographe-site.vercel.app/marques) : shooting produit, vidéo, community management pour selleries, écuries, éleveurs et créateurs d’équipement.
-- [Étude de cas GaloPlan](https://ilona-photographe-site.vercel.app/etudes-de-cas/galoplan) : deux réels verticaux tournés à l’écurie pour l’application du cheval partagé.
-- [Réserver une séance](https://ilona-photographe-site.vercel.app/reservation) : demande en quatre étapes, confirmation par e-mail, rien n’est payé en ligne.
-- [Leçon : lire la lumière du soir](https://ilona-photographe-site.vercel.app/academie/lire-la-lumiere-du-soir) : photographier son cheval au coucher du soleil avec un téléphone.
-- [Préparer son cheval pour sa séance photo](https://ilona-photographe-site.vercel.app/journal/preparer-son-cheval) : pansage, harnachement, tenue du cavalier.
+- [Séances photo équestres et tarifs](https://ilonagaigne.com/seances) : les quatre formules, un calculateur de prix déplacement compris et les questions fréquentes.
+- [Trouvez votre séance](https://ilonagaigne.com/trouver-ma-seance) : quiz de trois questions qui conseille la formule adaptée, avec son prix et les heures de lumière dorée à Toulouse.
+- [Photographe de concours équestre](https://ilonagaigne.com/concours) : photo, vidéo et réel souvenir le jour du concours.
+- [Contenu de marque et réseaux sociaux](https://ilonagaigne.com/marques) : shooting produit, vidéo, community management pour selleries, écuries, éleveurs et créateurs d’équipement.
+- [Étude de cas GaloPlan](https://ilonagaigne.com/etudes-de-cas/galoplan) : deux réels verticaux tournés à l’écurie pour l’application du cheval partagé.
+- [Réserver une séance](https://ilonagaigne.com/reservation) : demande en quatre étapes, confirmation par e-mail, rien n’est payé en ligne.
+- [Leçon : lire la lumière du soir](https://ilonagaigne.com/academie/lire-la-lumiere-du-soir) : photographier son cheval au coucher du soleil avec un téléphone.
+- [Préparer son cheval pour sa séance photo](https://ilonagaigne.com/journal/preparer-son-cheval) : pansage, harnachement, tenue du cavalier.
 
 ## Déroulé d’une séance
 1. Réservation en ligne (formule, lieu, date, coordonnées).

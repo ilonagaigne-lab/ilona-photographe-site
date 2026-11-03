@@ -1,5 +1,5 @@
 export const site = {
-  url: 'https://ilona-photographe-site.vercel.app',
+  url: 'https://ilonagaigne.com',
   nom: 'Ilona Photographe',
   description: 'Photographe et vidéaste spécialisée dans l’univers équestre et la création de contenu de marque, près de Toulouse.',
 };

@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /galerie
 
-Sitemap: https://ilona-photographe-site.vercel.app/sitemap.xml
+Sitemap: https://ilonagaigne.com/sitemap.xml
