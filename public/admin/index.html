@@ -7,8 +7,42 @@
   <title>Administration · Ilona Photographe</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/admin/admin.css">
 </head>
 <body>
   <script src="https://unpkg.com/decap-cms@3.17.1/dist/decap-cms.js"></script>
+  <script>
+    // Bouton « Aide » en bas à droite : ouvre le mode d'emploi en quelques cartes.
+    (function () {
+      var cartes = [
+        ['1', 'Modifier puis publier', '<p>Ouvrez une fiche, faites vos changements, puis cliquez sur <strong>Publier</strong> en haut, et sur <strong>Publier maintenant</strong>. Rien n’est en ligne tant que vous n’avez pas publié. Comptez une à deux minutes avant de voir le changement sur le site.</p>'],
+        ['★', 'Surligner un mot en rose', '<p>Dans un titre, entourez le mot d’astérisques : <code>On se retrouve au *pré* ?</code>. Un retour à la ligne crée une nouvelle ligne dans le titre.</p>'],
+        ['€', 'Prix et formules', '<p>Dans « Formules et coordonnées ». Un prix changé une fois s’applique partout : pages, réservation, quiz, questions fréquentes et Google.</p>'],
+        ['⌖', 'Déplacements', '<p>Votre adresse (dans « Coordonnées ») sert de point de départ : le site calcule la distance par la route jusqu’à la commune du client. Seule votre commune est affichée.</p>'],
+        ['▣', 'Photos', '<ul><li>JPG de préférence, moins de 10 Mo : le site les allège tout seul.</li><li>Décrivez toujours la photo (pour Google et les personnes malvoyantes).</li><li>Si le sujet est coupé, changez le « Cadrage ».</li></ul>'],
+        ['▶', 'Vidéos', '<ul><li>MP4, moins de 25 Mo. Format vertical pour les réels.</li><li>Ajoutez une « image d’attente » : elle s’affiche avant la lecture et rend le site plus rapide.</li></ul>'],
+        ['↺', 'Pas de panique', '<p>Chaque publication est gardée dans l’historique : rien n’est jamais perdu, on peut toujours revenir en arrière.</p>'],
+      ];
+      var fond = document.createElement('div');
+      fond.className = 'aide-fond';
+      fond.setAttribute('role', 'dialog');
+      fond.setAttribute('aria-modal', 'true');
+      fond.setAttribute('aria-label', 'Mode d’emploi');
+      fond.innerHTML = '<div class="aide"><button type="button" class="aide-fermer" aria-label="Fermer">×</button><h1>Mode d’emploi</h1><p>Tout ce que vous modifiez ici apparaît sur <a href="https://ilonagaigne.com" target="_blank" rel="noopener">ilonagaigne.com</a> une à deux minutes après avoir publié.</p><div class="aide-grille">'
+        + cartes.map(function (c) { return '<div class="aide-carte"><h2><span>' + c[0] + '</span>' + c[1] + '</h2>' + c[2] + '</div>'; }).join('') + '</div></div>';
+      var bouton = document.createElement('button');
+      bouton.type = 'button';
+      bouton.className = 'aide-bouton';
+      bouton.innerHTML = '<span>?</span>Aide';
+      var ouvrir = function (oui) { fond.classList.toggle('ouvert', oui); if (oui) fond.querySelector('.aide-fermer').focus(); else bouton.focus(); };
+      bouton.addEventListener('click', function () { ouvrir(true); });
+      fond.addEventListener('click', function (e) { if (e.target === fond || e.target.closest('.aide-fermer')) ouvrir(false); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && fond.classList.contains('ouvert')) ouvrir(false); });
+      document.body.append(bouton, fond);
+    })();
+  </script>
 </body>
 </html>

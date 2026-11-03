@@ -26,6 +26,7 @@ public_folder: /src/assets/photos
 collections:
   - name: reglages
     label: Formules et coordonnées
+    description: Vos prix, ce que contient chaque formule, le calcul des déplacements et vos coordonnées. Modifiés une fois, ils s’appliquent partout sur le site.
     editor: { preview: false }
     files:
       - name: prestations
@@ -107,6 +108,7 @@ collections:
 
   - name: contenu
     label: Agenda, avis et questions
+    description: Les concours où vous serez présente, les avis de vos clients, les questions fréquentes et les résultats GaloPlan.
     editor: { preview: false }
     files:
       - name: agenda
@@ -176,65 +178,6 @@ collections:
     description: "Textes, photos et vidéos de chaque page. Dans les titres, entourez un mot d’astérisques pour le surligner en rose : *pré*."
     editor: { preview: false }
     files:
-
-      - name: page-seances
-        label: "Page Séances"
-        file: src/contenu/pages/seances.json
-        fields:
-          - label: En-tête
-            name: entete
-            widget: object
-            fields:
-              - { label: Petit titre, name: surtitre, widget: string }
-              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Introduction, name: chapo, widget: text }
-          - { label: Photo du bandeau, name: bandeau, widget: object, fields: *champs-photo }
-          - label: Formules
-            name: formules
-            widget: object
-            fields:
-              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
-              - { label: Mention, name: mention, widget: string }
-          - label: Vidéo
-            name: video
-            widget: object
-            fields:
-              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
-              - { label: Texte, name: texte, widget: text }
-              - label: Vidéo
-                name: video
-                widget: object
-                fields: &champs-video
-                  - { label: Fichier vidéo, name: fichier, widget: file, choose_url: false, media_folder: /public/videos, public_folder: /videos, hint: "MP4, moins de 25 Mo. Vertical (9:16) pour les réels." }
-                  - { label: Image d’attente, name: affiche, widget: image, required: false, choose_url: false, media_folder: /public/videos, public_folder: /videos, hint: "Image montrée avant la lecture (même cadrage que la vidéo)." }
-                  - { label: Description de la vidéo, name: titre, widget: string, hint: "Pour les personnes malvoyantes. Ex. : Réel de concours de Juliette et Bingo." }
-          - label: Comment ça se passe
-            name: deroule
-            widget: object
-            fields:
-              - { label: Titre, name: titre, widget: string }
-              - label: Étapes
-                name: etapes
-                widget: list
-                summary: "{{fields.titre}}"
-                fields:
-                  - { label: Titre, name: titre, widget: string }
-                  - { label: Texte, name: texte, widget: text }
-          - label: Calculateur
-            name: calcul
-            widget: object
-            fields:
-              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-          - label: Questions fréquentes
-            name: faq
-            widget: object
-            fields:
-              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose. Les questions se modifient dans « Agenda, avis et questions »." }
-          - label: Fin de page
-            name: fin
-            widget: object
-            fields:
-              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné (aplat rose)." }
 
       - name: page-index
         label: "Page Accueil"
@@ -346,7 +289,13 @@ collections:
                 fields:
                   - { label: Titre, name: titre, widget: string }
                   - { label: Étiquette, name: etiquette, widget: string }
-                  - { label: Vidéo, name: video, widget: object, fields: *champs-video }
+                  - label: Vidéo
+                    name: video
+                    widget: object
+                    fields: &champs-video
+                      - { label: Fichier vidéo, name: fichier, widget: file, choose_url: false, media_folder: /public/videos, public_folder: /videos, hint: "MP4, moins de 25 Mo. Vertical (9:16) pour les réels." }
+                      - { label: Image d’attente, name: affiche, widget: image, required: false, choose_url: false, media_folder: /public/videos, public_folder: /videos, hint: "Image montrée avant la lecture (même cadrage que la vidéo)." }
+                      - { label: Description de la vidéo, name: titre, widget: string, hint: "Pour les personnes malvoyantes. Ex. : Réel de concours de Juliette et Bingo." }
           - label: Favoris
             name: favoris
             widget: object
@@ -391,6 +340,62 @@ collections:
             fields:
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
               - { label: Mention, name: mention, widget: string }
+
+      - name: page-seances
+        label: "Page Séances"
+        file: src/contenu/pages/seances.json
+        fields:
+          - label: En-tête
+            name: entete
+            widget: object
+            fields:
+              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Introduction, name: chapo, widget: text }
+          - { label: Photo du bandeau, name: bandeau, widget: object, fields: *champs-photo }
+          - label: Formules
+            name: formules
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - { label: Mention, name: mention, widget: string }
+          - label: Vidéo
+            name: video
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - { label: Texte, name: texte, widget: text }
+              - label: Vidéo
+                name: video
+                widget: object
+                fields: *champs-video
+          - label: Comment ça se passe
+            name: deroule
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string }
+              - label: Étapes
+                name: etapes
+                widget: list
+                summary: "{{fields.titre}}"
+                fields:
+                  - { label: Titre, name: titre, widget: string }
+                  - { label: Texte, name: texte, widget: text }
+          - label: Calculateur
+            name: calcul
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+          - label: Questions fréquentes
+            name: faq
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose. Les questions se modifient dans « Agenda, avis et questions »." }
+          - label: Fin de page
+            name: fin
+            widget: object
+            fields:
+              - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné (aplat rose)." }
 
       - name: page-concours
         label: "Page Concours"
