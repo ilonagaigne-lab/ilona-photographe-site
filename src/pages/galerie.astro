@@ -1,0 +1,129 @@
+---
+import Base from '../layouts/Base.astro';
+import Coeur from '../components/Coeur.astro';
+import { Image } from 'astro:assets';
+import { galerieDemo } from '../data';
+import isabelle from '../assets/photos/cheval-cowgirl-isabelle.jpg';
+import bai from '../assets/photos/cheval-cowgirl-bai.jpg';
+import tete from '../assets/photos/cheval-tete-frontal.jpg';
+import deux from '../assets/photos/cheval-deux-chevaux.jpg';
+import poney from '../assets/photos/cheval-cavaliere-poney.jpg';
+import hero from '../assets/photos/hero-wide.jpg';
+import licol from '../assets/photos/packshot-bijou-licol.jpg';
+import selle from '../assets/photos/cheval-selle-ecurie.jpg';
+import horseHead from '../assets/photos/horse-head.jpg';
+import portrait from '../assets/photos/portrait.jpg';
+import saut from '../assets/photos/concours-saut.jpg';
+import robe from '../assets/photos/dress-field.jpg';
+
+const photos = [
+  { src: isabelle, alt: 'Cavalière contre l’encolure d’un cheval isabelle', pos: '50% 30%', on: true },
+  { src: bai, alt: 'Cavalière tenant son cheval bai au pré', pos: '50% 62%', on: true },
+  { src: tete, alt: 'Tête d’un cheval alezan, frontal pailleté', pos: '50% 40%', on: false },
+  { src: deux, alt: 'Deux chevaux alezans en fin d’été', pos: '50% 40%', on: true },
+  { src: poney, alt: 'Cavalière souriante sur son poney', pos: '40% 40%', on: true },
+  { src: hero, alt: 'Ilona et son cheval au coucher du soleil', pos: '55% 50%', on: false },
+  { src: licol, alt: 'Bijou de licol en forme de tête de cheval', pos: '50% 50%', on: true },
+  { src: selle, alt: 'Selle posée dans l’allée des écuries', pos: '50% 50%', on: true },
+  { src: horseHead, alt: 'Tête du cheval en contre-jour', pos: '50% 30%', on: true },
+  { src: portrait, alt: 'Portrait en robe blanche, devant le cheval', pos: '50% 22%', on: false },
+  { src: saut, alt: 'Saut d’obstacle en concours', pos: '52% 50%', on: true },
+  { src: robe, alt: 'Robe blanche et jambe du cheval dans les herbes', pos: '50% 40%', on: true },
+];
+const { quota, prixPhoto } = galerieDemo;
+---
+<Base titre="Votre galerie privée" description="Galerie privée : choisissez vos photos favorites après votre séance." page="galerie" indexer={false}>
+  <a slot="entete-action" class="nl" href="/" style="font-size: 14px">Se déconnecter</a>
+
+  <section class="wrap" style="padding-top: 24px; padding-bottom: 48px" data-reveal id="galerie" data-quota={quota} data-prix={prixPhoto}>
+    <p class="demo">Démonstration : chaque client recevra un lien privé vers sa propre galerie.</p>
+    <p style="margin: 0 0 32px; font-size: 14px"><strong style="font-weight: 600">[Prénom] &amp; [nom du cheval]</strong> · Séance Signature · [date]</p>
+    <div class="row entre bas g24" style="margin-bottom: 32px">
+      <div class="stack g12">
+        <p class="lbl">Votre galerie privée</p>
+        <h1 class="d" style="font-size: clamp(52px, 7vw, 104px)">Choisissez vos <span class="hl">favoris</span></h1>
+        <p class="texte" style="max-width: 620px; font-size: 16px">Votre formule inclut {quota} photos. Touchez le cœur (ou Tab puis Espace) pour choisir. Au-delà, chaque photo s’ajoute à {prixPhoto} €.</p>
+      </div>
+      <div class="row g8" role="group" aria-label="Filtrer les photos">
+        <button class="pastille" type="button" data-filtre="toutes" aria-pressed="true">Toutes ({photos.length})</button>
+        <button class="pastille" type="button" data-filtre="favoris" aria-pressed="false">Favoris (<span data-compte>0</span>)</button>
+      </div>
+    </div>
+    <ul class="grille-photos">
+      {photos.map((p, i) => (
+        <li class:list={['tuile', { choisie: p.on }]} data-curseur="choisir">
+          <Image src={p.src} alt={p.alt} widths={[400, 700]} sizes="(max-width: 760px) 50vw, 20vw" style={`object-position: ${p.pos}`} />
+          <span class="flash" aria-hidden="true"></span><span class="cadre" aria-hidden="true"></span>
+          <span class="num">N° {String(i + 1).padStart(2, '0')}</span>
+          <Coeur choisie={p.on} nom={p.alt} />
+        </li>
+      ))}
+    </ul>
+    <p data-vide hidden style="margin: 24px 0 0">Aucun favori pour l’instant. Touchez un cœur pour commencer.</p>
+  </section>
+
+  <div class="barre sombre" aria-live="polite">
+    <div class="wrap row entre centre" style="padding-block: 18px; gap: 14px 40px">
+      <div class="stack g8" style="flex: 1 1 320px">
+        <p style="margin: 0; font-size: 15px"><span class="prix" style="font-size: 32px"><span data-inclus>0</span> / {quota}</span>  photos incluses choisies</p>
+        <div class="jauge" aria-hidden="true"><span data-jauge style="transform: scaleX(0)"></span></div>
+      </div>
+      <p data-supplement hidden style="margin: 0; font-size: 15px">+ <span data-extra>0</span> en supplément × {prixPhoto} € = <span class="prix" style="font-size: 32px"><span data-total>0</span> €</span></p>
+      <button class="btn clair" type="button" data-valider>Valider ma sélection</button>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .demo { display: inline-block; margin: 0 0 20px; padding: 8px 14px; border-radius: 999px; background: var(--pervenche); font-size: 13px; }
+  .grille-photos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(46%, 230px), 1fr)); gap: 14px; }
+  .grille-photos .tuile[hidden] { display: none; }
+  .barre { position: sticky; bottom: 0; z-index: 10; box-shadow: 0 -20px 40px -20px rgba(34,34,34,.4); }
+  :global(.pied) { display: none; }
+  @media (max-width: 560px) { .grille-photos { gap: 8px; } }
+</style>
+
+<script>
+  const zone = document.getElementById('galerie')!;
+  const quota = Number(zone.dataset.quota);
+  const prix = Number(zone.dataset.prix);
+  const q = (s: string) => document.querySelector(s) as HTMLElement;
+  let filtre = 'toutes';
+  function maj() {
+    const tuiles = [...zone.querySelectorAll<HTMLElement>('.tuile')];
+    const n = tuiles.filter((t) => t.classList.contains('choisie')).length;
+    const extra = Math.max(0, n - quota);
+    q('[data-compte]').textContent = String(n);
+    q('[data-inclus]').textContent = String(Math.min(n, quota));
+    q('[data-jauge]').style.transform = `scaleX(${Math.min(n / quota, 1)})`;
+    q('[data-supplement]').hidden = extra === 0;
+    q('[data-extra]').textContent = String(extra);
+    q('[data-total]').textContent = String(extra * prix);
+    q('[data-valider]').textContent = extra ? `Valider et régler ${extra * prix} €` : 'Valider ma sélection';
+    for (const t of tuiles) t.hidden = filtre === 'favoris' && !t.classList.contains('choisie');
+    q('[data-vide]').hidden = !(filtre === 'favoris' && n === 0);
+  }
+  zone.addEventListener('click', (e) => {
+    const cible = e.target as HTMLElement;
+    const coeur = cible.closest('.coeur');
+    if (coeur) {
+      const tuile = coeur.closest('.tuile') as HTMLElement;
+      const on = coeur.getAttribute('aria-pressed') !== 'true';
+      coeur.setAttribute('aria-pressed', String(on));
+      tuile.classList.toggle('choisie', on);
+      if (on) { tuile.classList.remove('flashe'); void tuile.offsetWidth; tuile.classList.add('flashe'); }
+      maj();
+      return;
+    }
+    const f = cible.closest<HTMLElement>('[data-filtre]');
+    if (f) {
+      filtre = f.dataset.filtre!;
+      zone.querySelectorAll('[data-filtre]').forEach((b) => b.setAttribute('aria-pressed', String(b === f)));
+      maj();
+    }
+  });
+  q('[data-valider]').addEventListener('click', () => {
+    alert('Démonstration : ici, la sélection sera envoyée à Ilona et les photos supplémentaires réglées en ligne.');
+  });
+  maj();
+</script>

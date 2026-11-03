@@ -1,0 +1,161 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import Reel from '../components/Reel.astro';
+import { Image } from 'astro:assets';
+import { seances, deplacement } from '../data';
+import deux from '../assets/photos/cheval-deux-chevaux.jpg';
+import poney from '../assets/photos/cheval-cavaliere-poney.jpg';
+import isabelle from '../assets/photos/cheval-cowgirl-isabelle.jpg';
+import bai from '../assets/photos/cheval-cowgirl-bai.jpg';
+import tete from '../assets/photos/cheval-tete-frontal.jpg';
+
+const visuels = {
+  sport: { src: poney, alt: 'Jeune cavalière sur son poney, en tenue de concours' },
+  complicite: { src: isabelle, alt: 'Cavalière contre l’encolure d’un cheval isabelle' },
+  signature: { src: bai, alt: 'Cavalière et son cheval bai au pré, en fin de journée' },
+  collection: { src: tete, alt: 'Tête d’un cheval alezan, frontal pailleté' },
+};
+const km = deplacement.prixKm.toString().replace('.', ',');
+---
+<Base titre="Séances et tarifs équestres" description="Séances photo équestres près de Toulouse : Sport 90 €, Complicité 110 €, Signature 180 €, Collection complète 250 €. Calculez votre prix, déplacement compris." page="seances">
+
+  <section class="wrap row entre bas g32" style="padding-top: clamp(24px, 4vw, 64px)" data-reveal aria-labelledby="titre">
+    <div>
+      <p class="lbl">Séances &amp; tarifs · près de Toulouse</p>
+      <h1 id="titre" class="d h1" style="margin-top: 18px">
+        <span class="rv"><span>Séances</span></span>
+        <span class="rv"><span style="--d: .2s"><span class="hl" style="--d: .9s">équestres</span></span></span>
+      </h1>
+    </div>
+    <p class="chapo apparait" style="max-width: 440px">Quatre formules, du portrait sportif à la collection complète. Je viens à votre écurie ou au pré, et on avance au rythme de votre cheval.</p>
+  </section>
+
+  <div data-reveal style="margin-top: clamp(40px, 5vw, 72px)">
+    <Photo src={deux} alt="Deux chevaux alezans dans la lumière de fin d’été" ratio="21 / 8" pos="50% 30%" prioritaire tailles="100vw" class="bandeau" />
+  </div>
+
+  <section class="wrap section stack g48" data-reveal aria-labelledby="formules">
+    <div class="row entre bas g20">
+      <h2 id="formules" class="d h2">Quatre <span class="hl">formules</span></h2>
+      <p class="lbl">Prix TTC · déplacement en sus</p>
+    </div>
+    <div class="grille" style="--min: 260px; gap: 20px">
+      {seances.map((s) => (
+        <article class:list={['carte', 'stack', 'g16', 'formule', { vedette: s.id === 'signature' }]}>
+          <Image src={visuels[s.id].src} alt={visuels[s.id].alt} widths={[400, 700]} sizes="(max-width: 760px) 100vw, 25vw" class="formule-img" />
+          <div class="stack g16" style="padding: 0 30px 30px; flex: 1">
+            <div class="row g8"><span class="chip">Photo</span>{s.id === 'collection' && <span class="chip or">Vidéo</span>}</div>
+            <h3 class="d h3">{s.nom}</h3>
+            <p class="prix" style="font-size: 72px; margin: 0">{s.prix} €</p>
+            <p style="margin: 0; font-size: 15px; line-height: 1.55; opacity: .9">{s.accroche}</p>
+            <ul class="liste li" style="font-size: 16px; flex: 1"><li>[Durée]</li><li>[Photos incluses]</li></ul>
+            <a class="btn clair" href={`/reservation?formule=${s.id}`}>Choisir {s.nom.split(' ')[0]}</a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="wrap section sans-haut row centre" style="gap: 40px clamp(40px, 6vw, 96px)" data-reveal aria-labelledby="reel">
+    <Reel video="video-seance-platinium" titre="Réel : séance avec Platinium d’en Fer" style="flex: 0 1 380px" />
+    <div class="stack g20" style="flex: 1 1 420px">
+      <span class="chip or" style="align-self: flex-start">Vidéo</span>
+      <h2 id="reel" class="d h2">La séance, <span class="hl">en mouvement</span></h2>
+      <p class="texte" style="max-width: 520px">Platinium d’en Fer, à la tombée du jour. Ajoutez la vidéo à votre séance : un réel vertical, monté pour être partagé.</p>
+      <a class="btn contour" href="/reservation" style="align-self: flex-start">Ajouter la vidéo</a>
+    </div>
+  </section>
+
+  <section class="wrap section sans-haut stack g32" data-reveal aria-labelledby="calcul">
+    <div class="row entre bas g20">
+      <h2 id="calcul" class="d h2">Votre prix,<br><span class="hl">déplacement</span> compris</h2>
+      <p class="texte" style="max-width: 380px; font-size: 15px">Déplacement offert jusqu’à {deplacement.gratuitJusqua} km de Toulouse, puis {km} € par kilomètre.</p>
+    </div>
+    <div class="row g24" style="align-items: stretch" id="calculateur" data-gratuit={deplacement.gratuitJusqua} data-km={deplacement.prixKm}>
+      <div class="stack g32" style="flex: 2 1 520px; border-radius: 16px; box-shadow: inset 0 0 0 1.5px rgba(34,34,34,.25); padding: clamp(22px, 3vw, 36px)">
+        <fieldset style="border: 0; margin: 0; padding: 0">
+          <legend class="lbl" style="color: var(--encre); padding: 0; margin-bottom: 14px">1 · La formule</legend>
+          <div class="row g8">
+            {seances.map((s) => <button type="button" class="pastille" data-formule={s.id} data-nom={s.nom} data-prix={s.prix} aria-pressed={s.id === 'signature' ? 'true' : 'false'}>{s.nom} · {s.prix} €</button>)}
+          </div>
+        </fieldset>
+        <div class="stack g8">
+          <label for="km" class="lbl" style="color: var(--encre)">2 · Distance depuis Toulouse : <span style="color: var(--rose-profond)" data-sortie="km">45 km</span></label>
+          <input id="km" type="range" min="0" max="150" step="5" value="45" style="width: 100%; accent-color: var(--rose-profond); height: 44px">
+          <div class="row entre" style="font-size: 13px"><span>0 km</span><span>150 km</span></div>
+        </div>
+        <label class="case"><input type="checkbox" id="segur">Je suis cavalier ou cavalière aux Écuries d’En Ségur (-10 %)</label>
+      </div>
+      <div class="carte stack g16" style="flex: 1 1 320px; padding: clamp(22px, 3vw, 36px)" aria-live="polite">
+        <p class="lbl">Estimation</p>
+        <div class="row entre" style="padding-bottom: 12px; border-bottom: 1px solid rgba(236,235,231,.18)"><span>Séance <span data-sortie="nom">Signature</span></span><span><span data-sortie="prix">180</span> €</span></div>
+        <div class="row entre" style="padding-bottom: 12px; border-bottom: 1px solid rgba(236,235,231,.18)"><span>Déplacement</span><span><span data-sortie="deplacement">13</span> €</span></div>
+        <div class="row entre" data-ligne-remise hidden style="padding-bottom: 12px; border-bottom: 1px solid rgba(236,235,231,.18)"><span>Remise En Ségur</span><span>-<span data-sortie="remise">0</span> €</span></div>
+        <p style="margin: 8px 0 0; font-size: 14px">Total estimé</p>
+        <p class="prix" style="font-size: clamp(64px, 7vw, 96px); margin: 0"><span data-sortie="total">193</span> €</p>
+        <a class="btn clair" href="/reservation?formule=signature" data-sortie-lien style="align-self: flex-start; margin-top: auto">Réserver cette séance</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section sans-haut stack g32" data-reveal aria-labelledby="deroule">
+    <h2 id="deroule" class="d h2">Comment ça se <span class="hl">passe</span></h2>
+    <ol class="grille" style="--min: 240px; list-style: none; margin: 0; padding: 0">
+      <li class="etape"><span class="d" style="font-size: 56px; color: var(--rose-profond)">01</span><h3>Vous réservez</h3><p>Formule, lieu et date en quatre étapes. Je confirme sous quelques jours.</p></li>
+      <li class="etape"><span class="d" style="font-size: 56px; color: var(--rose-profond)">02</span><h3>On prépare</h3><p>Tenue, lieu, heure de lumière : je vous envoie mes conseils pour arriver serein.</p></li>
+      <li class="etape"><span class="d" style="font-size: 56px; color: var(--rose-profond)">03</span><h3>La séance</h3><p>Pas de pose forcée. Le cheval donne le rythme, je guette l’instant.</p></li>
+      <li class="etape"><span class="d" style="font-size: 56px; color: var(--rose-profond)">04</span><h3>Votre galerie</h3><p>Une galerie privée où vous choisissez vos favoris, et ajoutez des photos si le cœur vous en dit.</p></li>
+    </ol>
+  </section>
+
+  <section class="sombre" data-reveal aria-labelledby="cta">
+    <div class="wrap row entre centre g32" style="padding-block: clamp(64px, 8vw, 96px)">
+      <h2 id="cta" class="d" style="font-size: clamp(52px, 8vw, 120px)">Une date <span class="hl plein">en tête</span> ?</h2>
+      <a class="btn clair grand" href="/reservation">Réserver une séance</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .formule { overflow: hidden; padding: 0; }
+  .formule.vedette { box-shadow: 0 0 0 3px var(--rose), var(--ombre); }
+  .formule :global(.formule-img) { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .etape { display: flex; flex-direction: column; gap: 12px; padding-top: 24px; border-top: 1px solid rgba(34,34,34,.2); }
+  .etape h3 { margin: 0; font-size: 20px; font-weight: 600; }
+  .etape p { margin: 0; font-size: 15px; line-height: 1.6; }
+  @media (max-width: 760px) { :global(.bandeau) { aspect-ratio: 4 / 3 !important; } }
+</style>
+
+<script>
+  const zone = document.getElementById('calculateur')!;
+  const gratuit = Number(zone.dataset.gratuit);
+  const prixKm = Number(zone.dataset.km);
+  const km = zone.querySelector<HTMLInputElement>('#km')!;
+  const segur = zone.querySelector<HTMLInputElement>('#segur')!;
+  const sortie = (n: string) => zone.querySelector(`[data-sortie="${n}"]`)!;
+  let formule = zone.querySelector<HTMLButtonElement>('[aria-pressed="true"]')!;
+  function calcule() {
+    const prix = Number(formule.dataset.prix);
+    const dep = Math.round(Math.max(0, Number(km.value) - gratuit) * prixKm);
+    const remise = segur.checked ? Math.round((prix + dep) * 0.1) : 0;
+    sortie('km').textContent = `${km.value} km`;
+    sortie('nom').textContent = formule.dataset.nom!;
+    sortie('prix').textContent = String(prix);
+    sortie('deplacement').textContent = String(dep);
+    sortie('remise').textContent = String(remise);
+    (zone.querySelector('[data-ligne-remise]') as HTMLElement).hidden = !segur.checked;
+    sortie('total').textContent = String(prix + dep - remise);
+    zone.querySelector<HTMLAnchorElement>('[data-sortie-lien]')!.href = `/reservation?formule=${formule.dataset.formule}`;
+  }
+  zone.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-formule]');
+    if (!b) return;
+    formule.setAttribute('aria-pressed', 'false');
+    formule = b; b.setAttribute('aria-pressed', 'true');
+    calcule();
+  });
+  km.addEventListener('input', calcule);
+  segur.addEventListener('change', calcule);
+  calcule();
+</script>

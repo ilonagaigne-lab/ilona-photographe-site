@@ -1,0 +1,150 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import Reel from '../components/Reel.astro';
+import { Image } from 'astro:assets';
+import { contact } from '../data';
+import banane from '../assets/photos/marque-banane-rose.jpg';
+import telephone from '../assets/photos/marque-pochette-telephone.jpg';
+import sacRose from '../assets/photos/packshot-sac-rose.jpg';
+import licol from '../assets/photos/packshot-bijou-licol.jpg';
+import champagne from '../assets/photos/evenement-champagne.jpg';
+import patisseries from '../assets/photos/evenement-patisseries.jpg';
+import galoplan from '../assets/photos/galoplan-still-43.jpg';
+
+const galerie = [
+  { src: sacRose, alt: 'Sac pailleté rose à fermoir argenté, posé devant un ballon cœur', chip: 'Packshot', classe: '', legende: 'Maroquinerie', pos: '50% 50%' },
+  { src: licol, alt: 'Bijou de licol en forme de tête de cheval pailletée, accroché au licol', chip: 'Packshot', classe: '', legende: 'Équipement équestre', pos: '50% 50%' },
+  { src: champagne, alt: 'Invitée souriante, coupe de champagne à la main, lors d’une fête en plein air', chip: 'Événementiel', classe: 'pervenche', legende: 'Réception', pos: '45% 50%' },
+  { src: patisseries, alt: 'Buffet de mignardises : red velvet, choux et cannelés', chip: 'Événementiel', classe: 'pervenche', legende: 'Buffet', pos: '50% 50%' },
+];
+---
+<Base titre="Contenu de marque et réseaux sociaux" description="Photo, vidéo et community management pour les marques équestres : selleries, écuries, éleveurs, créateurs d’équipement. Sur devis." page="marques">
+
+  <section class="wrap" style="padding-top: clamp(24px, 4vw, 64px)" data-reveal aria-labelledby="titre">
+    <p class="lbl">Contenu de marque · réseaux sociaux</p>
+    <h1 id="titre" class="d deborde" style="font-size: clamp(64px, 16vw, 236px); margin-top: 18px">
+      <span class="rv"><span>Votre marque,</span></span>
+      <span class="rv" style="padding-left: clamp(0px, 10vw, 150px)"><span style="--d: .2s">au <span class="hl" style="--d: .9s">galop</span></span></span>
+    </h1>
+    <div class="row entre bas g24" style="margin-top: 40px">
+      <p class="chapo apparait">Selleries, écuries, éleveurs, créateurs d’équipement : je produis les photos et les vidéos qui parlent à vos cavaliers, et je peux tenir vos réseaux au quotidien.</p>
+      <a class="btn apparait" href="#contact">Parler de votre projet</a>
+    </div>
+  </section>
+
+  <section class="wrap section" data-reveal aria-labelledby="formats">
+    <div class="formats">
+      <div class="stack g16" style="align-self: center">
+        <h2 id="formats" class="d" style="font-size: clamp(44px, 5.4vw, 80px); line-height: 1">Pensé pour le <span class="hl">pouce</span></h2>
+        <p class="texte" style="font-size: 16px">Chaque tournage livre des formats prêts à publier : verticaux, carrés, paysage.</p>
+      </div>
+      <figure class="tel">
+        <Reel video="video-marque-chocolatier" titre="Réel pour un chocolatier" class="ecran" />
+        <figcaption class="row g8 centre"><span class="chip or">Réel</span>Chocolatier</figcaption>
+      </figure>
+      <figure class="tel decale">
+        <div class="ecran" data-curseur="voir"><Image src={banane} alt="Exemple de carrousel : jeune femme portant une banane pailletée rose" widths={[400, 700]} sizes="(max-width: 760px) 60vw, 22vw" /></div>
+        <figcaption class="row g8 centre"><span class="chip pervenche">Carrousel</span>Série photo</figcaption>
+      </figure>
+      <figure class="tel">
+        <div class="ecran" data-curseur="voir"><Image src={telephone} alt="Exemple de story : pochette léopard portée en bandoulière, devant une façade de briques" widths={[400, 700]} sizes="(max-width: 760px) 60vw, 22vw" /></div>
+        <figcaption class="row g8 centre"><span class="chip pervenche">Story</span>Coulisses</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="wrap section sans-haut stack g48" data-reveal aria-labelledby="services">
+    <h2 id="services" class="d h2">Ce que je <span class="hl">fais</span> pour vous</h2>
+    <div class="grille">
+      <article class="carte stack g16" style="padding: 36px"><span class="chip" style="align-self: flex-start">Photo</span><h3 class="d h3">Shooting produit &amp; lifestyle</h3><ul class="liste li" style="font-size: 17px"><li>Produits portés, en situation</li><li>Portraits d’équipe et d’écurie</li><li>Images pour site et catalogue</li></ul></article>
+      <article class="carte stack g16" style="padding: 36px"><span class="chip or" style="align-self: flex-start">Vidéo</span><h3 class="d h3">Vidéo &amp; montage</h3><ul class="liste li" style="font-size: 17px"><li>Réels et formats courts</li><li>Films de présentation</li><li>Couverture d’événement</li></ul></article>
+      <article class="carte stack g16" style="padding: 36px"><span class="chip pervenche" style="align-self: flex-start">Réseaux</span><h3 class="d h3">Community management</h3><ul class="liste li" style="font-size: 17px"><li>Ligne éditoriale et calendrier</li><li>Publication et légendes</li><li>Réponses à votre communauté</li></ul></article>
+    </div>
+  </section>
+
+  <section class="wrap section sans-haut stack g32" data-reveal aria-labelledby="produits">
+    <h2 id="produits" class="d h2">Produits &amp; <span class="hl">événements</span></h2>
+    <div class="grille" style="--min: 240px">
+      {galerie.map((g) => (
+        <figure class="stack g12" style="margin: 0">
+          <Photo src={g.src} alt={g.alt} pos={g.pos} tailles="(max-width: 760px) 100vw, 25vw" />
+          <figcaption class="row g8 centre" style="font-size: 14px"><span class:list={['chip', g.classe]}>{g.chip}</span>{g.legende}</figcaption>
+        </figure>
+      ))}
+    </div>
+  </section>
+
+  <section style="background: var(--pervenche)" data-reveal aria-labelledby="cas">
+    <div class="wrap row centre" style="padding-block: clamp(56px, 7vw, 88px); gap: 40px clamp(40px, 6vw, 96px)">
+      <Photo src={galoplan} alt="Cavalière casquée qui embrasse son cheval gris, tournage GaloPlan" ratio="4 / 3" pos="50% 30%" cache="var(--pervenche)" tailles="(max-width: 760px) 100vw, 45vw" style="flex: 1 1 360px; border-radius: 16px" />
+      <div class="stack g20" style="flex: 1 1 420px">
+        <p class="lbl" style="color: var(--encre)">Étude de cas</p>
+        <h2 id="cas" class="d" style="font-size: clamp(40px, 5vw, 76px); line-height: 1">GaloPlan, l’app du cheval partagé racontée depuis l’écurie</h2>
+        <p class="texte" style="font-size: 17px">Deux réels verticaux pour l’app du cheval partagé : un film de lancement et un vlog de séance, tournés à l’écurie.</p>
+        <a class="btn" href="/etudes-de-cas/galoplan" style="align-self: flex-start">Lire l’étude de cas</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section stack g32" data-reveal aria-labelledby="temps">
+    <h2 id="temps" class="d h2">Quatre <span class="hl">temps</span></h2>
+    <ol class="grille" style="--min: 220px; list-style: none; margin: 0; padding: 0">
+      <li class="etape"><span class="d" style="font-size: 48px; color: var(--rose-profond)">01</span><strong>Le brief</strong><span>Votre cible, vos produits, le ton juste.</span></li>
+      <li class="etape"><span class="d" style="font-size: 48px; color: var(--rose-profond)">02</span><strong>Le tournage</strong><span>Une journée, photo et vidéo ensemble.</span></li>
+      <li class="etape"><span class="d" style="font-size: 48px; color: var(--rose-profond)">03</span><strong>Le montage</strong><span>Retouche et montage, avec vos retours.</span></li>
+      <li class="etape"><span class="d" style="font-size: 48px; color: var(--rose-profond)">04</span><strong>La publication</strong><span>Vous publiez, ou je m’en charge.</span></li>
+    </ol>
+  </section>
+
+  <section id="contact" class="wrap section sans-haut row" style="gap: 48px clamp(40px, 6vw, 96px)" data-reveal aria-labelledby="titre-contact">
+    <div class="stack g20" style="flex: 1 1 360px">
+      <h2 id="titre-contact" class="d h2">Parlons de votre <span class="hl">projet</span></h2>
+      <p class="texte">Chaque projet est sur devis. Dites-m’en un peu, je reviens vers vous avec une proposition.</p>
+      <p style="margin: 0; font-size: 15px">{contact.email} · {contact.telephone}</p>
+    </div>
+    <form id="form-marque" class="formulaire" style="flex: 1 1 520px" data-email={contact.email}>
+      <label class="champ">Votre nom<input class="saisie" name="nom" data-libelle="Nom" type="text" autocomplete="name" required></label>
+      <label class="champ">Votre marque<input class="saisie" name="marque" data-libelle="Marque" type="text" autocomplete="organization"></label>
+      <label class="champ plein">E-mail<input class="saisie" name="email" data-libelle="E-mail" type="email" autocomplete="email" required></label>
+      <fieldset class="plein" style="border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 24px">
+        <legend style="font-size: 14px; font-weight: 500; padding: 0; margin-bottom: 8px">Ce dont vous avez besoin</legend>
+        <label class="case"><input type="checkbox" name="photo" data-libelle="Besoin photo">Photo</label>
+        <label class="case"><input type="checkbox" name="video" data-libelle="Besoin vidéo">Vidéo</label>
+        <label class="case"><input type="checkbox" name="reseaux" data-libelle="Besoin réseaux sociaux">Réseaux sociaux</label>
+      </fieldset>
+      <label class="champ plein">Votre projet en quelques mots<textarea class="saisie" name="message" data-libelle="Projet"></textarea></label>
+      <button class="btn plein" type="submit" style="justify-self: start">Envoyer ma demande</button>
+      <p class="plein" style="margin: 0; font-size: 13px">Votre messagerie s’ouvre avec la demande déjà rédigée.</p>
+    </form>
+  </section>
+</Base>
+
+<style>
+  .formats { display: grid; grid-template-columns: minmax(0, 1.1fr) repeat(3, minmax(0, 1fr)); gap: 40px; align-items: end; }
+  .tel { margin: 0; display: flex; flex-direction: column; gap: 16px; font-size: 14px; }
+  .tel.decale { margin-bottom: 48px; }
+  .tel :global(.ecran) { border-radius: 28px; overflow: hidden; aspect-ratio: 9 / 16; box-shadow: 0 0 0 8px var(--encre), var(--ombre); background: #111; }
+  .tel :global(.ecran img) { width: 100%; height: 100%; object-fit: cover; }
+  .etape { display: flex; flex-direction: column; gap: 10px; padding-top: 20px; border-top: 1px solid rgba(34,34,34,.2); font-size: 15px; line-height: 1.6; }
+  .etape strong { font-size: 19px; font-weight: 600; }
+  .formulaire { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .formulaire .plein { grid-column: 1 / -1; }
+  @media (max-width: 900px) {
+    .formats { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--marge); margin-inline: calc(-1 * var(--marge)); padding: 8px var(--marge) 16px; gap: 24px; align-items: flex-start; }
+    .formats > div { flex: none; width: 70vw; scroll-snap-align: start; }
+    .tel { flex: none; width: 56vw; scroll-snap-align: start; }
+    .tel.decale { margin-bottom: 0; }
+  }
+  @media (max-width: 560px) { .formulaire { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  import { ouvrirMail, lignesDuFormulaire } from '../scripts/mail.js';
+  const form = document.getElementById('form-marque') as HTMLFormElement;
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    ouvrirMail(form.dataset.email, 'Projet de marque', lignesDuFormulaire(form));
+  });
+</script>

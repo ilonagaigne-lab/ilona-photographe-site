@@ -1,0 +1,117 @@
+---
+import '@fontsource/anton/latin-400.css';
+import '@fontsource/poppins/latin-300-italic.css';
+import '@fontsource/poppins/latin-400.css';
+import '@fontsource/poppins/latin-500.css';
+import '@fontsource/poppins/latin-600.css';
+import '../styles/global.css';
+import { Image } from 'astro:assets';
+import logo from '../assets/logo-ink.webp';
+import logoBlanc from '../assets/logo-white.webp';
+import { contact } from '../data';
+import anton from '@fontsource/anton/files/anton-latin-400-normal.woff2?url';
+
+interface Props {
+  titre: string;
+  description: string;
+  page?: 'accueil' | 'seances' | 'concours' | 'marques' | 'academie' | 'journal' | 'galerie' | 'reservation' | 'autre';
+  indexer?: boolean;
+  entete?: 'complet' | 'simple';
+}
+const { titre, description, page = 'autre', indexer = true, entete = 'complet' } = Astro.props;
+const nav = [
+  { cle: 'seances', libelle: 'Séances équestres', court: 'Séances', href: '/seances' },
+  { cle: 'concours', libelle: 'Concours', court: 'Concours', href: '/concours' },
+  { cle: 'marques', libelle: 'Marques & réseaux', court: 'Marques', href: '/marques' },
+  { cle: 'academie', libelle: 'Académie', court: 'Académie', href: '/academie/lire-la-lumiere-du-soir' },
+  { cle: 'journal', libelle: 'Journal', court: 'Journal', href: '/journal/preparer-son-cheval' },
+];
+const courant = (cle: string) => (cle === page ? 'page' : undefined);
+const titreComplet = page === 'accueil' ? titre : `${titre} · Ilona Photographe`;
+---
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{titreComplet}</title>
+  <meta name="description" content={description}>
+  {!indexer && <meta name="robots" content="noindex, nofollow">}
+  <meta name="theme-color" content="#ECEBE7">
+  <meta property="og:title" content={titreComplet}>
+  <meta property="og:description" content={description}>
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href={anton} as="font" type="font/woff2" crossorigin>
+  <script is:inline>document.documentElement.classList.add('js');</script>
+  <slot name="head" />
+</head>
+<body>
+  <a class="skip" href="#contenu">Aller au contenu</a>
+
+  <header class="entete">
+    <div class="wrap">
+      <a href="/" class="logo" aria-label="Ilona Photographe, accueil">
+        <span class={page === 'accueil' ? 'logo-trace' : undefined}><Image src={logo} alt="" width={296} loading="eager" /></span>
+      </a>
+      {entete === 'complet' && (
+        <nav class="nav-principale" aria-label="Navigation principale">
+          <ul>{nav.map((n) => <li><a class="nl" href={n.href} aria-current={courant(n.cle)}>{n.libelle}</a></li>)}</ul>
+        </nav>
+      )}
+      <div class="entete-actions">
+        {entete === 'complet' && <a class="nl" href="/galerie" aria-current={courant('galerie')}>Ma galerie</a>}
+        <slot name="entete-action"><a class="btn" href="/reservation">Réserver</a></slot>
+        {entete === 'complet' && (
+          <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9h16M4 15h16" /></svg>
+          </button>
+        )}
+      </div>
+    </div>
+  </header>
+
+  {entete === 'complet' && (
+    <div class="menu sombre" id="menu" role="dialog" aria-modal="true" aria-label="Menu">
+      <div class="menu-haut">
+        <a href="/" class="logo" aria-label="Ilona Photographe, accueil"><Image src={logoBlanc} alt="" width={296} /></a>
+        <button class="menu-fermer" type="button" aria-label="Fermer le menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </div>
+      <nav aria-label="Navigation mobile">
+        <ul class="d">{nav.map((n) => <li><a href={n.href} aria-current={courant(n.cle)}>{n.court}</a></li>)}</ul>
+      </nav>
+      <div class="menu-bas">
+        <a href="/galerie">Accéder à ma galerie</a>
+        <a class="btn grand" href="/reservation">Réserver une séance</a>
+        <a href={contact.telephoneLien}>{contact.telephone}</a>
+        <a href={`mailto:${contact.email}`}>{contact.email}</a>
+        <a href={contact.instagramLien} style="color: var(--pervenche)">{contact.instagram}</a>
+      </div>
+    </div>
+  )}
+
+  <main id="contenu">
+    <slot />
+  </main>
+
+  <footer class="pied">
+    <div class="wrap">
+      <a href="/" class="logo" aria-label="Ilona Photographe, accueil" style="width: 116px"><Image src={logo} alt="" width={232} /></a>
+      <ul>
+        <li><a class="nl" href="/seances" style="font-size: 14px">Tarifs</a></li>
+        <li><a class="nl" href="/reservation" style="font-size: 14px">Réserver</a></li>
+        <li><a class="nl" href={`mailto:${contact.email}`} style="font-size: 14px">Contact</a></li>
+        <li><a class="nl" href={contact.instagramLien} style="font-size: 14px">Instagram</a></li>
+      </ul>
+      <p>© {new Date().getFullYear()} Ilona Photographe · près de Toulouse</p>
+    </div>
+  </footer>
+
+  <div class="obturateur" aria-hidden="true"><i></i><i></i></div>
+  <div class="curseur" aria-hidden="true"></div>
+  <script>import '../scripts/site.js';</script>
+</body>
+</html>

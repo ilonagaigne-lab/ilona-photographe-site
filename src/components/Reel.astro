@@ -1,0 +1,13 @@
+---
+interface Props {
+  video: string;
+  titre: string;
+  or?: boolean;
+  class?: string;
+  style?: string;
+}
+const { video, titre, or = false, class: classe = '', style = '' } = Astro.props;
+---
+<div class:list={['reel', { or }, classe]} style={style} data-curseur="lecture">
+  <video src={`/videos/${video}.mp4`} poster={`/videos/${video}-poster.jpg`} controls playsinline preload="none" aria-label={titre}></video>
+</div>

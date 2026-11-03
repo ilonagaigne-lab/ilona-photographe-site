@@ -1,0 +1,87 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import Reel from '../components/Reel.astro';
+import saut from '../assets/photos/concours-saut.jpg';
+---
+<Base titre="Photo et vidéo de concours" description="Photographe de concours équestre près de Toulouse : photo 60 €, photo + vidéo 80 €, réel souvenir 50 €. Réservez avant l’épreuve." page="concours">
+
+  <section class="wrap row bas" style="padding-top: clamp(24px, 4vw, 64px); gap: 40px clamp(40px, 6vw, 96px)" data-reveal aria-labelledby="titre">
+    <div style="flex: 2 1 560px">
+      <p class="lbl">Photo &amp; vidéo de concours</p>
+      <h1 id="titre" class="d" style="font-size: clamp(72px, 12vw, 200px); margin-top: 18px">
+        <span class="rv"><span>Le jour du</span></span>
+        <span class="rv"><span style="--d: .2s"><span class="hl" style="--d: .9s">concours</span></span></span>
+      </h1>
+      <p class="chapo apparait" style="margin-top: 32px">Vous vous concentrez sur votre parcours, je m’occupe de le garder. Réservez avant l’épreuve : je repère votre passage et je ne vous lâche pas de l’objectif.</p>
+    </div>
+    <Photo src={saut} alt="Cheval bai franchissant un obstacle coloré en concours de saut" ratio="4 / 5" pos="52% 50%" prioritaire delai=".3s" tailles="(max-width: 760px) 100vw, 33vw" style="flex: 1 1 320px" />
+  </section>
+
+  <section class="wrap section stack g48" data-reveal aria-labelledby="formats">
+    <h2 id="formats" class="d h2">Trois <span class="hl">formats</span></h2>
+    <div class="grille">
+      <article class="carte stack g16" style="padding: 36px">
+        <span class="chip" style="align-self: flex-start">Photo</span>
+        <h3 class="d h3">Photo</h3>
+        <p class="prix" style="font-size: 88px; margin: 0">60 €</p>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; opacity: .9; flex: 1">Votre parcours en images, livré dans votre galerie privée.</p>
+        <a class="btn clair" href="/reservation?formule=concours-photo" style="align-self: flex-start">Réserver la photo</a>
+      </article>
+      <article class="carte stack g16" style="padding: 36px; box-shadow: 0 0 0 3px var(--or), var(--ombre)">
+        <div class="row g8"><span class="chip">Photo</span><span class="chip or">Vidéo</span></div>
+        <h3 class="d h3">Photo + vidéo</h3>
+        <p class="prix" style="font-size: 88px; margin: 0">80 €</p>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; opacity: .9; flex: 1">Les images et la vidéo de votre passage, pour revoir chaque foulée.</p>
+        <a class="btn clair" href="/reservation?formule=concours-video" style="align-self: flex-start">Réserver photo + vidéo</a>
+      </article>
+      <article class="carte stack g16" style="padding: 36px">
+        <span class="chip or" style="align-self: flex-start">Vidéo</span>
+        <h3 class="d h3">Réel souvenir</h3>
+        <p class="prix" style="font-size: 88px; margin: 0">50 €</p>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; opacity: .9; flex: 1">Un montage court et vertical, prêt à partager sur vos réseaux.</p>
+        <a class="btn clair" href="/reservation?formule=concours-reel" style="align-self: flex-start">Réserver le réel</a>
+      </article>
+    </div>
+  </section>
+
+  <section class="wrap section sans-haut row centre" style="gap: 40px clamp(40px, 6vw, 96px)" data-reveal aria-labelledby="reel">
+    <div class="stack g20" style="flex: 1 1 420px">
+      <span class="chip or" style="align-self: flex-start">Réel souvenir</span>
+      <h2 id="reel" class="d h2">Revoir chaque <span class="hl">foulée</span></h2>
+      <p class="texte" style="max-width: 520px">Juliette et Bingo, du paddock au tour d’honneur. Un montage vertical d’une trentaine de secondes, prêt à partager.</p>
+      <a class="btn contour" href="/reservation?formule=concours-reel" style="align-self: flex-start">Réserver mon réel · 50 €</a>
+    </div>
+    <Reel video="video-concours" titre="Réel de concours : Juliette et Bingo" or style="flex: 0 1 380px" />
+  </section>
+
+  <section class="wrap section sans-haut stack g32" data-reveal aria-labelledby="agenda">
+    <div class="row entre bas g20">
+      <h2 id="agenda" class="d h2">Où me <span class="hl">trouver</span></h2>
+      <p class="texte" style="max-width: 380px; font-size: 15px">Mes prochains concours. Votre épreuve n’y est pas ? Écrivez-moi, on regarde ensemble.</p>
+    </div>
+    <ul class="agenda">
+      {[1, 2, 3, 4].map(() => (
+        <li><p class="d" style="font-size: 40px">[Date]</p><p style="font-weight: 600; font-size: 17px">[Nom du concours]</p><p class="li">[Lieu] · [discipline]</p><a class="btn contour" href="/reservation?formule=concours-photo">Réserver ma photo</a></li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="sombre" data-reveal aria-labelledby="cta">
+    <div class="wrap row entre centre g32" style="padding-block: clamp(64px, 8vw, 96px)">
+      <h2 id="cta" class="d" style="font-size: clamp(52px, 8vw, 120px)">À vos <span class="hl plein">marques</span></h2>
+      <a class="btn clair grand" href="/reservation?formule=concours-photo">Réserver mon concours</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .agenda { list-style: none; margin: 0; padding: 0; }
+  .agenda li { display: grid; grid-template-columns: 160px minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px 24px; align-items: center; padding: 22px 0; border-top: 1px solid rgba(34,34,34,.2); }
+  .agenda li:last-child { border-bottom: 1px solid rgba(34,34,34,.2); }
+  .agenda p { margin: 0; }
+  @media (max-width: 760px) {
+    .agenda li { grid-template-columns: 1fr; }
+    .agenda .btn { justify-self: start; }
+  }
+</style>

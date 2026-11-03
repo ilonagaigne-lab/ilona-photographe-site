@@ -1,0 +1,24 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  ratio?: string;
+  pos?: string;
+  delai?: string;
+  cache?: string;
+  prioritaire?: boolean;
+  tailles?: string;
+  class?: string;
+  style?: string;
+  curseur?: boolean;
+}
+const { src, alt, ratio = '4 / 5', pos = '50% 50%', delai, cache, prioritaire = false, tailles = '(max-width: 760px) 100vw, 50vw', class: classe = '', style = '', curseur = true } = Astro.props;
+const vars = [`aspect-ratio: ${ratio}`, delai ? `--d: ${delai}` : '', cache ? `--cache: ${cache}` : '', style].filter(Boolean).join('; ');
+---
+<figure class:list={['ph', classe]} style={vars} data-curseur={curseur ? 'voir' : undefined}>
+  <Image src={src} alt={alt} widths={[480, 800, 1200, 1600]} sizes={tailles} loading={prioritaire ? 'eager' : 'lazy'} fetchpriority={prioritaire ? 'high' : undefined} style={`object-position: ${pos}`} />
+  <slot />
+</figure>

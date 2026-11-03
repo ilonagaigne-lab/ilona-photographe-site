@@ -1,0 +1,16 @@
+---
+// Prix qui défile comme un compteur (transform uniquement). Le dernier chiffre fait un tour complet.
+interface Props { valeur: number; delai?: number; }
+const { valeur, delai = 0.5 } = Astro.props;
+const chiffres = String(valeur).split('').map(Number);
+const colonnes = chiffres.map((c, i) => {
+  const dernier = i === chiffres.length - 1;
+  const fin = dernier && c === 0 ? 10 : c;
+  // Un « 1 » est plus étroit que les autres chiffres : il reste fixe pour ne pas laisser de trou.
+  const suite = !dernier && c === 1 ? [1] : Array.from({ length: fin + 1 }, (_, k) => k % 10);
+  return { fin: suite.length - 1, suite, delai: delai + i * 0.1 };
+});
+---
+<span class="sr">{valeur} €</span><span class="odo" aria-hidden="true">{colonnes.map((col) => (
+  <span class="c" style={`--n: ${col.fin}; --d: ${col.delai}s`}>{col.suite.map((k) => <span>{k}</span>)}</span>
+))}</span><span aria-hidden="true">&nbsp;€</span>

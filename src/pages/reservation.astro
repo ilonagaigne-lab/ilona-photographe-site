@@ -1,0 +1,194 @@
+---
+import Base from '../layouts/Base.astro';
+import { seances, concours, contact } from '../data';
+const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
+---
+<Base titre="Réserver une séance" description="Réservez votre séance photo équestre, votre photo de concours ou votre réel en quatre étapes." page="reservation" entete="simple">
+  <a slot="entete-action" class="nl" href="/seances" style="font-size: 14px">Quitter la réservation</a>
+
+  <section class="wrap" style="padding-top: 16px; padding-bottom: clamp(64px, 8vw, 120px)" data-reveal>
+    <h1 class="d" style="font-size: clamp(52px, 7vw, 104px)">Réserver <span class="hl">votre séance</span></h1>
+    <ol class="etapes" aria-label="Étapes">
+      {etapes.map((e, i) => <li data-etape={i + 1} aria-current={i === 0 ? 'step' : undefined}><span class="n">{i + 1}</span><span class="t">{e}</span></li>)}
+    </ol>
+
+    <form id="resa" class="row" style="gap: 40px; align-items: flex-start" novalidate>
+      <div style="flex: 2 1 560px; min-width: 0">
+        <fieldset class="pane" data-pane="1">
+          <legend class="d" style="font-size: 44px">Quelle prestation ?</legend>
+          <p class="lbl" style="color: var(--encre)">Séances équestres</p>
+          <div class="choix">{seances.map((s) => <button type="button" class="option" data-formule={s.id} data-nom={s.nom} data-prix={s.prix} aria-pressed={s.id === 'signature' ? 'true' : 'false'}><strong>{s.nom}</strong><span class="d" style="font-size: 32px; color: var(--rose-profond)">{s.prix} €</span></button>)}</div>
+          <p class="lbl" style="color: var(--encre)">Concours</p>
+          <div class="choix">{concours.map((c) => <button type="button" class="option" data-formule={c.id} data-nom={c.nom} data-prix={c.prix} aria-pressed="false"><strong>{c.nom}</strong><span class="d" style="font-size: 32px; color: var(--rose-profond)">{c.prix} €</span></button>)}</div>
+        </fieldset>
+
+        <fieldset class="pane" data-pane="2" hidden>
+          <legend class="d" style="font-size: 44px">Où et quand ?</legend>
+          <label class="champ">Commune ou nom de l’écurie<input class="saisie" name="lieu" data-libelle="Lieu" type="text" placeholder="Ex. Muret" required></label>
+          <label class="champ" style="max-width: 320px">Date souhaitée<input class="saisie" name="date" data-libelle="Date souhaitée" type="date"></label>
+          <div class="stack g12">
+            <p style="margin: 0; font-size: 14px; font-weight: 500">Moment de la journée</p>
+            <div class="choix">
+              <button type="button" class="option" data-moment="Le matin" aria-pressed="false"><strong>Le matin</strong><span class="li">Lumière douce, chevaux reposés</span></button>
+              <button type="button" class="option" data-moment="En fin de journée" aria-pressed="true"><strong>En fin de journée</strong><span class="li">Lumière dorée</span></button>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="pane" data-pane="3" hidden>
+          <legend class="d" style="font-size: 44px">Vos coordonnées</legend>
+          <div class="grille" style="--min: 240px; gap: 18px">
+            <label class="champ">Prénom<input class="saisie" name="prenom" data-libelle="Prénom" type="text" autocomplete="given-name" required></label>
+            <label class="champ">Nom<input class="saisie" name="nom" data-libelle="Nom" type="text" autocomplete="family-name" required></label>
+            <label class="champ">E-mail<input class="saisie" name="email" data-libelle="E-mail" type="email" autocomplete="email" required></label>
+            <label class="champ">Téléphone<input class="saisie" name="telephone" data-libelle="Téléphone" type="tel" autocomplete="tel"></label>
+            <label class="champ">Nom de votre cheval<input class="saisie" name="cheval" data-libelle="Cheval" type="text"></label>
+          </div>
+          <label class="case"><input type="checkbox" name="segur" data-libelle="Cavalier des Écuries d’En Ségur (-10 %)">Je monte aux Écuries d’En Ségur (-10 %)</label>
+          <label class="champ">Un mot pour Ilona (facultatif)<textarea class="saisie" name="message" data-libelle="Message"></textarea></label>
+        </fieldset>
+
+        <fieldset class="pane" data-pane="4" hidden>
+          <legend class="d" style="font-size: 44px">On vérifie ensemble</legend>
+          <dl class="recap" data-recap></dl>
+          <p class="texte" style="font-size: 15px">Rien n’est réglé maintenant : votre messagerie s’ouvre avec la demande déjà rédigée, et Ilona vous confirme la date et le prix final, déplacement compris.</p>
+        </fieldset>
+
+        <div class="pane" data-pane="5" hidden>
+          <h2 class="d" style="font-size: clamp(52px, 7vw, 104px)">Demande <span class="hl">prête</span></h2>
+          <p class="texte">Votre messagerie s’est ouverte avec la demande. Pensez à l’envoyer ! Si rien ne s’est ouvert, écrivez à <a href={`mailto:${contact.email}`}>{contact.email}</a> ou appelez le <a href={contact.telephoneLien}>{contact.telephone}</a>.</p>
+          <a class="btn contour" href="/journal/preparer-son-cheval" style="align-self: flex-start">Préparer mon cheval</a>
+        </div>
+
+        <p class="erreur" data-erreur role="alert" hidden></p>
+        <div class="navigation" data-navigation>
+          <button type="button" class="btn contour" data-retour hidden>Retour</button>
+          <button type="submit" class="btn" data-suivant>Continuer</button>
+        </div>
+      </div>
+
+      <aside class="carte stack g12 resume" aria-label="Votre réservation">
+        <p class="lbl">Votre réservation</p>
+        <p style="margin: 0; font-size: 18px; font-weight: 600" data-r-nom>Signature</p>
+        <p class="prix" style="font-size: 72px; margin: 0"><span data-r-total>180</span> €</p>
+        <p style="margin: 0; font-size: 14px; line-height: 1.55; opacity: .9"><span data-r-remise hidden>Remise En Ségur de 10 % incluse. </span>Déplacement calculé selon votre commune, offert près de Toulouse.</p>
+        <p style="margin: 0; font-size: 14px; padding-top: 12px; border-top: 1px solid rgba(236,235,231,.18)">Une question ? {contact.telephone}</p>
+      </aside>
+    </form>
+  </section>
+</Base>
+
+<style>
+  .etapes { list-style: none; margin: 32px 0 40px; padding: 0 0 16px; display: flex; flex-wrap: wrap; gap: 8px 36px; border-bottom: 1px solid rgba(34,34,34,.2); }
+  .etapes li { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 500; padding: 6px 0; }
+  .etapes .n { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 1.5px var(--encre); font-size: 13px; }
+  .etapes li.faite .n { background: var(--encre); color: var(--gres); }
+  .etapes li[aria-current] .n { background: var(--rose); box-shadow: none; }
+  .etapes li[aria-current] .t { position: relative; z-index: 0; }
+  .etapes li[aria-current] .t::before { content: ""; position: absolute; left: -3px; right: -3px; bottom: 2px; height: 9px; background: var(--rose); z-index: -1; transform-origin: 0 50%; animation: surligne .45s var(--declic) both; }
+  .pane { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 22px; min-width: 0; animation: fondu .5s var(--lumiere) both; }
+  .pane[hidden] { display: none; }
+  .pane legend { padding: 0; margin-bottom: 22px; float: left; width: 100%; }
+  .pane legend + * { clear: both; }
+  .choix { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .recap { margin: 0; display: grid; grid-template-columns: minmax(120px, 200px) minmax(0, 1fr); font-size: 16px; }
+  .recap dt, .recap dd { margin: 0; padding: 14px 0; border-top: 1px solid rgba(34,34,34,.2); }
+  .recap dt { font-weight: 500; }
+  .navigation { display: flex; justify-content: space-between; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid rgba(34,34,34,.2); }
+  .navigation [hidden] { display: none; }
+  .navigation .btn[data-suivant] { margin-left: auto; }
+  .erreur { margin: 16px 0 0; color: var(--rose-profond); font-weight: 500; }
+  .resume { flex: 1 1 300px; padding: 32px; position: sticky; top: 24px; }
+  :global(.pied) { display: none; }
+  @media (max-width: 760px) { .resume { position: static; order: -1; padding: 24px; } .resume .prix { font-size: 48px !important; } }
+</style>
+
+<script>
+  import { ouvrirMail, lignesDuFormulaire } from '../scripts/mail.js';
+  const form = document.getElementById('resa') as HTMLFormElement;
+  const $ = <T extends HTMLElement>(s: string) => form.querySelector<T>(s)!;
+  let etape = 1;
+
+  // Préselection depuis ?formule=…
+  const demande = new URLSearchParams(location.search).get('formule');
+  const depart = demande && $<HTMLButtonElement>(`[data-formule="${CSS.escape(demande)}"]`);
+  if (depart) { form.querySelectorAll('[data-formule]').forEach((b) => b.setAttribute('aria-pressed', 'false')); depart.setAttribute('aria-pressed', 'true'); }
+
+  const formule = () => $<HTMLButtonElement>('[data-formule][aria-pressed="true"]');
+  const moment = () => $<HTMLButtonElement>('[data-moment][aria-pressed="true"]');
+  const segur = () => $<HTMLInputElement>('[name="segur"]').checked;
+
+  function resume() {
+    const f = formule();
+    const prix = Number(f.dataset.prix);
+    $('[data-r-nom]').textContent = f.dataset.nom!;
+    $('[data-r-total]').textContent = String(segur() ? Math.round(prix * 0.9) : prix);
+    $('[data-r-remise]').hidden = !segur();
+  }
+
+  function afficher(n: number) {
+    etape = n;
+    form.querySelectorAll<HTMLElement>('[data-pane]').forEach((p) => (p.hidden = Number(p.dataset.pane) !== n));
+    document.querySelectorAll<HTMLElement>('[data-etape]').forEach((li) => {
+      const k = Number(li.dataset.etape);
+      li.classList.toggle('faite', k < n);
+      if (k === n) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+      li.querySelector('.n')!.textContent = k < n ? '✓' : String(k);
+    });
+    $('[data-retour]').hidden = n === 1 || n === 5;
+    $('[data-navigation]').hidden = n === 5;
+    $('[data-suivant]').textContent = n === 4 ? 'Envoyer ma demande' : 'Continuer';
+    $('[data-erreur]').hidden = true;
+    if (n === 4) recap();
+    const titre = form.querySelector<HTMLElement>(`[data-pane="${n}"] legend, [data-pane="${n}"] h2`);
+    titre?.setAttribute('tabindex', '-1');
+    titre?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function recap() {
+    const v = (n: string) => ($<HTMLInputElement>(`[name="${n}"]`).value || '').trim();
+    const date = v('date') ? v('date').split('-').reverse().join('/') : 'à convenir';
+    const lignes: [string, string][] = [
+      ['Prestation', `${formule().dataset.nom} · ${formule().dataset.prix} €`],
+      ['Lieu', v('lieu')],
+      ['Date', `${date} · ${moment().dataset.moment}`],
+      ['Contact', `${v('prenom')} ${v('nom')} · ${v('email')}`],
+      ['Remise', segur() ? 'Écuries d’En Ségur, -10 %' : 'Aucune'],
+    ];
+    const dl = $('[data-recap]');
+    dl.replaceChildren(...lignes.flatMap(([a, b]) => { const dt = document.createElement('dt'); dt.textContent = a; const dd = document.createElement('dd'); dd.textContent = b; return [dt, dd]; }));
+  }
+
+  function valide(n: number) {
+    const champs = [...form.querySelectorAll<HTMLInputElement>(`[data-pane="${n}"] [required]`)];
+    const faux = champs.find((c) => !c.checkValidity());
+    if (faux) {
+      const err = $('[data-erreur]');
+      err.textContent = `Merci de compléter : ${faux.closest('label')?.firstChild?.textContent?.trim()}`;
+      err.hidden = false;
+      faux.focus();
+      return false;
+    }
+    return true;
+  }
+
+  form.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-formule], [data-moment]');
+    if (!b) return;
+    const groupe = b.hasAttribute('data-formule') ? '[data-formule]' : '[data-moment]';
+    form.querySelectorAll(groupe).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    resume();
+  });
+  $('[name="segur"]').addEventListener('change', resume);
+  $('[data-retour]').addEventListener('click', () => afficher(etape - 1));
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!valide(etape)) return;
+    if (etape < 4) return afficher(etape + 1);
+    const lignes = [`Prestation : ${formule().dataset.nom} (${formule().dataset.prix} €)`, `Moment : ${moment().dataset.moment}`, ...lignesDuFormulaire(form)];
+    ouvrirMail(form.closest('main')!.querySelector<HTMLAnchorElement>('a[href^="mailto:"]')!.href.replace('mailto:', ''), `Réservation · ${formule().dataset.nom}`, lignes);
+    afficher(5);
+  });
+  resume();
+</script>

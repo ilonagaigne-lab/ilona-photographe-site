@@ -1,0 +1,93 @@
+---
+import Base from '../../layouts/Base.astro';
+import Photo from '../../components/Photo.astro';
+import { Image } from 'astro:assets';
+import selle from '../../assets/photos/cheval-selle-ecurie.jpg';
+import tete from '../../assets/photos/cheval-tete-frontal.jpg';
+import deux from '../../assets/photos/cheval-deux-chevaux.jpg';
+import portrait from '../../assets/photos/portrait.jpg';
+---
+<Base titre="Préparer son cheval pour sa séance photo · Journal" description="Pansage, crins, harnachement, tenue du cavalier : la liste simple à relire la veille de votre séance photo équestre." page="journal">
+  <article>
+    <header class="wrap" style="padding-top: clamp(32px, 5vw, 80px)" data-reveal>
+      <div class="colonne">
+        <p class="lbl">Journal · Avant la séance</p>
+        <h1 class="d" style="font-size: clamp(52px, 7.4vw, 108px); margin-top: 20px">
+          <span class="rv"><span>Préparer son</span></span>
+          <span class="rv"><span style="--d: .15s">cheval pour</span></span>
+          <span class="rv"><span style="--d: .25s">sa <span class="hl" style="--d: 1s">séance</span></span></span>
+        </h1>
+        <p class="apparait" style="margin: 28px 0 0; font-size: clamp(18px, 1.6vw, 21px); line-height: 1.6">Pansage, crins, tenue du cavalier : la liste simple à relire la veille, pour arriver serein et laisser la place à l’instant.</p>
+        <div class="row centre g12 apparait" style="margin-top: 28px; font-size: 14px; --d: .5s">
+          <Image src={portrait} alt="" width={88} height={88} style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; object-position: 50% 26%" />
+          <span><strong style="font-weight: 600">Ilona</strong> · 5 min de lecture</span>
+        </div>
+      </div>
+    </header>
+
+    <div data-reveal style="margin-top: clamp(48px, 6vw, 80px)">
+      <Photo src={selle} alt="Selle en cuir posée sur un tréteau dans l’allée des écuries" ratio="21 / 9" pos="50% 52%" prioritaire tailles="100vw" class="bandeau" />
+    </div>
+
+    <div class="wrap">
+      <div class="colonne prose">
+        <h2>La veille</h2>
+        <p>Un pansage complet la veille, puis un rapide coup de brosse avant la séance : la robe aura le temps de retrouver son brillant naturel. Démêlez crins et queue à la main ou avec un démêlant, sans tirer.</p>
+        <ul>
+          <li>Pansage complet, sans oublier le dessous de l’encolure</li>
+          <li>Crins et queue démêlés</li>
+          <li>Pieds curés, sabots graissés juste avant les photos</li>
+        </ul>
+        <h2>Le harnachement</h2>
+        <p>Moins, c’est mieux. Un filet ou un licol en cuir propre met la tête en valeur ; laissez de côté tapis fluo et accessoires qui volent la vedette. Nettoyez le cuir et vérifiez les boucles : on les voit sur les gros plans.</p>
+      </div>
+    </div>
+
+    <div class="wrap" style="padding-block: 24px">
+      <blockquote class="d" style="margin: 0 auto; max-width: 1000px; font-size: clamp(36px, 5.4vw, 76px); line-height: 1">« Un cheval détendu fera toujours une plus belle photo qu’un cheval <span class="hl" style="animation: none">parfait</span>. »</blockquote>
+    </div>
+
+    <div class="wrap">
+      <div class="colonne prose">
+        <h2>Votre tenue</h2>
+        <p>Choisissez des couleurs unies, qui s’accordent à la robe de votre cheval : des tons clairs ou naturels sur un alezan, du blanc ou du crème sur un cheval foncé. Évitez les grands logos et les motifs chargés.</p>
+        <figure style="margin: 40px 0">
+          <Image src={tete} alt="Tête d’un cheval alezan au filet noir, frontal pailleté" widths={[600, 1000, 1400]} sizes="(max-width: 760px) 100vw, 720px" style="width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 40%; border-radius: 4px" />
+          <figcaption class="li" style="margin-top: 12px; font-size: 15px">Un filet propre, un frontal qui accroche la lumière : la tête est prête.</figcaption>
+        </figure>
+        <h2>Le jour J</h2>
+        <p>Prévoyez des friandises, une longe et, si possible, une personne pour attirer l’attention de votre cheval derrière moi : un bruit de sachet suffit à faire pointer les oreilles. Et surtout, prenez votre temps.</p>
+      </div>
+    </div>
+
+    <div class="wrap" style="padding-top: 40px">
+      <section class="carte colonne stack g16" style="padding: clamp(24px, 3vw, 40px)" aria-labelledby="memo">
+        <p class="lbl">À retenir</p>
+        <h2 id="memo" class="d" style="font-size: clamp(30px, 3.2vw, 40px)">Le mémo de la veille</h2>
+        <ul class="liste li" style="font-size: 18px"><li>Pansage complet, sabots graissés</li><li>Cuir propre, harnachement sobre</li><li>Tenue unie, accordée à la robe</li><li>Friandises, longe, un complice</li></ul>
+      </section>
+    </div>
+  </article>
+
+  <section class="wrap section stack g32" data-reveal aria-labelledby="suite">
+    <div class="row entre bas g24">
+      <h2 id="suite" class="d h2">À lire <span class="hl">aussi</span></h2>
+      <a class="btn" href="/reservation">Réserver ma séance</a>
+    </div>
+    <a class="suite" href="/academie/lire-la-lumiere-du-soir">
+      <Photo src={deux} alt="" ratio="16 / 10" pos="50% 35%" cache="#EAE2D4" tailles="(max-width: 760px) 100vw, 40vw" curseur={false} />
+      <span class="stack g12"><span class="chip contour" style="align-self: flex-start">Académie</span><span class="d h3">Lire la lumière du soir</span><span class="texte" style="font-size: 16px">Où placer votre cheval quand le soleil descend.</span></span>
+    </a>
+  </section>
+</Base>
+
+<style>
+  .colonne { max-width: 720px; margin-inline: auto; }
+  .prose h2 { font-family: 'Anton', Impact, sans-serif; font-weight: 400; text-transform: uppercase; font-size: clamp(34px, 3.6vw, 44px); line-height: 1; margin: 64px 0 20px; }
+  .prose p { margin: 0 0 20px; font-size: clamp(16px, 1.35vw, 19px); line-height: 1.75; }
+  .prose ul { margin: 0 0 20px; padding: 0; list-style: none; font-weight: 300; font-style: italic; font-size: clamp(17px, 1.4vw, 20px); line-height: 1.6; }
+  .prose li { padding: 8px 0 8px 28px; position: relative; }
+  .prose li::before { content: ""; position: absolute; left: 0; top: 21px; width: 14px; height: 6px; background: var(--rose); }
+  .suite { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: center; color: var(--encre); text-decoration: none; }
+  @media (max-width: 760px) { .suite { grid-template-columns: 1fr; } :global(.bandeau) { aspect-ratio: 4 / 3 !important; } }
+</style>

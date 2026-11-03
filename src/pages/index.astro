@@ -1,0 +1,228 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import Prix from '../components/Prix.astro';
+import Reel from '../components/Reel.astro';
+import Coeur from '../components/Coeur.astro';
+import { Image } from 'astro:assets';
+import { contact, seances, concours } from '../data';
+import hero from '../assets/photos/hero-wide.jpg';
+import portrait from '../assets/photos/portrait.jpg';
+import isabelle from '../assets/photos/cheval-cowgirl-isabelle.jpg';
+import bai from '../assets/photos/cheval-cowgirl-bai.jpg';
+import tete from '../assets/photos/cheval-tete-frontal.jpg';
+import poney from '../assets/photos/cheval-cavaliere-poney.jpg';
+import saut from '../assets/photos/concours-saut.jpg';
+import champagne from '../assets/photos/evenement-champagne.jpg';
+import trio from '../assets/photos/packshot-trio-saint-valentin.jpg';
+import appli from '../assets/photos/galoplan-still-33.jpg';
+import deux from '../assets/photos/cheval-deux-chevaux.jpg';
+import selle from '../assets/photos/cheval-selle-ecurie.jpg';
+
+const favoris = [
+  { src: isabelle, alt: 'Cavalière au chapeau de paille contre l’encolure d’un cheval isabelle', pos: '50% 30%', on: true },
+  { src: bai, alt: 'Cavalière en chemise blanche tenant son cheval bai au pré', pos: '50% 62%', on: false },
+  { src: tete, alt: 'Tête d’un cheval alezan, frontal pailleté', pos: '50% 40%', on: true },
+  { src: poney, alt: 'Jeune cavalière souriante sur son poney', pos: '40% 40%', on: false },
+];
+const univers = [
+  { titre: 'Cheval', chip: 'Séances', classe: '', href: '/seances', src: isabelle, alt: 'Cavalière au chapeau de paille contre l’encolure d’un cheval isabelle', pos: '50% 30%' },
+  { titre: 'Concours', chip: 'CSO', classe: 'contour', href: '/concours', src: saut, alt: 'Cheval bai franchissant un obstacle coloré en concours', pos: '52% 50%' },
+  { titre: 'Événementiel', chip: 'Reportage', classe: 'pervenche', href: '/marques', src: champagne, alt: 'Invitée souriante, coupe de champagne à la main, lors d’une fête en plein air', pos: '45% 40%' },
+  { titre: 'Packshot', chip: 'Produit', classe: '', href: '/marques', src: trio, alt: 'Sac pailleté rose, porte-clés cœur et pochette, entourés de ballons cœurs', pos: '50% 50%' },
+  { titre: 'Réseaux', chip: 'Community', classe: 'pervenche', href: '/etudes-de-cas/galoplan', src: appli, alt: 'Téléphone ouvert sur l’application GaloPlan, filmé pour ses réseaux', pos: '50% 50%' },
+];
+---
+<Base titre="Ilona Photographe · photographe et vidéaste équestre près de Toulouse" description="Ilona, photographe et vidéaste spécialisée dans l’univers équestre et la création de contenu de marque, près de Toulouse. Séances, concours, marques et réseaux sociaux." page="accueil">
+
+  <section class="wrap" style="padding-top: clamp(24px, 4vw, 64px)" data-reveal aria-labelledby="titre">
+    <p class="lbl">Photographe &amp; vidéaste équestre · près de Toulouse</p>
+    <h1 id="titre" class="d h-geant deborde" style="margin-top: 20px">
+      <span class="rv"><span>Surligner</span></span>
+      <span class="rv" style="padding-left: clamp(0px, 13vw, 190px)"><span style="--d: .25s">l’<span class="hl" style="--d: 1s">instant</span>.</span></span>
+    </h1>
+    <div class="row entre bas g32" style="margin-top: 44px">
+      <p class="chapo apparait" style="--d: .6s">Je photographie et filme les chevaux et leurs cavaliers, du pré au paddock, et je crée du contenu pour les marques équestres. Une séance, un concours, un lancement : je garde ce qui compte.</p>
+      <div class="row g12 apparait" style="--d: .75s">
+        <a class="btn" href="/reservation">Réserver une séance
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
+        <a class="btn contour" href="/seances">Voir les tarifs</a>
+      </div>
+    </div>
+  </section>
+
+  <div data-reveal style="margin-top: clamp(40px, 6vw, 88px)">
+    <Photo src={hero} alt="Ilona pose la main sur l’encolure de son cheval alezan, au coucher du soleil" ratio="1300 / 633" prioritaire delai=".4s" tailles="100vw" style="max-height: 820px">
+      <figcaption class="chip" style="position: absolute; left: var(--marge); bottom: 24px; background: rgba(34,34,34,.78); color: var(--gres); text-transform: none; letter-spacing: 0; font-size: 13px; height: 36px; padding: 0 16px">Séance au coucher du soleil · Haute-Garonne</figcaption>
+    </Photo>
+  </div>
+
+  <section class="wrap section row centre" style="gap: clamp(40px, 6vw, 104px)" data-reveal aria-labelledby="moi">
+    <Photo src={portrait} alt="Portrait d’Ilona souriante, lunettes et cheveux longs, devant son cheval" ratio="3 / 4" pos="50% 24%" style="flex: 1 1 320px; max-width: 500px" />
+    <div class="stack g24" style="flex: 1 1 440px">
+      <p class="lbl">Bonjour, moi c’est Ilona</p>
+      <h2 id="moi" class="d h2">
+        <span class="rv"><span>Je photographie</span></span>
+        <span class="rv"><span style="--d: .2s">ce que vous</span></span>
+        <span class="rv"><span style="--d: .3s"><span class="hl" style="--d: 1s">ressentez</span> à cheval.</span></span>
+      </h2>
+      <p class="texte" style="max-width: 560px">Photographe et vidéaste spécialisée dans l’univers équestre et la création de contenu de marque. Je viens à vous, à l’écurie ou au pré, et je laisse le cheval donner le rythme.</p>
+      <ul class="liste li"><li>Photo animalière &amp; portrait</li><li>Vidéo &amp; montage</li><li>Community management</li></ul>
+      <a class="btn contour" href="/seances" style="align-self: flex-start">Mon approche</a>
+    </div>
+  </section>
+
+  <section class="wrap section sans-haut stack g48" data-reveal aria-labelledby="offres">
+    <div class="row entre bas g20">
+      <h2 id="offres" class="d h2">Trois façons<br>de <span class="hl">garder</span> l’instant</h2>
+      <p class="lbl">Séances · Concours · Marques</p>
+    </div>
+    <div class="grille">
+      <article class="carte stack g20" style="padding: 36px">
+        <span class="chip" style="align-self: flex-start">Photo</span>
+        <h3 class="d h3">Séances équestres</h3>
+        <p style="margin: 0; display: flex; align-items: baseline; gap: 10px"><span style="font-size: 14px">dès</span><span class="prix" style="font-size: 80px"><Prix valeur={90} /></span></p>
+        <ul class="tarifs" style="flex: 1">{seances.map((s) => <li>{s.nom}<span class="prix">{s.prix} €</span></li>)}</ul>
+        <a class="btn clair" href="/seances" style="align-self: flex-start">Voir les séances</a>
+      </article>
+      <article class="carte stack g20" style="padding: 36px">
+        <div class="row g8"><span class="chip">Photo</span><span class="chip or">Vidéo</span></div>
+        <h3 class="d h3">Concours</h3>
+        <p style="margin: 0; display: flex; align-items: baseline; gap: 10px"><span style="font-size: 14px">dès</span><span class="prix" style="font-size: 80px"><Prix valeur={50} /></span></p>
+        <ul class="tarifs" style="flex: 1">{concours.map((c) => <li>{c.nom.replace('Photo de concours', 'Photo')}<span class="prix">{c.prix} €</span></li>)}</ul>
+        <a class="btn clair" href="/concours" style="align-self: flex-start">Voir l’agenda</a>
+      </article>
+      <article class="carte stack g20" style="padding: 36px">
+        <span class="chip pervenche" style="align-self: flex-start">Réseaux</span>
+        <h3 class="d h3">Marques &amp; réseaux</h3>
+        <p class="prix" style="font-size: clamp(56px, 15vw, 80px); margin: 0; white-space: nowrap">Sur devis</p>
+        <ul class="tarifs" style="flex: 1"><li>Contenu photo &amp; vidéo</li><li>Réels et formats courts</li><li>Community management</li></ul>
+        <a class="btn clair" href="/marques" style="align-self: flex-start">Parler de votre projet</a>
+      </article>
+    </div>
+  </section>
+
+  <section class="wrap section sans-haut stack g48" data-reveal aria-labelledby="univers">
+    <div class="row entre bas g20">
+      <h2 id="univers" class="d h2">Six <span class="hl">univers</span>,<br>un seul regard</h2>
+      <p class="texte" style="max-width: 380px; font-size: 16px">Du pré à la vitrine : les chevaux, les concours, les événements, les produits et les réseaux de ceux qui les aiment.</p>
+    </div>
+    <div class="grille univers" style="--min: 320px; row-gap: 40px">
+      {univers.slice(0, 4).map((u) => (
+        <a class="univers-it stack g12" href={u.href}>
+          <Photo src={u.src} alt={u.alt} pos={u.pos} tailles="(max-width: 760px) 100vw, 33vw" />
+          <span class="row entre centre g12"><span class="d" style="font-size: 36px">{u.titre}</span><span class:list={['chip', u.classe]}>{u.chip}</span></span>
+        </a>
+      ))}
+      <div class="univers-it stack g12">
+        <Reel video="video-seance-platinium" titre="Réel : séance avec Platinium d’en Fer" style="aspect-ratio: 4 / 5; border-radius: 4px; box-shadow: none" />
+        <span class="row entre centre g12"><span class="d" style="font-size: 36px">Vidéo</span><span class="chip or">Réel</span></span>
+      </div>
+      {univers.slice(4).map((u) => (
+        <a class="univers-it stack g12" href={u.href}>
+          <Photo src={u.src} alt={u.alt} pos={u.pos} tailles="(max-width: 760px) 100vw, 33vw" />
+          <span class="row entre centre g12"><span class="d" style="font-size: 36px">{u.titre}</span><span class:list={['chip', u.classe]}>{u.chip}</span></span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="wrap section sans-haut row centre" style="gap: clamp(40px, 6vw, 96px)" data-reveal aria-labelledby="favoris">
+    <div class="stack g24" style="flex: 1 1 380px">
+      <p class="lbl">Votre galerie privée</p>
+      <h2 id="favoris" class="d h2">Choisissez<br>vos <span class="hl">favoris</span></h2>
+      <p class="texte" style="max-width: 480px">Après la séance, vous recevez une galerie rien qu’à vous. Touchez le cœur des photos qui vous parlent : elles entrent dans votre sélection. Votre formule en inclut un nombre, et vous pouvez ajouter les autres à l’unité.</p>
+      <p style="margin: 0; display: flex; align-items: baseline; gap: 14px" aria-live="polite"><span class="d" style="font-size: 72px" data-compte>2</span><span data-libelle>photos choisies</span></p>
+      <a class="btn" href="/galerie" style="align-self: flex-start">Ouvrir ma galerie</a>
+    </div>
+    <ul class="mini-galerie" style="flex: 1 1 520px">
+      {favoris.map((f) => (
+        <li class:list={['tuile', { choisie: f.on }]} data-curseur="choisir">
+          <Image src={f.src} alt={f.alt} widths={[400, 700]} sizes="(max-width: 760px) 50vw, 25vw" style={`object-position: ${f.pos}`} />
+          <span class="flash" aria-hidden="true"></span><span class="cadre" aria-hidden="true"></span>
+          <Coeur choisie={f.on} nom={f.alt} />
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="sombre" data-reveal aria-labelledby="segur">
+    <div class="wrap row entre centre g48" style="padding-block: clamp(64px, 8vw, 120px)">
+      <div class="stack g12">
+        <p class="lbl">Pour les cavaliers des</p>
+        <h2 id="segur" class="d" style="font-size: clamp(40px, 5vw, 72px)">Écuries d’En Ségur</h2>
+        <p style="margin: 0; font-size: 15px; opacity: .85">Remise appliquée à la réservation, sur simple mention de votre écurie.</p>
+      </div>
+      <p class="d" style="font-size: clamp(46px, 7vw, 104px); line-height: 1.06; text-align: right; color: var(--encre)">
+        <span class="hl plein" style="--d: .3s">-10 % sur toutes</span><br>
+        <span class="hl plein" style="--d: .45s">mes prestations</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="wrap section stack g48" data-reveal aria-labelledby="apprendre">
+    <div class="row entre bas g20">
+      <h2 id="apprendre" class="d h2"><span class="hl">Apprendre</span><br>avec Ilona</h2>
+      <p class="lbl">Académie · Journal</p>
+    </div>
+    <div class="grille" style="row-gap: 40px">
+      <a class="article-carte stack g16" href="/academie/lire-la-lumiere-du-soir">
+        <Photo src={deux} alt="Deux chevaux alezans dans la lumière de fin d’été" ratio="16 / 10" pos="50% 40%" cache="#EAE2D4" tailles="(max-width: 760px) 100vw, 50vw" />
+        <span class="chip contour" style="align-self: flex-start">Leçon de l’Académie</span>
+        <span class="d h3">Lire la lumière du soir</span>
+        <span class="texte" style="font-size: 16px">Où placer votre cheval quand le soleil descend, et pourquoi la dernière heure vaut toute la journée.</span>
+      </a>
+      <a class="article-carte stack g16" href="/journal/preparer-son-cheval">
+        <Photo src={selle} alt="Selle posée sur un tréteau dans l’allée des écuries" ratio="16 / 10" pos="50% 55%" cache="#EAE2D4" tailles="(max-width: 760px) 100vw, 50vw" />
+        <span class="chip contour" style="align-self: flex-start">Journal</span>
+        <span class="d h3">Préparer son cheval pour sa séance</span>
+        <span class="texte" style="font-size: 16px">Pansage, crins, tenue du cavalier : la liste simple à relire la veille.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="wrap section sans-haut stack g32" data-reveal aria-labelledby="fin">
+    <h2 id="fin" class="d deborde" style="font-size: clamp(64px, 14vw, 210px); line-height: 1.02">On se retrouve<br>au <span class="hl">pré</span> ?</h2>
+    <div class="row entre bas g32">
+      <div class="stack g8" style="font-size: 17px">
+        <a href={contact.telephoneLien} style="color: var(--encre); text-decoration: none; font-weight: 500; padding: 6px 0">{contact.telephone}</a>
+        <a href={`mailto:${contact.email}`} style="color: var(--encre); padding: 6px 0">{contact.email}</a>
+        <a href={contact.instagramLien} style="color: var(--encre); padding: 6px 0">{contact.instagram}</a>
+        <p class="li" style="margin: 8px 0 0; font-size: 15px">Basée près de Toulouse · frais de déplacement calculés à la réservation</p>
+      </div>
+      <a class="btn grand" href="/reservation">Réserver une séance
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .univers-it, .article-carte { color: var(--encre); text-decoration: none; }
+  .univers-it :global(.ph img) { transition: transform .7s var(--lumiere); }
+  .univers-it:hover :global(.ph img) { transform: scale(1.05); }
+  .mini-galerie { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 760px) {
+    .grille.univers { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--marge); margin-inline: calc(-1 * var(--marge)); padding-inline: var(--marge); padding-bottom: 8px; }
+    .grille.univers > * { flex: none; width: 72vw; scroll-snap-align: start; }
+    .mini-galerie { gap: 8px; }
+  }
+</style>
+
+<script>
+  // Favoris de la mini-galerie : flash, cadre rose, compteur.
+  const zone = document.querySelector('.mini-galerie');
+  const compte = document.querySelector('[data-compte]');
+  const libelle = document.querySelector('[data-libelle]');
+  zone?.addEventListener('click', (e) => {
+    const bouton = (e.target as HTMLElement).closest('.coeur');
+    if (!bouton) return;
+    const tuile = bouton.closest('.tuile')!;
+    const on = bouton.getAttribute('aria-pressed') !== 'true';
+    bouton.setAttribute('aria-pressed', String(on));
+    tuile.classList.toggle('choisie', on);
+    if (on) { tuile.classList.remove('flashe'); void (tuile as HTMLElement).offsetWidth; tuile.classList.add('flashe'); }
+    const n = zone.querySelectorAll('.coeur[aria-pressed="true"]').length;
+    compte!.textContent = String(n);
+    libelle!.textContent = n > 1 ? 'photos choisies' : 'photo choisie';
+  });
+</script>
