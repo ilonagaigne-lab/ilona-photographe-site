@@ -21,6 +21,7 @@
 
 ## Pages
 - [Séances photo équestres et tarifs](https://ilona-photographe-site.vercel.app/seances) : les quatre formules, un calculateur de prix déplacement compris et les questions fréquentes.
+- [Trouvez votre séance](https://ilona-photographe-site.vercel.app/trouver-ma-seance) : quiz de trois questions qui conseille la formule adaptée, avec son prix et les heures de lumière dorée à Toulouse.
 - [Photographe de concours équestre](https://ilona-photographe-site.vercel.app/concours) : photo, vidéo et réel souvenir le jour du concours.
 - [Contenu de marque et réseaux sociaux](https://ilona-photographe-site.vercel.app/marques) : shooting produit, vidéo, community management pour selleries, écuries, éleveurs et créateurs d’équipement.
 - [Étude de cas GaloPlan](https://ilona-photographe-site.vercel.app/etudes-de-cas/galoplan) : deux réels verticaux tournés à l’écurie pour l’application du cheval partagé.

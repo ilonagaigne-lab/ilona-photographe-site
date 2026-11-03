@@ -1,0 +1,190 @@
+---
+import Base from '../layouts/Base.astro';
+import { Image } from 'astro:assets';
+import { seances, concours } from '../data';
+import poney from '../assets/photos/cheval-cavaliere-poney.jpg';
+import deux from '../assets/photos/cheval-deux-chevaux.jpg';
+import isabelle from '../assets/photos/cheval-cowgirl-isabelle.jpg';
+import bai from '../assets/photos/cheval-cowgirl-bai.jpg';
+import coucher from '../assets/photos/hero-coucher-large.jpg';
+import portrait from '../assets/photos/portrait-ilona.jpg';
+import tete from '../assets/photos/cheval-tete-frontal.jpg';
+import saut from '../assets/photos/concours-saut.jpg';
+
+const prix = Object.fromEntries([...seances, ...concours].map((s) => [s.id, s.prix]));
+const resultats = [
+  { id: 'sport', nom: 'Sport', titre: 'Le geste, l’effort, la concentration', texte: 'Votre couple en mouvement, au travail ou à l’obstacle : des images franches et dynamiques.', photos: [{ src: poney, alt: 'Jeune cavalière sur son poney, en tenue de concours' }, { src: deux, alt: 'Deux chevaux alezans en fin d’été' }] },
+  { id: 'complicite', nom: 'Complicité', titre: 'Vous et lui, sans artifice', texte: 'À pied, en douceur : les regards et les gestes qui racontent votre lien.', photos: [{ src: isabelle, alt: 'Cavalière contre l’encolure d’un cheval isabelle' }, { src: bai, alt: 'Cavalière et son cheval bai au pré' }] },
+  { id: 'signature', nom: 'Signature', titre: 'Une image d’exception', texte: 'Lieu, lumière et tenue pensés ensemble avant le jour J, pour des photos dignes d’un magazine.', photos: [{ src: coucher, alt: 'Cavalière en robe blanche et son cheval au coucher du soleil' }, { src: portrait, alt: 'Portrait souriant contre un cheval alezan, lumière dorée' }] },
+  { id: 'collection', nom: 'Collection complète', titre: 'Toutes les facettes de votre couple', texte: 'Le sport, la complicité et le portrait réunis en une seule séance.', photos: [{ src: tete, alt: 'Tête d’un cheval alezan, frontal pailleté' }, { src: isabelle, alt: 'Cavalière contre l’encolure d’un cheval isabelle' }] },
+  { id: 'concours-video', nom: 'Photo + vidéo de concours', titre: 'Votre parcours, en images et en vidéo', texte: 'Je repère votre passage et je vous suis du paddock au tour d’honneur.', photos: [{ src: saut, alt: 'Cheval bai franchissant un obstacle coloré en concours' }, { src: poney, alt: 'Jeune cavalière sur son poney, en tenue de concours' }] },
+];
+const questions = [
+  { cle: 'envie', titre: 'Qu’aimeriez-vous garder de vous deux ?', options: [
+    { valeur: 'sport', libelle: 'Le sport et l’effort', note: 'Au travail, à l’obstacle' },
+    { valeur: 'complicite', libelle: 'Notre lien', note: 'Les regards, les câlins' },
+    { valeur: 'signature', libelle: 'Une image d’exception', note: 'Comme en magazine' },
+    { valeur: 'collection', libelle: 'Un peu de tout', note: 'Toutes les facettes' },
+    { valeur: 'concours-video', libelle: 'Mes parcours en concours', note: 'Photo et vidéo le jour J' },
+  ] },
+  { cle: 'caractere', titre: 'Votre cheval est plutôt…', options: [
+    { valeur: 'calme', libelle: 'Calme et posé', note: '' },
+    { valeur: 'joueur', libelle: 'Joueur, plein d’énergie', note: '' },
+    { valeur: 'sensible', libelle: 'Sensible, vite inquiet', note: '' },
+  ] },
+  { cle: 'quand', titre: 'Pour quand ?', options: [
+    { valeur: 'vite', libelle: 'Le plus tôt possible', note: '' },
+    { valeur: 'mois', libelle: 'Dans un à trois mois', note: '' },
+    { valeur: 'idee', libelle: 'Je me renseigne', note: '' },
+  ] },
+];
+---
+<Base titre="Trouvez votre séance photo équestre" description="Trois questions, trente secondes : découvrez la séance photo équestre faite pour vous et votre cheval, avec son prix et les prochains soirs de lumière dorée à Toulouse." page="seances">
+  <section class="wrap section" style="padding-top: clamp(16px, 3vw, 40px)" data-reveal aria-labelledby="titre">
+    <div class="quiz" id="quiz" data-prix={JSON.stringify(prix)}>
+      <div class="quiz-tete">
+        <p class="lbl">Trouvez votre séance · 30 secondes</p>
+        <div class="quiz-progression" aria-hidden="true"><span data-barre></span></div>
+        <p class="sr" aria-live="polite" data-annonce></p>
+      </div>
+      <h1 id="titre" class="sr">Trouvez votre séance photo équestre</h1>
+
+      {questions.map((q, i) => (
+        <fieldset class="quiz-etape" data-question={q.cle} hidden={i > 0}>
+          <legend class="d quiz-question" tabindex="-1">{q.titre}</legend>
+          <p class="quiz-compte">Question {i + 1} sur {questions.length}</p>
+          <div class="quiz-choix">
+            {q.options.map((o) => (
+              <button type="button" class="quiz-option" data-valeur={o.valeur}>
+                <span class="quiz-libelle">{o.libelle}</span>
+                {o.note && <span class="li" style="font-size: 14px">{o.note}</span>}
+              </button>
+            ))}
+          </div>
+          {i > 0 && <button type="button" class="quiz-retour" data-retour>← Question précédente</button>}
+        </fieldset>
+      ))}
+
+      <div class="quiz-resultat" data-resultat hidden>
+        {resultats.map((r) => (
+          <article class="resultat" data-formule={r.id} hidden>
+            <div class="resultat-photos">
+              {r.photos.map((p) => <Image src={p.src} alt={p.alt} widths={[400, 700]} sizes="(max-width: 760px) 50vw, 25vw" />)}
+            </div>
+            <div class="stack g16">
+              <p class="lbl">Votre séance</p>
+              <h2 class="d resultat-titre" tabindex="-1"><span class="hl">{r.nom}</span></h2>
+              <p class="d" style="font-size: 26px; line-height: 1.1">{r.titre}</p>
+              <p class="texte">{r.texte}</p>
+              <p class="prix" style="font-size: 64px; margin: 0; color: var(--rose-profond)">{prix[r.id]} €</p>
+            </div>
+          </article>
+        ))}
+        <div class="carte stack g12 conseil">
+          <p class="lbl">Le conseil d’Ilona</p>
+          <p style="margin: 0; font-size: 16px; line-height: 1.6" data-conseil></p>
+        </div>
+        <div class="stack g12">
+          <p class="lbl" style="color: var(--encre)">Lumière dorée à Toulouse ces prochains samedis</p>
+          <ul class="soirs" data-soirs></ul>
+          <p class="li" style="margin: 0; font-size: 14px">Heures calculées pour Toulouse. Ilona confirme ses disponibilités à la réservation.</p>
+        </div>
+        <div class="row g12">
+          <a class="btn grand" href="/reservation" data-reserver>Réserver cette séance</a>
+          <button type="button" class="btn contour" data-recommencer>Refaire le quiz</button>
+        </div>
+        <p style="margin: 0; font-size: 15px">Vous hésitez encore ? <a href="/seances">Comparer les quatre formules</a>.</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .quiz { max-width: 1100px; display: flex; flex-direction: column; gap: 28px; }
+  .quiz-progression { height: 6px; border-radius: 999px; background: rgba(34,34,34,.12); overflow: hidden; margin-top: 14px; }
+  .quiz-progression span { display: block; height: 100%; background: var(--rose-profond); transform-origin: 0 50%; transform: scaleX(.05); transition: transform .5s var(--declic); }
+  .quiz-etape { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 20px; animation: fondu .5s var(--lumiere) both; }
+  .quiz-etape[hidden], .resultat[hidden], .quiz-resultat[hidden] { display: none; }
+  .quiz-question { font-size: clamp(44px, 6.4vw, 96px); line-height: 1; padding: 0; outline: none; }
+  .quiz-compte { margin: 0; font-size: 14px; }
+  .quiz-choix { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; }
+  .quiz-option { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; min-height: 96px; padding: 20px 22px; border-radius: 16px; border: 0; box-shadow: inset 0 0 0 1.5px var(--encre); background: transparent; color: var(--encre); font: 400 15px 'Poppins', sans-serif; cursor: pointer; }
+  .quiz-option::before { content: ""; position: absolute; inset: 0; background: var(--rose); z-index: -1; transform: translateY(101%); transition: transform .35s var(--declic); }
+  .quiz-option:hover::before, .quiz-option:focus-visible::before { transform: none; }
+  .quiz-libelle { font-size: 19px; font-weight: 600; }
+  .quiz-retour { align-self: flex-start; border: 0; background: none; padding: 12px 0; font: 500 15px 'Poppins', sans-serif; color: var(--encre); text-decoration: underline; cursor: pointer; }
+  .quiz-resultat { display: flex; flex-direction: column; gap: 32px; animation: fondu .6s var(--lumiere) both; }
+  .resultat { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: center; }
+  .resultat-photos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .resultat-photos :global(img) { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 4px; }
+  .resultat-photos :global(img:nth-child(2)) { margin-top: 48px; }
+  .resultat-titre { font-size: clamp(52px, 7vw, 104px); outline: none; }
+  .conseil { padding: 24px 28px; max-width: 720px; }
+  .soirs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .soirs :global(li) { padding: 16px 18px; border-radius: 16px; background: linear-gradient(135deg, rgba(232,190,60,.35), rgba(231,156,194,.35)); display: flex; flex-direction: column; gap: 4px; }
+  .soirs :global(strong) { font-size: 15px; font-weight: 600; }
+  .soirs :global(strong)::first-letter { text-transform: uppercase; }
+  .soirs :global(span) { font-size: 14px; }
+  @media (max-width: 760px) { .resultat { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  import { lumiereDuSoir, heure, jour, prochainsSamedis } from '../scripts/soleil.js';
+  const quiz = document.getElementById('quiz')!;
+  const etapes = [...quiz.querySelectorAll<HTMLElement>('[data-question]')];
+  const zoneResultat = quiz.querySelector<HTMLElement>('[data-resultat]')!;
+  const barre = quiz.querySelector<HTMLElement>('[data-barre]')!;
+  const annonce = quiz.querySelector<HTMLElement>('[data-annonce]')!;
+  const reponses: Record<string, string> = {};
+  const conseils: Record<string, string> = {
+    calme: 'Un cheval posé se prête aux plans rapprochés : on prendra le temps des détails, du regard et des mains.',
+    joueur: 'On jouera avec son énergie. Venez avec un complice et un sachet de friandises : c’est le secret des oreilles en avant.',
+    sensible: 'On commence à pied, sans précipitation, dans un lieu qu’il connaît. La séance avance à son rythme, pas au nôtre.',
+  };
+
+  function montrer(i: number) {
+    etapes.forEach((e, k) => (e.hidden = k !== i));
+    zoneResultat.hidden = true;
+    barre.style.transform = `scaleX(${Math.max(0.05, i / etapes.length)})`;
+    const titre = etapes[i].querySelector<HTMLElement>('legend')!;
+    titre.focus({ preventScroll: true });
+    annonce.textContent = `Question ${i + 1} sur ${etapes.length} : ${titre.textContent}`;
+  }
+
+  function resultat() {
+    etapes.forEach((e) => (e.hidden = true));
+    zoneResultat.hidden = false;
+    barre.style.transform = 'scaleX(1)';
+    const formule = reponses.envie;
+    zoneResultat.querySelectorAll<HTMLElement>('.resultat').forEach((r) => (r.hidden = r.dataset.formule !== formule));
+    quiz.querySelector('[data-conseil]')!.textContent = conseils[reponses.caractere];
+    const liste = quiz.querySelector('[data-soirs]')!;
+    liste.replaceChildren(...prochainsSamedis(3).map((d) => {
+      const { doree, coucher } = lumiereDuSoir(d);
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${jour(d)}</strong><span>Lumière dorée de ${heure(doree)} à ${heure(coucher)}</span>`;
+      return li;
+    }));
+    quiz.querySelector<HTMLAnchorElement>('[data-reserver]')!.href = `/reservation?formule=${formule}&source=quiz`;
+    const titre = zoneResultat.querySelector<HTMLElement>(`.resultat[data-formule="${formule}"] .resultat-titre`)!;
+    titre.focus({ preventScroll: true });
+    annonce.textContent = `Votre séance : ${titre.textContent}`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  quiz.addEventListener('click', (e) => {
+    const cible = e.target as HTMLElement;
+    const option = cible.closest<HTMLButtonElement>('.quiz-option');
+    if (option) {
+      const etape = option.closest<HTMLElement>('[data-question]')!;
+      reponses[etape.dataset.question!] = option.dataset.valeur!;
+      const i = etapes.indexOf(etape);
+      return i < etapes.length - 1 ? montrer(i + 1) : resultat();
+    }
+    if (cible.closest('[data-retour]')) {
+      const i = etapes.findIndex((x) => !x.hidden);
+      return montrer(Math.max(0, i - 1));
+    }
+    if (cible.closest('[data-recommencer]')) montrer(0);
+  });
+</script>

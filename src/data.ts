@@ -77,3 +77,6 @@ export const faq = [
     r: 'Oui, les cavaliers des Écuries d’En Ségur bénéficient de 10 % de remise sur toutes les prestations, sur simple mention de leur écurie à la réservation.',
   },
 ];
+
+// Témoignages clients : à fournir par Ilona (avec l'accord des clients). Vide = section masquée.
+export const temoignages: { texte: string; auteur: string; cheval?: string; seance?: string }[] = [];

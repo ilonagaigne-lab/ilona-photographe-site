@@ -5,7 +5,9 @@ import Prix from '../components/Prix.astro';
 import Reel from '../components/Reel.astro';
 import Coeur from '../components/Coeur.astro';
 import { Image } from 'astro:assets';
-import { contact, seances, concours } from '../data';
+import { contact, seances, concours, temoignages } from '../data';
+import cavaliere from '../assets/photos/cheval-cavaliere-poney.jpg';
+import chocolatier from '../assets/photos/marque-pochette-telephone.jpg';
 import hero from '../assets/photos/hero-coucher-large.jpg';
 import portrait from '../assets/photos/portrait-ilona.jpg';
 import isabelle from '../assets/photos/cheval-cowgirl-isabelle.jpg';
@@ -19,11 +21,12 @@ import appli from '../assets/photos/galoplan-still-33.jpg';
 import deux from '../assets/photos/cheval-deux-chevaux.jpg';
 import selle from '../assets/photos/cheval-selle-ecurie.jpg';
 
+const favorisDefaut = false;
 const favoris = [
-  { src: isabelle, alt: 'Cavalière au chapeau de paille contre l’encolure d’un cheval isabelle', pos: '50% 30%', on: true },
-  { src: bai, alt: 'Cavalière en chemise blanche tenant son cheval bai au pré', pos: '50% 62%', on: false },
-  { src: tete, alt: 'Tête d’un cheval alezan, frontal pailleté', pos: '50% 40%', on: true },
-  { src: poney, alt: 'Jeune cavalière souriante sur son poney', pos: '40% 40%', on: false },
+  { id: 'isabelle', src: isabelle, alt: 'Cavalière au chapeau de paille contre l’encolure d’un cheval isabelle', pos: '50% 30%', on: favorisDefaut },
+  { id: 'bai', src: bai, alt: 'Cavalière en chemise blanche tenant son cheval bai au pré', pos: '50% 62%', on: favorisDefaut },
+  { id: 'tete', src: tete, alt: 'Tête d’un cheval alezan, frontal pailleté', pos: '50% 40%', on: favorisDefaut },
+  { id: 'poney', src: poney, alt: 'Jeune cavalière souriante sur son poney', pos: '40% 40%', on: favorisDefaut },
 ];
 const univers = [
   { titre: 'Cheval', chip: 'Séances', classe: '', href: '/seances', src: isabelle, alt: 'Cavalière au chapeau de paille contre l’encolure d’un cheval isabelle', pos: '50% 30%' },
@@ -52,9 +55,15 @@ const univers = [
       <div class="row g12 apparait" style="--d: .75s">
         <a class="btn" href="/reservation">Réserver une séance
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
-        <a class="btn contour" href="/seances">Voir les tarifs</a>
+        <a class="btn contour" href="/trouver-ma-seance">Trouver ma séance en 30 s</a>
       </div>
     </div>
+    <ul class="reperes apparait" style="--d: .9s" aria-label="En bref">
+      <li><strong>Dès 90 €</strong> la séance</li>
+      <li><strong>Toulouse</strong> et alentours</li>
+      <li><strong>Photo &amp; vidéo</strong> au même rendez-vous</li>
+      <li><strong>-10 %</strong> Écuries d’En Ségur</li>
+    </ul>
   </section>
 
   <div data-reveal style="margin-top: clamp(40px, 6vw, 88px)">
@@ -63,7 +72,25 @@ const univers = [
     </Photo>
   </div>
 
-  <section class="wrap section row centre" style="gap: clamp(40px, 6vw, 104px)" data-reveal aria-labelledby="moi">
+  <section class="wrap section stack g32" data-reveal aria-labelledby="portes">
+    <h2 id="portes" class="d h2">Vous <span class="hl">êtes</span>…</h2>
+    <div class="grille portes" style="--min: 280px">
+      <a class="porte" href="/trouver-ma-seance">
+        <Photo src={isabelle} alt="" pos="50% 30%" ratio="4 / 3" curseur={false} tailles="(max-width: 760px) 100vw, 33vw" />
+        <span class="porte-texte"><span class="d" style="font-size: clamp(30px, 3vw, 40px)">Cavalier ou propriétaire</span><span>Une séance avec votre cheval, dès 90 €. Trouvez la vôtre en 30 secondes.</span><span class="porte-fleche">Trouver ma séance →</span></span>
+      </a>
+      <a class="porte" href="/concours">
+        <Photo src={saut} alt="" pos="52% 50%" ratio="4 / 3" curseur={false} tailles="(max-width: 760px) 100vw, 33vw" />
+        <span class="porte-texte"><span class="d" style="font-size: clamp(30px, 3vw, 40px)">En concours</span><span>Votre parcours en photo, en vidéo ou en réel souvenir, dès 50 €.</span><span class="porte-fleche">Voir les formats →</span></span>
+      </a>
+      <a class="porte" href="/marques">
+        <Photo src={chocolatier} alt="" pos="50% 35%" ratio="4 / 3" curseur={false} tailles="(max-width: 760px) 100vw, 33vw" />
+        <span class="porte-texte"><span class="d" style="font-size: clamp(30px, 3vw, 40px)">Une marque</span><span>Photos, vidéos et réseaux sociaux pour les marques équestres. Sur devis.</span><span class="porte-fleche">Parler de mon projet →</span></span>
+      </a>
+    </div>
+  </section>
+
+  <section class="wrap section sans-haut row centre" style="gap: clamp(40px, 6vw, 104px)" data-reveal aria-labelledby="moi">
     <Photo src={portrait} alt="Portrait d’Ilona souriante, lunettes et cheveux longs, contre son cheval alezan au coucher du soleil" ratio="3 / 4" pos="50% 50%" style="flex: 1 1 320px; max-width: 500px" />
     <div class="stack g24" style="flex: 1 1 440px">
       <p class="lbl">Bonjour, moi c’est Ilona</p>
@@ -108,7 +135,18 @@ const univers = [
     </div>
   </section>
 
-  <section class="wrap section sans-haut stack g48" data-reveal aria-labelledby="univers">
+  <section class="sombre" data-reveal aria-labelledby="quiz-titre">
+    <div class="wrap row entre centre g32" style="padding-block: clamp(56px, 7vw, 96px)">
+      <div class="stack g16" style="flex: 1 1 520px">
+        <p class="lbl">Vous hésitez entre deux formules ?</p>
+        <h2 id="quiz-titre" class="d" style="font-size: clamp(44px, 6vw, 88px); line-height: 1">Trouvez <span class="hl plein">votre séance</span><br>en 30 secondes</h2>
+        <p style="margin: 0; font-size: 17px; line-height: 1.6; max-width: 560px; opacity: .9">Trois questions sur vous et votre cheval : je vous conseille la formule, le prix et les prochains soirs de lumière dorée.</p>
+      </div>
+      <a class="btn clair grand" href="/trouver-ma-seance">Commencer le quiz →</a>
+    </div>
+  </section>
+
+  <section class="wrap section stack g48" data-reveal aria-labelledby="univers">
     <div class="row entre bas g20">
       <h2 id="univers" class="d h2">Six <span class="hl">univers</span>,<br>un seul regard</h2>
       <p class="texte" style="max-width: 380px; font-size: 16px">Du pré à la vitrine : les chevaux, les concours, les événements, les produits et les réseaux de ceux qui les aiment.</p>
@@ -137,13 +175,13 @@ const univers = [
     <div class="stack g24" style="flex: 1 1 380px">
       <p class="lbl">Votre galerie privée</p>
       <h2 id="favoris" class="d h2">Choisissez<br>vos <span class="hl">favoris</span></h2>
-      <p class="texte" style="max-width: 480px">Après la séance, vous recevez une galerie rien qu’à vous. Touchez le cœur des photos qui vous parlent : elles entrent dans votre sélection. Votre formule en inclut un nombre, et vous pouvez ajouter les autres à l’unité.</p>
-      <p style="margin: 0; display: flex; align-items: baseline; gap: 14px" aria-live="polite"><span class="d" style="font-size: 72px" data-compte>2</span><span data-libelle>photos choisies</span></p>
-      <a class="btn" href="/galerie" style="align-self: flex-start">Ouvrir ma galerie</a>
+      <p class="texte" style="max-width: 480px">Touchez le cœur des images qui vous parlent : vos coups de cœur vous suivent jusqu’à la réservation, pour qu’Ilona sache tout de suite ce que vous aimez. Après la séance, c’est le même geste dans votre galerie privée.</p>
+      <p style="margin: 0; display: flex; align-items: baseline; gap: 14px" aria-live="polite"><span class="d" style="font-size: 72px" data-compte>0</span><span data-libelle>coup de cœur</span></p>
+      <div class="row g12"><a class="btn" href="/reservation">Réserver avec mes coups de cœur</a><a class="btn contour" href="/galerie">Voir une galerie client</a></div>
     </div>
     <ul class="mini-galerie" style="flex: 1 1 520px">
       {favoris.map((f) => (
-        <li class:list={['tuile', { choisie: f.on }]} data-curseur="choisir">
+        <li class:list={['tuile', { choisie: f.on }]} data-curseur="choisir" data-id={f.id} data-alt={f.alt}>
           <Image src={f.src} alt={f.alt} widths={[400, 700]} sizes="(max-width: 760px) 50vw, 25vw" style={`object-position: ${f.pos}`} />
           <span class="flash" aria-hidden="true"></span><span class="cadre" aria-hidden="true"></span>
           <Coeur choisie={f.on} nom={f.alt} />
@@ -151,6 +189,20 @@ const univers = [
       ))}
     </ul>
   </section>
+
+  {temoignages.length > 0 && (
+    <section class="wrap section sans-haut stack g32" data-reveal aria-labelledby="avis">
+      <h2 id="avis" class="d h2">Ils en <span class="hl">parlent</span></h2>
+      <div class="grille" style="--min: 300px">
+        {temoignages.map((t) => (
+          <figure class="carte stack g16" style="margin: 0; padding: 32px">
+            <blockquote style="margin: 0; font-size: 18px; line-height: 1.6">« {t.texte} »</blockquote>
+            <figcaption style="font-size: 14px"><strong>{t.auteur}</strong>{t.cheval && ` & ${t.cheval}`}{t.seance && ` · ${t.seance}`}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+  )}
 
   <section class="sombre" data-reveal aria-labelledby="segur">
     <div class="wrap row entre centre g48" style="padding-block: clamp(64px, 8vw, 120px)">
@@ -206,6 +258,14 @@ const univers = [
   .univers-it, .article-carte { color: var(--encre); text-decoration: none; }
   .univers-it :global(.ph img) { transition: transform .7s var(--lumiere); }
   .univers-it:hover :global(.ph img) { transform: scale(1.05); }
+  .reperes { list-style: none; margin: 32px 0 0; padding: 18px 0 0; border-top: 1px solid rgba(34,34,34,.2); display: flex; flex-wrap: wrap; gap: 10px 36px; font-size: 15px; }
+  .reperes strong { font-weight: 600; color: var(--rose-profond); }
+  .porte { display: flex; flex-direction: column; color: var(--encre); text-decoration: none; border-radius: 16px; overflow: hidden; box-shadow: inset 0 0 0 1.5px rgba(34,34,34,.2); transition: box-shadow .3s var(--lumiere); }
+  .porte:hover, .porte:focus-visible { box-shadow: inset 0 0 0 3px var(--encre); }
+  .porte-texte { display: flex; flex-direction: column; gap: 10px; padding: 22px 24px 26px; font-size: 15px; line-height: 1.55; flex: 1; }
+  .porte-fleche { margin-top: auto; font-weight: 600; color: var(--rose-profond); }
+  .porte :global(.ph img) { transition: transform .7s var(--lumiere); }
+  .porte:hover :global(.ph img) { transform: scale(1.04); }
   .mini-galerie { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   @media (max-width: 760px) {
     .grille.univers { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--marge); margin-inline: calc(-1 * var(--marge)); padding-inline: var(--marge); padding-bottom: 8px; }
@@ -219,6 +279,21 @@ const univers = [
   const zone = document.querySelector('.mini-galerie');
   const compte = document.querySelector('[data-compte]');
   const libelle = document.querySelector('[data-libelle]');
+  const CLE = 'ilona-coups-de-coeur';
+  const lire = (): { id: string; alt: string; src: string }[] => { try { return JSON.parse(localStorage.getItem(CLE) || '[]'); } catch { return []; } };
+  const ecrire = (v: unknown) => { try { localStorage.setItem(CLE, JSON.stringify(v)); } catch { /* stockage indisponible : on continue sans */ } };
+  function compter() {
+    const n = zone!.querySelectorAll('.coeur[aria-pressed="true"]').length;
+    compte!.textContent = String(n);
+    libelle!.textContent = n > 1 ? 'coups de cœur' : 'coup de cœur';
+  }
+  // Restaure les coups de cœur déjà choisis lors d'une visite précédente.
+  const deja = new Set(lire().map((c) => c.id));
+  zone?.querySelectorAll<HTMLElement>('.tuile').forEach((t) => {
+    if (!deja.has(t.dataset.id!)) return;
+    t.classList.add('choisie'); t.querySelector('.coeur')!.setAttribute('aria-pressed', 'true');
+  });
+  if (zone) compter();
   zone?.addEventListener('click', (e) => {
     const bouton = (e.target as HTMLElement).closest('.coeur');
     if (!bouton) return;
@@ -227,8 +302,7 @@ const univers = [
     bouton.setAttribute('aria-pressed', String(on));
     tuile.classList.toggle('choisie', on);
     if (on) { tuile.classList.remove('flashe'); void (tuile as HTMLElement).offsetWidth; tuile.classList.add('flashe'); }
-    const n = zone.querySelectorAll('.coeur[aria-pressed="true"]').length;
-    compte!.textContent = String(n);
-    libelle!.textContent = n > 1 ? 'photos choisies' : 'photo choisie';
+    compter();
+    ecrire([...zone.querySelectorAll<HTMLElement>('.tuile.choisie')].map((t) => ({ id: t.dataset.id, alt: t.dataset.alt, src: t.querySelector('img')!.currentSrc || t.querySelector('img')!.src })));
   });
 </script>

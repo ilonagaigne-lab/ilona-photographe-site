@@ -41,6 +41,7 @@ const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': '
       <h2 id="formules" class="d h2">Quatre <span class="hl">formules</span></h2>
       <p class="lbl">Prix TTC · déplacement en sus</p>
     </div>
+    <p class="texte" style="font-size: 16px; margin-top: -24px">Vous hésitez entre deux formules ? <a href="/trouver-ma-seance" style="display: inline-block; padding: 10px 0; font-weight: 600">Trouvez la vôtre en 30 secondes →</a></p>
     <div class="grille" style="--min: 260px; gap: 20px">
       {seances.map((s) => (
         <article class:list={['carte', 'stack', 'g16', 'formule', { vedette: s.id === 'signature' }]}>

@@ -3,6 +3,7 @@ import { site } from '../data';
 const pages = [
   { chemin: '/', priorite: '1.0' },
   { chemin: '/seances', priorite: '0.9' },
+  { chemin: '/trouver-ma-seance', priorite: '0.9' },
   { chemin: '/concours', priorite: '0.8' },
   { chemin: '/marques', priorite: '0.8' },
   { chemin: '/reservation', priorite: '0.7' },

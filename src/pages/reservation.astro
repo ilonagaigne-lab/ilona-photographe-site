@@ -25,12 +25,13 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
         <fieldset class="pane" data-pane="2" hidden>
           <legend class="d" style="font-size: 44px">Où et quand ?</legend>
           <label class="champ">Commune ou nom de l’écurie<input class="saisie" name="lieu" data-libelle="Lieu" type="text" placeholder="Ex. Muret" required></label>
-          <label class="champ" style="max-width: 320px">Date souhaitée (facultatif)<input class="saisie" name="date" data-libelle="Date souhaitée" type="date"></label>
+          <label class="champ" style="max-width: 320px">Date souhaitée (facultatif)<input class="saisie" name="date" data-libelle="Date souhaitée" type="date" aria-describedby="soleil"></label>
+          <p id="soleil" class="soleil" aria-live="polite">Choisissez une date : je vous indique l’heure de la lumière dorée à Toulouse.</p>
           <div class="stack g12">
             <p style="margin: 0; font-size: 14px; font-weight: 500">Moment de la journée</p>
             <div class="choix">
               <button type="button" class="option" data-moment="Le matin" aria-pressed="false"><strong>Le matin</strong><span class="li">Lumière douce, chevaux reposés</span></button>
-              <button type="button" class="option" data-moment="En fin de journée" aria-pressed="true"><strong>En fin de journée</strong><span class="li">Lumière dorée</span></button>
+              <button type="button" class="option" data-moment="En fin de journée" aria-pressed="true"><strong>En fin de journée</strong><span class="li" data-note-soir>Lumière dorée</span></button>
             </div>
           </div>
         </fieldset>
@@ -78,6 +79,10 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
         <p style="margin: 0; font-size: 18px; font-weight: 600" data-r-nom>Signature</p>
         <p class="prix" style="font-size: 72px; margin: 0"><span data-r-total>180</span> €</p>
         <p style="margin: 0; font-size: 14px; line-height: 1.55; opacity: .9"><span data-r-remise hidden>Remise En Ségur de 10 % incluse. </span>Déplacement calculé selon votre commune, offert près de Toulouse.</p>
+        <div class="coups" data-coups hidden>
+          <p style="margin: 0; font-size: 14px; font-weight: 500">Vos coups de cœur</p>
+          <ul data-coups-liste></ul>
+        </div>
         <p style="margin: 0; font-size: 14px; padding-top: 12px; border-top: 1px solid rgba(236,235,231,.18)">Une question ? {contact.telephone}</p>
       </aside>
     </form>
@@ -107,11 +112,16 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
   .recap :global(.modifier) { margin-left: 8px; border: 0; background: none; padding: 10px 4px; color: var(--rose-profond); text-decoration: underline; font: 500 14px 'Poppins', sans-serif; cursor: pointer; }
   .resume { flex: 1 1 300px; padding: 32px; position: sticky; top: 24px; }
   :global(.pied) { display: none; }
+  .soleil { margin: -8px 0 0; padding: 12px 16px; border-radius: 12px; background: linear-gradient(135deg, rgba(232,190,60,.3), rgba(231,156,194,.3)); font-size: 15px; line-height: 1.5; max-width: 520px; }
+  .coups { padding-top: 12px; border-top: 1px solid rgba(236,235,231,.18); display: flex; flex-direction: column; gap: 10px; }
+  .coups ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; flex-wrap: wrap; }
+  .coups :global(img) { width: 56px; height: 70px; object-fit: cover; border-radius: 4px; box-shadow: 0 0 0 2px var(--rose); }
   @media (max-width: 760px) { .resume { position: static; order: -1; padding: 24px; } .resume .prix { font-size: 48px !important; } }
 </style>
 
 <script>
   import { ouvrirMail, lignesDuFormulaire } from '../scripts/mail.js';
+  import { lumiereDuSoir, heure, jour } from '../scripts/soleil.js';
   const form = document.getElementById('resa') as HTMLFormElement;
   const $ = <T extends HTMLElement>(s: string) => form.querySelector<T>(s)!;
   let etape = 1;
@@ -201,12 +211,33 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
     resume();
   });
   $('[name="segur"]').addEventListener('change', resume);
+
+  // Heure dorée pour la date choisie.
+  $<HTMLInputElement>('[name="date"]').addEventListener('change', (e) => {
+    const v = (e.target as HTMLInputElement).value;
+    const sortie = document.getElementById('soleil')!;
+    if (!v) { sortie.textContent = 'Choisissez une date : je vous indique l’heure de la lumière dorée à Toulouse.'; return; }
+    const d = new Date(`${v}T12:00:00`);
+    const { doree, coucher } = lumiereDuSoir(d);
+    sortie.textContent = `Le ${jour(d)}, lumière dorée de ${heure(doree)} à ${heure(coucher)} (coucher du soleil).`;
+    $('[data-note-soir]').textContent = `Lumière dorée dès ${heure(doree)}`;
+  });
+
+  // Coups de cœur choisis sur l'accueil.
+  let coups: { alt: string; src: string }[] = [];
+  try { coups = JSON.parse(localStorage.getItem('ilona-coups-de-coeur') || '[]'); } catch { coups = []; }
+  if (coups.length) {
+    $('[data-coups]').hidden = false;
+    $('[data-coups-liste]').replaceChildren(...coups.map((c) => { const li = document.createElement('li'); const img = document.createElement('img'); img.src = c.src; img.alt = c.alt; li.append(img); return li; }));
+  }
   $('[data-retour]').addEventListener('click', () => afficher(etape - 1));
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (!valide(etape)) return;
     if (etape < 4) return afficher(etape + 1);
-    const lignes = [`Prestation : ${formule().dataset.nom} (${formule().dataset.prix} €)`, `Moment : ${moment().dataset.moment}`, ...lignesDuFormulaire(form)];
+    const lignes = [`Prestation : ${formule().dataset.nom} (${formule().dataset.prix} €)`, `Moment : ${moment().dataset.moment}`, ...lignesDuFormulaire(form),
+      coups.length ? `Coups de cœur sur le site : ${coups.map((c) => c.alt).join(' ; ')}` : '',
+      new URLSearchParams(location.search).get('source') === 'quiz' ? 'Formule conseillée par le quiz du site' : ''];
     texteDemande = lignes.join('\n');
     ouvrirMail(form.closest('main')!.querySelector<HTMLAnchorElement>('a[href^="mailto:"]')!.href.replace('mailto:', ''), `Réservation · ${formule().dataset.nom}`, lignes);
     afficher(5);
