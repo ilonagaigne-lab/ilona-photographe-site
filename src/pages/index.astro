@@ -37,9 +37,15 @@ const univers = [
 
   <section class="wrap" style="padding-top: clamp(24px, 4vw, 64px)" data-reveal aria-labelledby="titre">
     <p class="lbl">Photographe &amp; vidéaste équestre · près de Toulouse</p>
-    <h1 id="titre" class="d deborde" style="margin-top: 20px; font-size: clamp(60px, 18.6vw, 270px)">
-      <span class="rv"><span>Surligner<span class="capsule" aria-hidden="true"><video src="/videos/capsule-titre.mp4" poster="/videos/capsule-titre-poster.jpg" autoplay muted loop playsinline preload="auto" tabindex="-1"></video></span></span></span>
-      <span class="rv" style="padding-left: clamp(0px, 13vw, 190px)"><span style="--d: .25s">l’<span class="hl" style="--d: 1s">instant</span>.</span></span>
+    <h1 id="titre" style="margin: 20px 0 0">
+      <span class="sr">Surligner l’instant.</span>
+      <span class="pochoir" aria-hidden="true">
+        <span class="pochoir-trait"></span>
+        <video autoplay muted loop playsinline preload="auto" poster="/videos/titre-video-poster.jpg" tabindex="-1">
+          <source src="/videos/titre-video-mobile.mp4" type="video/mp4" media="(max-width: 760px)">
+          <source src="/videos/titre-video.mp4" type="video/mp4">
+        </video>
+      </span>
     </h1>
     <div class="row entre bas g32" style="margin-top: 44px">
       <p class="chapo apparait" style="--d: .6s">Je photographie et filme les chevaux et leurs cavaliers, du pré au paddock, et je crée du contenu pour les marques équestres. Une séance, un concours, un lancement : je garde ce qui compte.</p>
