@@ -6,12 +6,13 @@ import s11 from '../../assets/photos/galoplan-still-11.jpg';
 import s21 from '../../assets/photos/galoplan-still-21.jpg';
 import s33 from '../../assets/photos/galoplan-still-33.jpg';
 import s43 from '../../assets/photos/galoplan-still-43.jpg';
+import { galoplan } from '../../data';
+const schemaCas = { '@type': 'CreativeWork', name: 'GaloPlan à l’écurie : deux réels verticaux', about: 'Contenu vidéo pour GaloPlan, l’application du cheval partagé', creator: { '@id': 'https://ilona-photographe-site.vercel.app/#ilona' }, inLanguage: 'fr-FR', genre: 'Étude de cas' };
 ---
-<Base titre="Étude de cas GaloPlan" description="Deux réels verticaux tournés à l’écurie pour GaloPlan, l’app du cheval partagé : un film de lancement et un vlog de séance." page="marques">
+<Base titre="Étude de cas GaloPlan" description="Deux réels verticaux tournés à l’écurie pour GaloPlan, l’app du cheval partagé : un film de lancement et un vlog de séance." page="marques" fil={[{ nom: 'Marques & réseaux', href: '/marques' }, { nom: 'Étude de cas GaloPlan', href: '/etudes-de-cas/galoplan' }]} schema={[schemaCas]}>
   <article>
     <section class="wrap" style="padding-top: clamp(24px, 4vw, 56px)" data-reveal aria-labelledby="titre">
-      <a class="nl" href="/marques" style="font-size: 14px">← Marques &amp; réseaux</a>
-      <p class="lbl" style="margin-top: 24px">Étude de cas · contenu vidéo</p>
+      <p class="lbl">Étude de cas · contenu vidéo</p>
       <h1 id="titre" class="d h1 deborde" style="margin-top: 18px">
         <span class="rv"><span>GaloPlan</span></span>
         <span class="rv"><span style="--d: .2s">à <span class="hl" style="--d: .9s">l’écurie</span></span></span>
@@ -51,22 +52,26 @@ import s43 from '../../assets/photos/galoplan-still-43.jpg';
       <Photo src={s43} alt="Cavalière casquée qui embrasse le chanfrein de son cheval gris" cache="#EAE2D4" delai=".5s" tailles="(max-width: 760px) 50vw, 25vw" class="decale" />
     </section>
 
-    <section class="sombre" data-reveal aria-labelledby="resultats">
-      <div class="wrap stack" style="padding-block: clamp(64px, 8vw, 104px); gap: 56px">
-        <blockquote style="margin: 0" class="stack g20">
-          <p class="d" style="font-size: clamp(36px, 5.4vw, 80px); line-height: 1">« [Citation de l’équipe GaloPlan sur <span class="hl plein">ce qui a changé</span>] »</p>
-          <footer style="font-size: 16px">[Prénom Nom], GaloPlan</footer>
-        </blockquote>
-        <div class="stack g24">
-          <h2 id="resultats" class="lbl">Résultats</h2>
-          <div class="grille" style="--min: 220px">
-            <div class="stat"><p class="prix">[X]</p><p>[vues des deux réels]</p></div>
-            <div class="stat"><p class="prix">[X]</p><p>[nouveaux abonnés]</p></div>
-            <div class="stat"><p class="prix">[X]</p><p>[inscriptions à l’application]</p></div>
-          </div>
+    {(galoplan.citation || galoplan.resultats.length > 0) && (
+      <section class="sombre" data-reveal aria-labelledby="resultats">
+        <div class="wrap stack" style="padding-block: clamp(64px, 8vw, 104px); gap: 56px">
+          {galoplan.citation && (
+            <blockquote style="margin: 0" class="stack g20">
+              <p class="d" style="font-size: clamp(36px, 5.4vw, 80px); line-height: 1">« {galoplan.citation} »</p>
+              <footer style="font-size: 16px">{galoplan.auteur}</footer>
+            </blockquote>
+          )}
+          {galoplan.resultats.length > 0 && (
+            <div class="stack g24">
+              <h2 id="resultats" class="lbl">Résultats</h2>
+              <div class="grille" style="--min: 220px">
+                {galoplan.resultats.map((r) => <div class="stat"><p class="prix">{r.valeur}</p><p>{r.libelle}</p></div>)}
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-    </section>
+      </section>
+    )}
   </article>
 
   <section class="wrap section row entre bas g32" data-reveal aria-labelledby="suite">

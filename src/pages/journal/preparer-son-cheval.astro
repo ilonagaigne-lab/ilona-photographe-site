@@ -5,11 +5,11 @@ import { Image } from 'astro:assets';
 import selle from '../../assets/photos/cheval-selle-ecurie.jpg';
 import tete from '../../assets/photos/cheval-tete-frontal.jpg';
 import deux from '../../assets/photos/cheval-deux-chevaux.jpg';
-import portrait from '../../assets/photos/portrait.jpg';
+import portrait from '../../assets/photos/portrait-ilona.jpg';
 ---
-<Base titre="Préparer son cheval pour sa séance photo · Journal" description="Pansage, crins, harnachement, tenue du cavalier : la liste simple à relire la veille de votre séance photo équestre." page="journal">
+<Base titre="Préparer son cheval pour sa séance photo · Journal" description="Pansage, crins, harnachement, tenue du cavalier : la liste simple à relire la veille de votre séance photo équestre." page="journal" type="article" fil={[{ nom: 'Journal', href: '/journal/preparer-son-cheval' }, { nom: 'Préparer son cheval', href: '/journal/preparer-son-cheval' }]} schema={[{ '@type': 'Article', headline: 'Préparer son cheval pour sa séance photo', description: 'Pansage, crins, harnachement, tenue du cavalier : la liste simple à relire la veille.', author: { '@id': 'https://ilona-photographe-site.vercel.app/#ilona' }, publisher: { '@id': 'https://ilona-photographe-site.vercel.app/#activite' }, inLanguage: 'fr-FR' }]}>
   <article>
-    <header class="wrap" style="padding-top: clamp(32px, 5vw, 80px)" data-reveal>
+    <header class="wrap" style="padding-top: clamp(16px, 3vw, 48px)" data-reveal>
       <div class="colonne">
         <p class="lbl">Journal · Avant la séance</p>
         <h1 class="d" style="font-size: clamp(52px, 7.4vw, 108px); margin-top: 20px">
@@ -19,7 +19,7 @@ import portrait from '../../assets/photos/portrait.jpg';
         </h1>
         <p class="apparait" style="margin: 28px 0 0; font-size: clamp(18px, 1.6vw, 21px); line-height: 1.6">Pansage, crins, tenue du cavalier : la liste simple à relire la veille, pour arriver serein et laisser la place à l’instant.</p>
         <div class="row centre g12 apparait" style="margin-top: 28px; font-size: 14px; --d: .5s">
-          <Image src={portrait} alt="" width={88} height={88} style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; object-position: 50% 26%" />
+          <Image src={portrait} alt="" width={88} height={88} style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; object-position: 52% 32%" />
           <span><strong style="font-weight: 600">Ilona</strong> · 5 min de lecture</span>
         </div>
       </div>

@@ -8,17 +8,22 @@ import '../styles/global.css';
 import { Image } from 'astro:assets';
 import logo from '../assets/logo-ink.webp';
 import logoBlanc from '../assets/logo-white.webp';
-import { contact } from '../data';
+import { contact, site, seances, concours } from '../data';
 import anton from '@fontsource/anton/files/anton-latin-400-normal.woff2?url';
 
+interface Etape { nom: string; href: string; }
 interface Props {
   titre: string;
   description: string;
   page?: 'accueil' | 'seances' | 'concours' | 'marques' | 'academie' | 'journal' | 'galerie' | 'reservation' | 'autre';
   indexer?: boolean;
   entete?: 'complet' | 'simple';
+  fil?: Etape[];
+  schema?: Record<string, unknown>[];
+  image?: string;
+  type?: 'website' | 'article';
 }
-const { titre, description, page = 'autre', indexer = true, entete = 'complet' } = Astro.props;
+const { titre, description, page = 'autre', indexer = true, entete = 'complet', fil, schema = [], image = '/og-image.jpg', type = 'website' } = Astro.props;
 const nav = [
   { cle: 'seances', libelle: 'Séances équestres', court: 'Séances', href: '/seances' },
   { cle: 'concours', libelle: 'Concours', court: 'Concours', href: '/concours' },
@@ -28,6 +33,45 @@ const nav = [
 ];
 const courant = (cle: string) => (cle === page ? 'page' : undefined);
 const titreComplet = page === 'accueil' ? titre : `${titre} · Ilona Photographe`;
+const canonique = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', site.url).href;
+const imageAbsolue = new URL(image, site.url).href;
+
+// Fiche de l'activité, reprise sur chaque page (Google, IA conversationnelles).
+const activite = {
+  '@type': ['ProfessionalService', 'LocalBusiness'],
+  '@id': `${site.url}/#activite`,
+  name: site.nom,
+  description: site.description,
+  url: site.url,
+  image: imageAbsolue,
+  logo: new URL('/favicon.svg', site.url).href,
+  telephone: contact.telephoneInternational,
+  email: contact.email,
+  priceRange: '50 € – 250 €',
+  address: { '@type': 'PostalAddress', addressLocality: 'Toulouse', addressRegion: 'Occitanie', addressCountry: 'FR' },
+  areaServed: [{ '@type': 'City', name: 'Toulouse' }, { '@type': 'AdministrativeArea', name: 'Haute-Garonne' }],
+  founder: { '@id': `${site.url}/#ilona` },
+  sameAs: [contact.instagramLien],
+  knowsAbout: ['Photographie équestre', 'Vidéo équestre', 'Photographie de concours hippique', 'Contenu de marque', 'Community management'],
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Prestations',
+    itemListElement: [...seances.map((s) => ({ nom: `Séance photo équestre ${s.nom}`, prix: s.prix })), ...concours.map((c) => ({ nom: c.nom, prix: c.prix }))].map((o) => ({
+      '@type': 'Offer', price: o.prix, priceCurrency: 'EUR', itemOffered: { '@type': 'Service', name: o.nom },
+    })),
+  },
+};
+const personne = {
+  '@type': 'Person', '@id': `${site.url}/#ilona`, name: 'Ilona', jobTitle: 'Photographe et vidéaste équestre',
+  worksFor: { '@id': `${site.url}/#activite` }, sameAs: [contact.instagramLien],
+};
+const siteWeb = { '@type': 'WebSite', '@id': `${site.url}/#site`, url: site.url, name: site.nom, inLanguage: 'fr-FR', publisher: { '@id': `${site.url}/#activite` } };
+const ariane = fil && {
+  '@type': 'BreadcrumbList',
+  itemListElement: [{ nom: 'Accueil', href: '/' }, ...fil].map((e, i) => ({ '@type': 'ListItem', position: i + 1, name: e.nom, item: new URL(e.href, site.url).href })),
+};
+const graphe = { '@context': 'https://schema.org', '@graph': [siteWeb, activite, personne, ...(ariane ? [ariane] : []), ...schema] };
+const ctaFlottant = !['reservation', 'galerie'].includes(page);
 ---
 <!doctype html>
 <html lang="fr">
@@ -36,15 +80,28 @@ const titreComplet = page === 'accueil' ? titre : `${titre} · Ilona Photographe
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{titreComplet}</title>
   <meta name="description" content={description}>
-  {!indexer && <meta name="robots" content="noindex, nofollow">}
+  <link rel="canonical" href={canonique}>
+  <meta name="robots" content={indexer ? 'index, follow, max-image-preview:large' : 'noindex, nofollow'}>
   <meta name="theme-color" content="#ECEBE7">
+  <meta name="author" content="Ilona Photographe">
+  <meta property="og:site_name" content={site.nom}>
   <meta property="og:title" content={titreComplet}>
   <meta property="og:description" content={description}>
-  <meta property="og:type" content="website">
+  <meta property="og:type" content={type}>
+  <meta property="og:url" content={canonique}>
+  <meta property="og:image" content={imageAbsolue}>
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Cavalière et son cheval alezan dans un pré au coucher du soleil">
   <meta property="og:locale" content="fr_FR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="geo.region" content="FR-31">
+  <meta name="geo.placename" content="Toulouse">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="sitemap" href="/sitemap.xml">
   <link rel="preload" href={anton} as="font" type="font/woff2" crossorigin>
   <script is:inline>document.documentElement.classList.add('js');</script>
+  {indexer && <script type="application/ld+json" set:html={JSON.stringify(graphe)} />}
   <slot name="head" />
 </head>
 <body>
@@ -93,23 +150,35 @@ const titreComplet = page === 'accueil' ? titre : `${titre} · Ilona Photographe
     </div>
   )}
 
-  <main id="contenu">
+  <main id="contenu" tabindex="-1">
+    {fil && (
+      <nav class="fil wrap" aria-label="Fil d’Ariane">
+        <ol>
+          <li><a href="/">Accueil</a></li>
+          {fil.map((e, i) => <li>{i === fil.length - 1 ? <span aria-current="page">{e.nom}</span> : <a href={e.href}>{e.nom}</a>}</li>)}
+        </ol>
+      </nav>
+    )}
     <slot />
   </main>
 
   <footer class="pied">
     <div class="wrap">
       <a href="/" class="logo" aria-label="Ilona Photographe, accueil" style="width: 116px"><Image src={logo} alt="" width={232} /></a>
-      <ul>
-        <li><a class="nl" href="/seances" style="font-size: 14px">Tarifs</a></li>
-        <li><a class="nl" href="/reservation" style="font-size: 14px">Réserver</a></li>
-        <li><a class="nl" href={`mailto:${contact.email}`} style="font-size: 14px">Contact</a></li>
-        <li><a class="nl" href={contact.instagramLien} style="font-size: 14px">Instagram</a></li>
-      </ul>
-      <p>© {new Date().getFullYear()} Ilona Photographe · près de Toulouse</p>
+      <nav aria-label="Pied de page">
+        <ul>
+          <li><a class="nl" href="/seances" style="font-size: 14px">Tarifs</a></li>
+          <li><a class="nl" href="/seances#faq" style="font-size: 14px">Questions fréquentes</a></li>
+          <li><a class="nl" href="/reservation" style="font-size: 14px">Réserver</a></li>
+          <li><a class="nl" href={`mailto:${contact.email}`} style="font-size: 14px">Contact</a></li>
+          <li><a class="nl" href={contact.instagramLien} style="font-size: 14px">Instagram</a></li>
+        </ul>
+      </nav>
+      <p>© {new Date().getFullYear()} Ilona Photographe · photographe équestre près de Toulouse</p>
     </div>
   </footer>
 
+  {ctaFlottant && <a class="cta-flottant btn" href="/reservation">Réserver une séance</a>}
   <div class="obturateur" aria-hidden="true"><i></i><i></i></div>
   <div class="curseur" aria-hidden="true"></div>
   <script>import '../scripts/site.js';</script>

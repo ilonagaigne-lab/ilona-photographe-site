@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
 import Reel from '../components/Reel.astro';
 import { Image } from 'astro:assets';
-import { seances, deplacement } from '../data';
+import { seances, deplacement, detailsFormules, faq } from '../data';
 import deux from '../assets/photos/cheval-deux-chevaux.jpg';
 import poney from '../assets/photos/cheval-cavaliere-poney.jpg';
 import isabelle from '../assets/photos/cheval-cowgirl-isabelle.jpg';
@@ -17,8 +17,9 @@ const visuels = {
   collection: { src: tete, alt: 'Tête d’un cheval alezan, frontal pailleté' },
 };
 const km = deplacement.prixKm.toString().replace('.', ',');
+const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.r } })) };
 ---
-<Base titre="Séances et tarifs équestres" description="Séances photo équestres près de Toulouse : Sport 90 €, Complicité 110 €, Signature 180 €, Collection complète 250 €. Calculez votre prix, déplacement compris." page="seances">
+<Base titre="Séances photo équestres et tarifs" description="Séances photo équestres près de Toulouse : Sport 90 €, Complicité 110 €, Signature 180 €, Collection complète 250 €. Calculez votre prix, déplacement compris." page="seances" schema={[schemaFaq]}>
 
   <section class="wrap row entre bas g32" style="padding-top: clamp(24px, 4vw, 64px)" data-reveal aria-labelledby="titre">
     <div>
@@ -49,7 +50,8 @@ const km = deplacement.prixKm.toString().replace('.', ',');
             <h3 class="d h3">{s.nom}</h3>
             <p class="prix" style="font-size: 72px; margin: 0">{s.prix} €</p>
             <p style="margin: 0; font-size: 15px; line-height: 1.55; opacity: .9">{s.accroche}</p>
-            <ul class="liste li" style="font-size: 16px; flex: 1"><li>[Durée]</li><li>[Photos incluses]</li></ul>
+            {detailsFormules[s.id].length > 0 && <ul class="liste li" style="font-size: 16px">{detailsFormules[s.id].map((d) => <li>{d}</li>)}</ul>}
+            <span style="flex: 1"></span>
             <a class="btn clair" href={`/reservation?formule=${s.id}`}>Choisir {s.nom.split(' ')[0]}</a>
           </div>
         </article>
@@ -107,6 +109,14 @@ const km = deplacement.prixKm.toString().replace('.', ',');
       <li class="etape"><span class="d" style="font-size: 56px; color: var(--rose-profond)">03</span><h3>La séance</h3><p>Pas de pose forcée. Le cheval donne le rythme, je guette l’instant.</p></li>
       <li class="etape"><span class="d" style="font-size: 56px; color: var(--rose-profond)">04</span><h3>Votre galerie</h3><p>Une galerie privée où vous choisissez vos favoris, et ajoutez des photos si le cœur vous en dit.</p></li>
     </ol>
+  </section>
+
+  <section id="faq" class="wrap section sans-haut stack g32" data-reveal aria-labelledby="titre-faq">
+    <h2 id="titre-faq" class="d h2">Vos <span class="hl">questions</span></h2>
+    <div class="faq">
+      {faq.map((f) => <details><summary>{f.q}</summary><p>{f.r}</p></details>)}
+    </div>
+    <p class="texte" style="font-size: 15px">Une autre question ? Appelez Ilona au <a href="tel:+33683410180">06 83 41 01 80</a> ou écrivez à <a href="mailto:ilona.photography@gmail.com">ilona.photography@gmail.com</a>.</p>
   </section>
 
   <section class="sombre" data-reveal aria-labelledby="cta">

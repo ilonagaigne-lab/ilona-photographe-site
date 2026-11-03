@@ -51,7 +51,7 @@ if (curseur && !calme && matchMedia('(hover: hover) and (pointer: fine)').matche
   }, { passive: true });
 }
 
-// Menu mobile.
+// Menu mobile : focus gardé dans le menu, Échap pour fermer.
 const menu = document.getElementById('menu');
 const ouvrir = document.querySelector('.burger');
 if (menu && ouvrir) {
@@ -66,5 +66,21 @@ if (menu && ouvrir) {
   menu.inert = true;
   ouvrir.addEventListener('click', () => basculer(true));
   fermer.addEventListener('click', () => basculer(false));
-  addEventListener('keydown', (e) => { if (e.key === 'Escape' && menu.classList.contains('ouvert')) basculer(false); });
+  addEventListener('keydown', (e) => {
+    if (!menu.classList.contains('ouvert')) return;
+    if (e.key === 'Escape') return basculer(false);
+    if (e.key !== 'Tab') return;
+    const liens = [...menu.querySelectorAll('a, button')];
+    const premier = liens[0], dernier = liens[liens.length - 1];
+    if (e.shiftKey && document.activeElement === premier) { e.preventDefault(); dernier.focus(); }
+    else if (!e.shiftKey && document.activeElement === dernier) { e.preventDefault(); premier.focus(); }
+  });
+}
+
+// Bouton « Réserver » flottant : apparaît une fois le premier écran passé.
+const cta = document.querySelector('.cta-flottant');
+if (cta) {
+  const majCta = () => cta.classList.toggle('visible', scrollY > innerHeight * 0.8);
+  addEventListener('scroll', majCta, { passive: true });
+  majCta();
 }

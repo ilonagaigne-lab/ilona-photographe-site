@@ -25,7 +25,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
         <fieldset class="pane" data-pane="2" hidden>
           <legend class="d" style="font-size: 44px">Où et quand ?</legend>
           <label class="champ">Commune ou nom de l’écurie<input class="saisie" name="lieu" data-libelle="Lieu" type="text" placeholder="Ex. Muret" required></label>
-          <label class="champ" style="max-width: 320px">Date souhaitée<input class="saisie" name="date" data-libelle="Date souhaitée" type="date"></label>
+          <label class="champ" style="max-width: 320px">Date souhaitée (facultatif)<input class="saisie" name="date" data-libelle="Date souhaitée" type="date"></label>
           <div class="stack g12">
             <p style="margin: 0; font-size: 14px; font-weight: 500">Moment de la journée</p>
             <div class="choix">
@@ -56,7 +56,13 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
 
         <div class="pane" data-pane="5" hidden>
           <h2 class="d" style="font-size: clamp(52px, 7vw, 104px)">Demande <span class="hl">prête</span></h2>
-          <p class="texte">Votre messagerie s’est ouverte avec la demande. Pensez à l’envoyer ! Si rien ne s’est ouvert, écrivez à <a href={`mailto:${contact.email}`}>{contact.email}</a> ou appelez le <a href={contact.telephoneLien}>{contact.telephone}</a>.</p>
+          <p class="texte">Votre messagerie s’est ouverte avec la demande déjà rédigée : il ne reste qu’à l’envoyer. Ilona vous répond par e-mail pour confirmer la date.</p>
+          <div class="carte stack g12" style="padding: 24px">
+            <p class="lbl">Rien ne s’est ouvert ?</p>
+            <p style="margin: 0; font-size: 15px; line-height: 1.6">Copiez votre demande et collez-la dans un e-mail à <a href={`mailto:${contact.email}`}>{contact.email}</a>, ou appelez le <a href={contact.telephoneLien}>{contact.telephone}</a>.</p>
+            <button type="button" class="btn clair" data-copier style="align-self: flex-start">Copier ma demande</button>
+            <p data-copie-ok role="status" style="margin: 0; font-size: 14px" hidden>Demande copiée.</p>
+          </div>
           <a class="btn contour" href="/journal/preparer-son-cheval" style="align-self: flex-start">Préparer mon cheval</a>
         </div>
 
@@ -98,6 +104,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
   .navigation [hidden] { display: none; }
   .navigation .btn[data-suivant] { margin-left: auto; }
   .erreur { margin: 16px 0 0; color: var(--rose-profond); font-weight: 500; }
+  .recap :global(.modifier) { margin-left: 8px; border: 0; background: none; padding: 10px 4px; color: var(--rose-profond); text-decoration: underline; font: 500 14px 'Poppins', sans-serif; cursor: pointer; }
   .resume { flex: 1 1 300px; padding: 32px; position: sticky; top: 24px; }
   :global(.pied) { display: none; }
   @media (max-width: 760px) { .resume { position: static; order: -1; padding: 24px; } .resume .prix { font-size: 48px !important; } }
@@ -108,6 +115,9 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
   const form = document.getElementById('resa') as HTMLFormElement;
   const $ = <T extends HTMLElement>(s: string) => form.querySelector<T>(s)!;
   let etape = 1;
+  let texteDemande = '';
+  // Pas de date passée.
+  $<HTMLInputElement>('[name="date"]').min = new Date().toISOString().slice(0, 10);
 
   // Préselection depuis ?formule=…
   const demande = new URLSearchParams(location.search).get('formule');
@@ -157,7 +167,17 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
       ['Remise', segur() ? 'Écuries d’En Ségur, -10 %' : 'Aucune'],
     ];
     const dl = $('[data-recap]');
-    dl.replaceChildren(...lignes.flatMap(([a, b]) => { const dt = document.createElement('dt'); dt.textContent = a; const dd = document.createElement('dd'); dd.textContent = b; return [dt, dd]; }));
+    const etapeDe: Record<string, number> = { Prestation: 1, Lieu: 2, Date: 2, Contact: 3, Remise: 3 };
+    dl.replaceChildren(...lignes.flatMap(([a, b]) => {
+      const dt = document.createElement('dt'); dt.textContent = a;
+      const dd = document.createElement('dd'); dd.textContent = b + ' ';
+      const modif = document.createElement('button');
+      modif.type = 'button'; modif.className = 'modifier'; modif.textContent = 'Modifier';
+      modif.setAttribute('aria-label', `Modifier : ${a}`);
+      modif.addEventListener('click', () => afficher(etapeDe[a]));
+      dd.append(modif);
+      return [dt, dd];
+    }));
   }
 
   function valide(n: number) {
@@ -187,8 +207,12 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
     if (!valide(etape)) return;
     if (etape < 4) return afficher(etape + 1);
     const lignes = [`Prestation : ${formule().dataset.nom} (${formule().dataset.prix} €)`, `Moment : ${moment().dataset.moment}`, ...lignesDuFormulaire(form)];
+    texteDemande = lignes.join('\n');
     ouvrirMail(form.closest('main')!.querySelector<HTMLAnchorElement>('a[href^="mailto:"]')!.href.replace('mailto:', ''), `Réservation · ${formule().dataset.nom}`, lignes);
     afficher(5);
+  });
+  $('[data-copier]').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(texteDemande); $('[data-copie-ok]').hidden = false; } catch { $('[data-copie-ok]').textContent = 'Copie impossible : sélectionnez le texte du récapitulatif.'; $('[data-copie-ok]').hidden = false; }
   });
   resume();
 </script>

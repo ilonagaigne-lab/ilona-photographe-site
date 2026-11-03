@@ -3,8 +3,9 @@ import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
 import Reel from '../components/Reel.astro';
 import saut from '../assets/photos/concours-saut.jpg';
+import { agenda, contact } from '../data';
 ---
-<Base titre="Photo et vidéo de concours" description="Photographe de concours équestre près de Toulouse : photo 60 €, photo + vidéo 80 €, réel souvenir 50 €. Réservez avant l’épreuve." page="concours">
+<Base titre="Photographe de concours équestre" description="Photographe de concours équestre près de Toulouse : photo 60 €, photo + vidéo 80 €, réel souvenir 50 €. Réservez avant l’épreuve." page="concours">
 
   <section class="wrap row bas" style="padding-top: clamp(24px, 4vw, 64px); gap: 40px clamp(40px, 6vw, 96px)" data-reveal aria-labelledby="titre">
     <div style="flex: 2 1 560px">
@@ -58,13 +59,21 @@ import saut from '../assets/photos/concours-saut.jpg';
   <section class="wrap section sans-haut stack g32" data-reveal aria-labelledby="agenda">
     <div class="row entre bas g20">
       <h2 id="agenda" class="d h2">Où me <span class="hl">trouver</span></h2>
-      <p class="texte" style="max-width: 380px; font-size: 15px">Mes prochains concours. Votre épreuve n’y est pas ? Écrivez-moi, on regarde ensemble.</p>
+      <p class="texte" style="max-width: 380px; font-size: 15px">Votre épreuve n’y est pas ? Écrivez-moi, on regarde ensemble.</p>
     </div>
-    <ul class="agenda">
-      {[1, 2, 3, 4].map(() => (
-        <li><p class="d" style="font-size: 40px">[Date]</p><p style="font-weight: 600; font-size: 17px">[Nom du concours]</p><p class="li">[Lieu] · [discipline]</p><a class="btn contour" href="/reservation?formule=concours-photo">Réserver ma photo</a></li>
-      ))}
-    </ul>
+    {agenda.length > 0 ? (
+      <ul class="agenda">
+        {agenda.map((a) => (
+          <li><p class="d" style="font-size: 40px">{a.date}</p><p style="font-weight: 600; font-size: 17px">{a.nom}</p><p class="li">{a.lieu} · {a.discipline}</p><a class="btn contour" href="/reservation?formule=concours-photo">Réserver ma photo</a></li>
+        ))}
+      </ul>
+    ) : (
+      <div class="carte stack g16" style="padding: clamp(24px, 3vw, 40px); max-width: 760px">
+        <p class="lbl">Agenda</p>
+        <p style="margin: 0; font-size: 18px; line-height: 1.6">Les prochaines dates sont annoncées sur Instagram. Dites-moi sur quel concours vous montez : je vous confirme ma présence.</p>
+        <div class="row g12"><a class="btn clair" href={`mailto:${contact.email}?subject=${encodeURIComponent('Photo de concours')}`}>Écrire à Ilona</a><a class="btn clair" href={contact.instagramLien} style="background: var(--pervenche)">Voir Instagram</a></div>
+      </div>
+    )}
   </section>
 
   <section class="sombre" data-reveal aria-labelledby="cta">

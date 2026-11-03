@@ -187,6 +187,29 @@ textarea.saisie { padding: 14px 16px; min-height: 120px; resize: vertical; }
 .menu-bas a:not(.btn) { color: var(--gres); padding: 8px 0; }
 .menu-bas .btn { background: var(--rose); color: var(--encre); }
 
+/* Fil d'Ariane */
+.fil { padding-top: 8px; }
+.fil ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; font-size: 14px; }
+.fil li + li::before { content: "/"; margin: 0 8px; opacity: .5; }
+.fil a { color: var(--encre); display: inline-block; padding: 10px 0; }
+.fil [aria-current] { display: inline-block; padding: 10px 0; color: var(--rose-profond); font-weight: 500; }
+
+/* Bouton « Réserver » flottant (mobile, après le premier écran) */
+.cta-flottant { display: none; }
+@media (max-width: 1080px) {
+  .cta-flottant { display: inline-flex; position: fixed; right: 16px; bottom: 16px; z-index: 40; box-shadow: var(--ombre); visibility: hidden; opacity: 0; transform: translateY(20px); transition: opacity .3s var(--lumiere), transform .3s var(--lumiere), visibility 0s .3s; }
+  .cta-flottant.visible { visibility: visible; opacity: 1; transform: none; transition: opacity .3s var(--lumiere), transform .3s var(--lumiere); }
+}
+
+/* FAQ */
+.faq { border-top: 1px solid rgba(34, 34, 34, .2); }
+.faq details { border-bottom: 1px solid rgba(34, 34, 34, .2); }
+.faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 0; min-height: 44px; font-size: clamp(17px, 1.5vw, 20px); font-weight: 500; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-family: 'Anton', Impact, sans-serif; font-size: 28px; color: var(--rose-profond); transition: transform .3s var(--declic); }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p { margin: 0 0 22px; max-width: 760px; font-size: 16px; line-height: 1.7; }
+
 /* Pied de page */
 .pied { border-top: 1px solid rgba(34, 34, 34, .2); }
 .pied .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px 32px; padding-block: 36px; }
