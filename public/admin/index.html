@@ -42,6 +42,26 @@
       fond.addEventListener('click', function (e) { if (e.target === fond || e.target.closest('.aide-fermer')) ouvrir(false); });
       document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && fond.classList.contains('ouvert')) ouvrir(false); });
       document.body.append(bouton, fond);
+
+      // Tablette et téléphone : bouton ☰ qui ouvre la barre latérale en tiroir (comme le BO GaloPlan).
+      var racine = document.documentElement;
+      var menu = document.createElement('button');
+      menu.type = 'button';
+      menu.className = 'menu-bouton';
+      menu.setAttribute('aria-label', 'Ouvrir le menu');
+      menu.innerHTML = '<span aria-hidden="true">☰</span>Ilona';
+      menu.addEventListener('click', function () { racine.classList.add('menu-ouvert'); });
+      document.body.append(menu);
+      // Un clic à côté du tiroir, ou un changement de page, le referme.
+      document.addEventListener('click', function (e) {
+        if (racine.classList.contains('menu-ouvert') && e.target !== menu && !e.target.closest('[class*="-AppHeader-css"], [class*="-SidebarContainer"]')) racine.classList.remove('menu-ouvert');
+      }, true);
+      var suivre = function () {
+        racine.classList.remove('menu-ouvert');
+        racine.classList.toggle('editeur', /\/entries\/|\/new/.test(location.hash));
+      };
+      window.addEventListener('hashchange', suivre);
+      suivre();
     })();
   </script>
 </body>

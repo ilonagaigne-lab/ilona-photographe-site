@@ -1,5 +1,7 @@
-/* Habillage du back office (Decap CMS) façon outil SaaS : Inter, surfaces blanches, bordures fines,
-   accent rose profond d'Ilona. Decap nomme ses composants dans ses classes (css-xxxx-NomDuComposant) :
+/* Habillage du back office (Decap CMS) sur la structure du back office GaloPlan : barre latérale
+   pleine hauteur (logo, menu groupé avec icônes, entrée active en aplat foncé, retour au site en bas),
+   en-tête de page « surtitre + grand titre + intro », cartes douces très arrondies, tiroir sur mobile.
+   Couleurs et accent rose profond d'Ilona. Decap nomme ses composants dans ses classes (css-xxxx-NomDuComposant) :
    on les cible par [class*="-Nom"] et on préfixe par « html body » pour passer devant ses styles. */
 :root {
   --fond: #f6f6f8;
@@ -12,6 +14,8 @@
   --accent-fonce: #842f5a;
   --accent-pale: #fbeef4;
   --rayon: 12px;
+  --rayon-carte: 20px;
+  --largeur-menu: 256px;
   --ombre: 0 1px 2px rgba(16, 16, 24, .04), 0 1px 3px rgba(16, 16, 24, .06);
   --ombre-haute: 0 8px 24px rgba(16, 16, 24, .08), 0 2px 6px rgba(16, 16, 24, .05);
 }
@@ -22,84 +26,102 @@ html body, html body input, html body textarea, html body button, html body sele
 }
 html body { background: var(--fond) !important; color: var(--texte) !important; letter-spacing: -.005em; }
 
-/* ---------- Barre du haut ---------- */
+/* ---------- Barre latérale pleine hauteur (structure GaloPlan) ----------
+   Decap rend deux blocs séparés : sa barre du haut (menu Médiathèque, lien site, avatar) et la liste
+   des rubriques. On fixe les deux à gauche, l'un par-dessus l'autre, pour n'en faire qu'une colonne. */
 html body [class*="-AppHeader-css"] {
-  background: rgba(255, 255, 255, .86) !important;
-  backdrop-filter: saturate(1.6) blur(12px);
-  box-shadow: none !important;
-  border-bottom: 1px solid var(--bord);
-  height: 60px;
+  position: fixed !important; inset: 0 auto 0 0 !important; width: var(--largeur-menu) !important; height: 100dvh !important;
+  background: #fff !important; border-right: 1px solid var(--bord); box-shadow: none !important; z-index: 200;
 }
-html body [class*="-AppHeaderContent"] { max-width: 1240px !important; min-width: 0 !important; padding: 0 24px !important; height: 60px; align-items: center; }
+html body [class*="-AppHeaderContent"] {
+  display: flex !important; flex-direction: column !important; align-items: stretch !important; justify-content: flex-start !important;
+  height: 100% !important; max-width: none !important; min-width: 0 !important; padding: 20px 12px 16px !important; margin: 0 !important; gap: 4px;
+}
 html body [class*="-AppHeaderContent"]::before {
-  content: 'Ilona'; font: 700 17px/1 'Inter', sans-serif; letter-spacing: -.02em; color: var(--texte);
-  display: inline-flex; align-items: center; gap: 10px; margin-right: 28px; padding-left: 38px; height: 28px;
-  background: url('/favicon.svg') left center / 28px 28px no-repeat;
+  content: 'Ilona'; order: -1; font: 700 17px/1 'Inter', sans-serif; letter-spacing: -.02em; color: var(--texte);
+  display: flex; align-items: center; height: 32px; padding-left: 42px; margin: 0 8px 0;
+  background: url('/favicon.svg') left center / 32px 32px no-repeat;
 }
-html body [class*="-AppHeaderNavList"] { gap: 4px; }
+/* Menu « Outils » en bas : Médiathèque (l'entrée « Contenus » double la liste des rubriques). */
+html body [class*="-AppHeaderContent"] > nav { order: 2; margin-top: auto; }
+html body [class*="-AppHeaderContent"] > nav::before { content: 'Outils'; display: block; font: 600 11px/1 'Inter', sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--doux); padding: 0 12px 8px; }
+html body [class*="-AppHeaderNavList"] { display: flex !important; flex-direction: column !important; gap: 2px; margin: 0 !important; }
+html body [class*="-AppHeaderNavList"] > li:first-child { display: none !important; }
 html body [class*="-AppHeaderButton-button"] {
-  height: 36px !important; padding: 0 12px !important; margin: 0 !important; border-radius: 8px !important;
-  font-size: 14px !important; font-weight: 500 !important; color: var(--doux) !important;
+  width: 100% !important; height: 38px !important; justify-content: flex-start !important; gap: 12px; padding: 0 12px !important; margin: 0 !important;
+  border-radius: 12px !important; font-size: 14px !important; font-weight: 500 !important; color: var(--doux) !important; background: none !important;
 }
-html body [class*="-AppHeaderButton-button"]:hover { background: #f1f1f4 !important; color: var(--texte) !important; }
-html body [class*="-AppHeaderNavLink"][aria-current="page"] { background: var(--accent-pale) !important; color: var(--accent) !important; }
-html body [class*="-AppHeaderButton-button"] svg { width: 18px !important; height: 18px !important; }
+html body [class*="-AppHeaderButton-button"]:hover { background: var(--fond) !important; color: var(--texte) !important; }
+html body [class*="-AppHeaderButton-button"] [class*="-IconWrapper"] { display: none !important; }
+html body [class*="-AppHeaderButton-button"]::before {
+  content: ''; width: 18px; height: 18px; flex: none; background: currentColor;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='9' cy='9' r='2'/><path d='m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21'/></svg>") center / contain no-repeat; mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='9' cy='9' r='2'/><path d='m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21'/></svg>") center / contain no-repeat;
+}
+html body [class*="-AppHeaderButton-button"] { font-size: 0 !important; }
+html body [class*="-AppHeaderButton-button"]::after { content: 'Médiathèque'; font-size: 14px; }
+html body [class*="-AppHeaderActions"] { order: 3; display: flex !important; flex-direction: column !important; align-items: stretch !important; margin: 10px 0 0 !important; }
+html body [class*="-AppHeaderActions"] [class*="-SettingsWrapper"] { display: flex !important; flex-direction: column !important; align-items: stretch !important; gap: 10px; margin: 0 !important; }
+/* « Retour au site », bouton bordé en bas comme « Retour à l'application ». */
 html body [class*="-AppHeaderSiteLink"] {
-  font-size: 13px !important; font-weight: 500 !important; color: var(--doux) !important;
-  border: 1px solid var(--bord); border-radius: 8px; padding: 7px 12px !important; margin-right: 12px; background: #fff;
+  display: flex !important; align-items: center; gap: 12px; height: 40px; padding: 0 12px !important; margin: 0 !important;
+  border: 1px solid var(--bord); border-radius: 12px; background: #fff; color: var(--doux) !important; font-size: 0 !important;
 }
-html body [class*="-AppHeaderSiteLink"]:hover { color: var(--texte) !important; border-color: var(--bord-fort); }
-html body [class*="-AppHeaderSiteLink"]::before { content: 'Voir le site  ↗'; }
-html body [class*="-AppHeaderSiteLink"] { font-size: 0 !important; }
-html body [class*="-AppHeaderSiteLink"]::before { font-size: 13px; }
-html body [class*="-AvatarDropdownButton"] svg, html body [class*="-AvatarDropdownButton"] img { width: 32px !important; height: 32px !important; border-radius: 50%; }
+html body [class*="-AppHeaderSiteLink"]:hover { border-color: var(--bord-fort); color: var(--texte) !important; }
+html body [class*="-AppHeaderSiteLink"]::before {
+  content: ''; width: 18px; height: 18px; background: currentColor;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='m12 19-7-7 7-7'/><path d='M19 12H5'/></svg>") center / contain no-repeat; mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='m12 19-7-7 7-7'/><path d='M19 12H5'/></svg>") center / contain no-repeat;
+}
+html body [class*="-AppHeaderSiteLink"]::after { content: 'Retour au site'; font-size: 14px; font-weight: 500; }
+html body [class*="-AppHeaderActions"] [class*="-StyledWrapper"] { padding: 4px 8px 0; }
+html body [class*="-AvatarDropdownButton"] svg, html body [class*="-AvatarDropdownButton"] img { width: 30px !important; height: 30px !important; border-radius: 50%; }
 
-/* ---------- Mise en page ---------- */
-html body [class*="-AppMainContainer"] { max-width: 1240px !important; min-width: 0 !important; padding: 0 24px; margin: 28px auto !important; }
-html body [class*="-CollectionContainer"] { margin: 0 !important; gap: 32px; display: flex !important; flex-direction: row !important; align-items: flex-start; }
-html body [class*="-CollectionMain"] { padding-left: 0 !important; flex: 1; min-width: 0; }
-
-/* Barre latérale */
+/* Liste des rubriques, posée dans la colonne sous le logo. */
 html body [class*="-SidebarContainer"] {
-  background: transparent !important; box-shadow: none !important; border-radius: 0 !important;
-  width: 248px !important; flex: 0 0 248px; padding: 0 !important; position: sticky !important; top: 88px; left: auto !important; height: auto !important; margin: 0 !important;
+  position: fixed !important; top: 72px !important; left: 0 !important; width: var(--largeur-menu) !important; z-index: 201;
+  max-height: calc(100dvh - 260px); overflow-y: auto; margin: 0 !important; padding: 0 12px !important;
+  background: transparent !important; box-shadow: none !important; border-radius: 0 !important; height: auto !important;
 }
-html body [class*="-SidebarHeading"] { font-size: 11px !important; font-weight: 600 !important; letter-spacing: .08em; text-transform: uppercase; color: var(--doux) !important; padding: 0 12px !important; margin: 4px 0 10px !important; }
-html body [class*="-SidebarHeading"]::after { content: ''; }
-html body [class*="-SearchContainer"] { margin: 0 0 14px !important; padding: 0 !important; }
-html body [class*="-SearchContainer"] [class*="-InputContainer"], html body [class*="-SearchInput"] {
-  background: #fff !important; border-radius: 10px !important;
+html body [class*="-SidebarHeading"] {
+  font: 600 11px/1 'Inter', sans-serif !important; letter-spacing: .14em; text-transform: uppercase; color: var(--doux) !important;
+  padding: 0 12px !important; margin: 8px 0 8px !important; font-size: 0 !important;
 }
-html body [class*="-SearchInput"] { border: 1px solid var(--bord) !important; height: 38px; font-size: 14px !important; box-shadow: none !important; }
-html body [class*="-SearchInput"]:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(--accent-pale) !important; outline: none; }
+html body [class*="-SidebarHeading"]::after { content: 'Contenu'; font-size: 11px; }
+html body [class*="-SearchContainer"] { display: none !important; }
 html body [class*="-SidebarNavList"] { margin: 0 !important; display: flex; flex-direction: column; gap: 2px; }
 html body [class*="-SidebarNavLink"] {
-  border: 0 !important; border-radius: 8px !important; padding: 9px 12px !important;
-  font-size: 14px !important; font-weight: 500 !important; color: #3a3a44 !important; display: flex; align-items: center; gap: 10px;
+  display: flex !important; align-items: center; gap: 12px; border: 0 !important; border-radius: 12px !important; padding: 9px 12px !important;
+  font-size: 14px !important; font-weight: 500 !important; color: var(--doux) !important; background: none !important;
 }
-html body [class*="-SidebarNavLink"]:hover { background: #ececf0 !important; color: var(--texte) !important; }
-html body a.sidebar-active[class*="-SidebarNavLink"] {
-  background: #fff !important; color: var(--accent) !important; box-shadow: var(--ombre), inset 0 0 0 1px var(--bord);
+html body [class*="-SidebarNavLink"]:hover { background: var(--fond) !important; color: var(--texte) !important; }
+html body a.sidebar-active[class*="-SidebarNavLink"] { background: var(--texte) !important; color: #fff !important; box-shadow: none !important; }
+html body [class*="-SidebarNavLink"] > *:first-child:not(:only-child) { display: none !important; }
+html body [class*="-SidebarNavLink"]::before {
+  content: ''; width: 18px; height: 18px; flex: none; background: currentColor;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='M3 9h18M9 21V9'/></svg>") center / contain no-repeat; mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='M3 9h18M9 21V9'/></svg>") center / contain no-repeat;
 }
-html body [class*="-SidebarNavLink"] svg { width: 18px !important; height: 18px !important; opacity: .75; }
+html body [class*="-SidebarNavLink"][href$="/reglages"]::before { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M4 10h12'/><path d='M4 14h9'/><path d='M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M4 10h12'/><path d='M4 14h9'/><path d='M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2'/></svg>"); }
+html body [class*="-SidebarNavLink"][href$="/contenu"]::before { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2'/><path d='M16 2v4M8 2v4M3 10h18'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2'/><path d='M16 2v4M8 2v4M3 10h18'/></svg>"); }
 
-/* En-tête de rubrique */
-html body [class*="-CollectionTopContainer"] {
-  background: transparent !important; box-shadow: none !important; padding: 0 0 6px !important; margin: 0 0 8px !important; border-radius: 0 !important;
-}
-html body [class*="-CollectionTopHeading"] { font-size: 26px !important; font-weight: 700 !important; letter-spacing: -.025em; color: var(--texte) !important; }
-html body [class*="-CollectionTopDescription"] { font-size: 14px !important; line-height: 1.55; color: var(--doux) !important; margin-top: 6px !important; max-width: 720px; }
-/* Tri et choix liste/grille : inutiles ici (rubriques de fichiers fixes). */
+/* ---------- Zone de contenu ---------- */
+html body [class*="-AppMainContainer"] { max-width: none !important; min-width: 0 !important; margin: 0 !important; padding: 32px 32px 96px calc(var(--largeur-menu) + 32px) !important; }
+html body [class*="-CollectionContainer"] { display: block !important; margin: 0 !important; max-width: 1140px; }
+html body [class*="-CollectionMain"] { padding: 0 !important; margin: 0 !important; width: auto !important; }
+
+/* En-tête de page : surtitre, grand titre, intro (comme le BO GaloPlan). */
+html body [class*="-CollectionTopContainer"] { background: transparent !important; box-shadow: none !important; padding: 0 !important; margin: 0 0 24px !important; border-radius: 0 !important; }
+html body [class*="-CollectionTopHeading"] { font-size: 34px !important; font-weight: 800 !important; letter-spacing: -.03em; line-height: 1.1 !important; color: var(--texte) !important; }
+html body [class*="-CollectionTopHeading"]::before { content: 'Back office'; display: block; font: 600 11px/1 'Inter', sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+html body [class*="-CollectionTopDescription"] { font-size: 14px !important; line-height: 1.6; color: var(--doux) !important; margin-top: 12px !important; max-width: 600px; }
 html body [class*="-CollectionControlsContainer"] { display: none !important; }
 
-/* Cartes des fiches */
-html body [class*="-CardsGrid"] { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin: 16px 0 0 !important; }
+/* Cartes des fiches : cartes douces très arrondies, ombre teintée. */
+html body [class*="-CardsGrid"] { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin: 0 !important; }
 html body [class*="-ListCard-card"] {
   margin: 0 !important; width: auto !important; background: var(--surface) !important; border: 1px solid var(--bord);
-  border-radius: var(--rayon) !important; box-shadow: var(--ombre) !important; transition: border-color .15s, box-shadow .15s, transform .15s;
+  border-radius: var(--rayon-carte) !important; box-shadow: 0 2px 16px rgba(158, 58, 108, .07) !important; transition: border-color .15s, box-shadow .15s, transform .15s;
 }
-html body [class*="-ListCard-card"]:hover { border-color: var(--bord-fort); box-shadow: var(--ombre-haute) !important; transform: translateY(-1px); }
-html body [class*="-ListCardLink"] { padding: 18px 20px !important; display: flex !important; align-items: center; justify-content: space-between; gap: 12px; }
+html body [class*="-ListCard-card"]:hover { border-color: var(--bord-fort); box-shadow: 0 8px 28px rgba(158, 58, 108, .12) !important; transform: translateY(-1px); }
+html body [class*="-ListCardLink"] { padding: 20px 22px !important; display: flex !important; align-items: center; justify-content: space-between; gap: 12px; }
 html body [class*="-ListCardLink"]::after { content: '→'; color: var(--doux); font-size: 16px; transition: transform .15s, color .15s; }
 html body [class*="-ListCard-card"]:hover [class*="-ListCardLink"]::after { color: var(--accent); transform: translateX(3px); }
 html body [class*="-ListCardTitle"] { font-size: 15px !important; font-weight: 600 !important; color: var(--texte) !important; margin: 0 !important; }
@@ -235,7 +257,7 @@ html body [class*="-CardImageWrapper"], html body [class*="-CardImage"] { border
 /* Groupes de champs (Photo, Déplacement…) : une carte blanche, sans la barre vide de repli. */
 html body div:has(> [class*="-TopBarContainer"]) {
   background: #fff !important; border: 1px solid var(--bord) !important; border-radius: var(--rayon) !important;
-  box-shadow: var(--ombre); padding: 2px 18px 20px !important;
+  box-shadow: 0 2px 16px rgba(158, 58, 108, .06); padding: 2px 20px 22px !important; border-radius: var(--rayon-carte) !important;
 }
 html body [class*="-TopBarContainer"]:not(:has([class*="-AddButton"])) { display: none !important; }
 html body div:has(> [class*="-TopBarContainer"]) > [class*="-TopBarContainer"] {
@@ -249,38 +271,39 @@ html body [class*="-AppHeaderButton-button"] svg path, html body [class*="-AppHe
 /* Boutons des photos et vidéos côte à côte plutôt qu'empilés. */
 html body [class*="-FileWidgetButton"] { display: inline-flex !important; margin: 10px 8px 0 0 !important; }
 
-/* ---------- Téléphone ---------- */
-@media (max-width: 799px) {
-  html body [class*="-AppHeaderContent"]::before { display: none; }
-  html body [class*="-AppHeaderContent"] { padding: 0 12px !important; }
-  html body [class*="-AppHeaderSiteLink"] { display: none !important; }
-  html body [class*="-AppMainContainer"] { padding: 0 16px; margin: 16px auto 96px !important; }
-  html body [class*="-CollectionContainer"] { flex-direction: column !important; gap: 20px; }
-  html body [class*="-SidebarContainer"] { position: static !important; width: 100% !important; flex: none; }
-  html body [class*="-SidebarNavList"] { flex-direction: row; overflow-x: auto; gap: 6px; padding-bottom: 4px; }
-  html body [class*="-SidebarNavLink"] { white-space: nowrap; border: 1px solid var(--bord) !important; background: #fff !important; }
-  html body [class*="-SidebarNavLink"] svg { display: none; }
-  html body [class*="-SearchContainer"] { display: none !important; }
-  html body [class*="-SidebarHeading"] { display: none !important; }
-  html body [class*="-CollectionMain"] { width: 100% !important; }
-  html body [class*="-CollectionTopHeading"] { font-size: 22px !important; }
+/* ---------- Tablette et téléphone : tiroir (comme le BO GaloPlan) ---------- */
+.menu-bouton { display: none; }
+@media (max-width: 1023px) {
+  html body [class*="-AppHeader-css"], html body [class*="-SidebarContainer"] { transform: translateX(-100%); transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
+  html.menu-ouvert body [class*="-AppHeader-css"], html.menu-ouvert body [class*="-SidebarContainer"] { transform: none; box-shadow: 0 0 48px rgba(16, 16, 24, .18); }
+  html.menu-ouvert body [class*="-SidebarContainer"] { box-shadow: none !important; }
+  html.menu-ouvert::after { content: ''; position: fixed; inset: 0; z-index: 150; background: rgba(16, 16, 24, .3); }
+  .menu-bouton {
+    display: flex; position: fixed; top: 0; left: 0; right: 0; z-index: 140; height: 56px; align-items: center; gap: 12px; padding: 0 16px;
+    background: rgba(255, 255, 255, .85); backdrop-filter: blur(16px); border: 0; border-bottom: 1px solid var(--bord);
+    font: 700 16px 'Inter', sans-serif; color: var(--texte); cursor: pointer; text-align: left;
+  }
+  .menu-bouton span { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--bord); border-radius: 12px; font-size: 18px; background: #fff; }
+  html body [class*="-AppMainContainer"] { padding: 80px 16px 96px !important; }
+  html body [class*="-CollectionTopHeading"] { font-size: 28px !important; }
   html body [class*="-CardsGrid"] { grid-template-columns: 1fr; }
+  /* L'éditeur garde sa propre barre : pas de bouton menu par-dessus. */
+  html.editeur .menu-bouton { display: none; }
+  html body [class*="-EditorContainer"], html body [class*="-Editor"], html body [class*="-NoPreviewContainer"],
+  html body [class*="-ControlPaneContainer"], html body [class*="-ToolbarContainer"] { min-width: 0 !important; max-width: 100vw !important; }
+  html body [class*="-ControlPaneContainer"] { width: 100% !important; box-sizing: border-box; padding: 20px 14px 96px !important; }
   html body [class*="-ToolbarSectionBackLink"] { padding: 0 12px !important; }
   html body [class*="-BackCollection"] { display: none; }
   html body [class*="-ToolbarSectionMeta"] { display: none !important; }
-  html body [class*="-ControlPaneContainer"] { padding: 20px 14px 96px !important; }
   html body div:has(> [class*="-TopBarContainer"]) { padding: 2px 12px 14px !important; }
-  html body [class*="-EditorContainer"], html body [class*="-Editor"], html body [class*="-NoPreviewContainer"],
-  html body [class*="-ControlPaneContainer"], html body [class*="-ToolbarContainer"], html body [class*="-AppHeader-css"] { min-width: 0 !important; max-width: 100vw !important; }
-  html body [class*="-ControlPaneContainer"] { width: 100% !important; box-sizing: border-box; }
-  html body [class*="-AppHeaderContent"] { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; justify-content: space-between; align-items: center; }
-  html body [class*="-AppHeader-css"] nav, html body [class*="-AppHeaderNavList"] { display: flex !important; flex-direction: row !important; }
-  html body [class*="-AppHeaderActions"] { display: flex !important; align-items: center; margin-left: auto; }
-  html body [class*="-SidebarNavLink"] { padding: 8px 14px !important; }
-  html body [class*="-SidebarNavLink"] > *:not(svg) { margin-left: 0 !important; }
-  html body [class*="-AppHeaderButton-button"] { padding: 0 10px !important; }
-  html body [class*="-AppHeaderButton-button"] svg { display: none; }
   .aide-fond { padding: 12px; }
   .aide-fond .aide { padding: 24px 18px; }
   .aide-grille { grid-template-columns: 1fr; }
 }
+
+/* Une seule icône par entrée (celles de Decap sont remplacées par les nôtres). */
+html body [class*="-SidebarNavLink"] [class*="-IconWrapper"], html body [class*="-SidebarNavLink"] > svg, html body [class*="-SidebarNavLink"] > span:has(svg) { display: none !important; }
+html body [class*="-AppHeaderButton-button"] { display: flex !important; flex-direction: row !important; align-items: center !important; }
+/* Le texte d'origine (masqué) compte comme un élément : on remplace l'écart par une marge pour aligner les libellés. */
+html body [class*="-AppHeaderButton-button"], html body [class*="-AppHeaderSiteLink"] { gap: 0 !important; }
+html body [class*="-AppHeaderButton-button"]::before, html body [class*="-AppHeaderSiteLink"]::before { margin-right: 12px; }
