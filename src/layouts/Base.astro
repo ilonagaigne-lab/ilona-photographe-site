@@ -104,6 +104,9 @@ const ctaFlottant = !['reservation', 'galerie'].includes(page);
   <link rel="sitemap" href="/sitemap.xml">
   <link rel="preload" href={anton} as="font" type="font/woff2" crossorigin>
   <script is:inline>document.documentElement.classList.add('js');</script>
+  <!-- Statistiques de visite Vercel : sans cookie, donc sans bandeau de consentement. -->
+  <script is:inline>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+  <script is:inline defer src="/_vercel/insights/script.js"></script>
   {indexer && <script type="application/ld+json" set:html={JSON.stringify(graphe)} />}
   <slot name="head" />
 </head>
