@@ -52,7 +52,7 @@ const { quota, prixPhoto } = galerieDemo;
     <ul class="grille-photos">
       {photos.map((p, i) => (
         <li class:list={['tuile', { choisie: p.on }]} data-curseur="choisir">
-          <Image src={p.src} alt={p.alt} widths={[400, 700]} sizes="(max-width: 760px) 50vw, 20vw" style={`object-position: ${p.pos}`} />
+          <Image src={p.src} alt={p.alt} widths={[400, 700]} sizes="(max-width: 760px) 50vw, 25vw" />
           <span class="flash" aria-hidden="true"></span><span class="cadre" aria-hidden="true"></span>
           <span class="num">N° {String(i + 1).padStart(2, '0')}</span>
           <Coeur choisie={p.on} nom={p.alt} />
@@ -76,11 +76,14 @@ const { quota, prixPhoto } = galerieDemo;
 
 <style>
   .demo { display: inline-block; margin: 0 0 20px; padding: 8px 14px; border-radius: 999px; background: var(--pervenche); font-size: 13px; }
-  .grille-photos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(46%, 230px), 1fr)); gap: 14px; }
+  /* Galerie client : photos entières, jamais recadrées (mise en page en colonnes) */
+  .grille-photos { list-style: none; margin: 0; padding: 0; columns: 4 230px; column-gap: 14px; }
+  .grille-photos .tuile { aspect-ratio: auto; break-inside: avoid; margin: 0 0 14px; }
+  .grille-photos .tuile :global(img) { height: auto; object-fit: initial; }
   .grille-photos .tuile[hidden] { display: none; }
   .barre { position: sticky; bottom: 0; z-index: 10; box-shadow: 0 -20px 40px -20px rgba(34,34,34,.4); }
   :global(.pied) { display: none; }
-  @media (max-width: 560px) { .grille-photos { gap: 8px; } }
+  @media (max-width: 560px) { .grille-photos { columns: 2; column-gap: 8px; } .grille-photos .tuile { margin-bottom: 8px; } }
 </style>
 
 <script>
