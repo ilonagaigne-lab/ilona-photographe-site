@@ -1,7 +1,7 @@
 // Reçoit une demande (réservation ou projet de marque) et l'envoie à Ilona par e-mail avec Resend.
 // Réglages dans Vercel (Settings → Environment Variables), jamais dans le code :
 //   RESEND_API_KEY  clé Resend (obligatoire)
-//   DEMANDES_TO     adresse qui reçoit les demandes (par défaut ilona.photography@gmail.com)
+//   DEMANDES_TO     adresse qui reçoit les demandes (par défaut ilonagaigne@gmail.com)
 //   RESEND_FROM     expéditeur sur le domaine vérifié, ex. « Ilona Photographe <contact@ilonagaigne.com> ».
 //                   Tant qu'il n'est pas défini, Resend n'autorise que son adresse de test et aucun
 //                   accusé de réception n'est envoyé au visiteur.
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ ok: false, erreur: 'Merci de vérifier votre nom et votre e-mail.' });
   }
 
-  const destinataire = process.env.DEMANDES_TO || 'ilona.photography@gmail.com';
+  const destinataire = process.env.DEMANDES_TO || 'ilonagaigne@gmail.com';
   const expediteur = process.env.RESEND_FROM || 'Ilona Photographe <onboarding@resend.dev>';
   const sujet = `${TYPES[type]} · ${nom}`;
   const texte = lignes.join('\n');

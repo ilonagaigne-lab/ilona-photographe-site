@@ -8,7 +8,7 @@ export const contact = {
   telephone: '06 83 41 01 80',
   telephoneLien: 'tel:+33683410180',
   telephoneInternational: '+33683410180',
-  email: 'ilona.photography@gmail.com',
+  email: 'ilonagaigne@gmail.com',
   instagram: '@ilona_photographe_',
   instagramLien: 'https://www.instagram.com/ilona_photographe_/',
 };
