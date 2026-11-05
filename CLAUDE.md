@@ -28,6 +28,12 @@ Pas de tests automatiques ni de TypeScript strict : le build est le contrôle de
 - **Composants** : `Photo.astro` (toute photo passe par lui), `Reel.astro` (vidéo), `Prix.astro`, `Coeur.astro` (favori), `Instagram.astro` (flux Behold réglé dans le back office).
 - Vidéos dans `public/videos/`, cache 7 jours ; `_astro/` en cache immuable (`vercel.json`).
 
+## Maquettes de référence
+
+- Canevas Claude Design : https://claude.ai/artifact/Kb1yEwkLx6JpCSkUgZzBfe (planche de style + 10 écrans, ordinateur 1440 px et téléphone 390 px).
+- Export lisible sur le Mac de Joris : `~/iCloud Drive (archives)/Documents/Pro/Coding/ilona-photographe-design/` : `index.html` (sommaire), `ecrans/<Écran>-Desktop.html` et `-Mobile.html` (Accueil, Seances, Concours, Marques, EtudeDeCas, Galerie, Reservation, Lecon, Article, Menu, 404), `ecrans/Main.html` (planche de style), `sources/*.dc.html`.
+- Le site en ligne est allé plus loin que les maquettes (parcours de conversion, quiz, back office) : **quand les deux diffèrent, le code actuel fait foi**. Les maquettes servent de référence pour la charte, les animations et tout écran pas encore codé.
+
 ## Charte « Surligner l'instant »
 
 - Variables de `global.css`, jamais de couleur en dur : `--gres` #ECEBE7 → `--gres-chaud` #E9DCC6 au fil du scroll, `--encre` #222222, `--rose` #E79CC2 (surlignage, prix sur fond sombre), `--rose-profond` #9E3A6C (tout texte rose sur fond clair), `--or` #E8BE3C (vidéo uniquement), `--pervenche` #A8ABF5 (réseaux sociaux uniquement).
