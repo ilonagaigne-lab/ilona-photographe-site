@@ -7,16 +7,19 @@
 //                   accusé de réception n'est envoyé au visiteur.
 
 const TYPES = { reservation: 'Réservation', marque: 'Projet de marque' };
-const LIMITE = 2000;
+const LIMITE = 4000; // caractères pour toute la demande
+const LIMITE_LIGNE = 1500;
+const DELAI = 8000; // ms : au-delà, on renonce et le visiteur passe par sa messagerie
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const echapper = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
-async function envoyer(cle, message) {
+async function envoyer(cle, message, delai = DELAI) {
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${cle}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(message),
+    signal: AbortSignal.timeout(delai),
   });
   if (!r.ok) throw new Error(`Resend ${r.status} : ${(await r.text()).slice(0, 200)}`);
   return r.json();
@@ -37,12 +40,16 @@ export default async function handler(req, res) {
   // Champ piège invisible : rempli uniquement par les robots.
   if (corps.site_web) return res.status(200).json({ ok: true });
 
-  const type = TYPES[corps.type] ? corps.type : null;
+  const type = typeof corps.type === 'string' && Object.hasOwn(TYPES, corps.type) ? corps.type : null;
   const email = String(corps.email || '').trim();
-  const nom = String(corps.nom || '').trim().slice(0, 120);
-  const lignes = Array.isArray(corps.lignes) ? corps.lignes.map((l) => String(l).slice(0, 500)).filter(Boolean).slice(0, 30) : [];
-  if (!type || !nom || !EMAIL.test(email) || lignes.join('\n').length > LIMITE) {
+  // Pas de retour à la ligne dans le nom : il sert de sujet à l'e-mail.
+  const nom = String(corps.nom || '').replace(/[\r\n]+/g, ' ').trim().slice(0, 120);
+  const lignes = Array.isArray(corps.lignes) ? corps.lignes.map((l) => String(l).trim().slice(0, LIMITE_LIGNE)).filter(Boolean).slice(0, 30) : [];
+  if (!type || !nom || email.length > 254 || !EMAIL.test(email)) {
     return res.status(400).json({ ok: false, erreur: 'Merci de vérifier votre nom et votre e-mail.' });
+  }
+  if (!lignes.length || lignes.join('\n').length > LIMITE) {
+    return res.status(400).json({ ok: false, erreur: 'Complétez votre demande ou raccourcissez-la, puis réessayez.' });
   }
 
   const destinataire = process.env.DEMANDES_TO || 'ilonagaigne@gmail.com';
@@ -61,8 +68,8 @@ export default async function handler(req, res) {
       await envoyer(cle, {
         from: expediteur, to: [email], reply_to: destinataire,
         subject: 'Votre demande est bien arrivée · Ilona Photographe',
-        text: `Bonjour ${nom},\n\nMerci, votre demande est bien arrivée. Je reviens vers vous par e-mail pour confirmer la date et le prix final.\n\nRécapitulatif :\n${texte}\n\nIlona\nIlona Photographe · 06 83 41 01 80`,
-      }).catch(() => {});
+        text: `Bonjour ${nom},\n\nMerci, votre demande est bien arrivée. Je reviens vers vous par e-mail pour confirmer la date et le prix final.\n\nRécapitulatif :\n${texte}\n\nIlona\nIlona Photographe`,
+      }, 4000).catch(() => {});
     }
     return res.status(200).json({ ok: true });
   } catch (e) {

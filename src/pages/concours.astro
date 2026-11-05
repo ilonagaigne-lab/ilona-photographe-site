@@ -2,12 +2,22 @@
 import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
 import Reel from '../components/Reel.astro';
-import { agenda, contact, concours, listeConcours } from '../data';
+import { contact, concours, listeConcours } from '../data';
 import { photo, cadrage, surligne, lignes, paragraphe } from '../lib/contenu';
 import t from '../contenu/pages/concours.json';
+import contenuAgenda from '../contenu/agenda.json';
 
 // Formule du réel souvenir (bouton de la section vidéo) : sinon la première formule avec vidéo.
 const reel = concours.find((c) => c.id === 'concours-reel') ?? concours.find((c) => c.video);
+
+// Agenda : mêmes règles que data.ts (concours passés retirés à la construction), avec la date AAAA-MM-JJ
+// en plus : un petit script retire dans le navigateur ceux qui passent entre deux mises en ligne.
+const aujourdhui = new Date().toISOString().slice(0, 10);
+const dateCourte = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+const agenda = ((contenuAgenda.concours ?? []) as { date: string; nom: string; lieu?: string; discipline?: string }[])
+  .filter((c) => c.date && c.nom && String(c.date).slice(0, 10) >= aujourdhui)
+  .sort((a, b) => String(a.date).localeCompare(String(b.date)))
+  .map((c) => ({ iso: String(c.date).slice(0, 10), date: dateCourte.format(new Date(String(c.date).slice(0, 10))), nom: c.nom, lieu: c.lieu ?? '', discipline: c.discipline ?? '' }));
 ---
 <Base titre="Photographe de concours équestre" description={`Photographe de concours équestre près de Toulouse : ${listeConcours}. Réservez avant l’épreuve.`} page="concours">
 
@@ -52,18 +62,31 @@ const reel = concours.find((c) => c.id === 'concours-reel') ?? concours.find((c)
       <h2 id="agenda" class="d h2" set:html={surligne(t.agenda.titre)} />
       <p class="texte" style="max-width: 380px; font-size: 15px" set:html={paragraphe(t.agenda.texte)} />
     </div>
-    {agenda.length > 0 ? (
-      <ul class="agenda">
+    {agenda.length > 0 && (
+      <ul class="agenda" data-agenda>
         {agenda.map((a) => (
-          <li><p class="d" style="font-size: 40px">{a.date}</p><p style="font-weight: 600; font-size: 17px">{a.nom}</p><p class="li">{[a.lieu, a.discipline].filter(Boolean).join(" · ")}</p><a class="btn contour" href="/reservation?formule=concours-photo">Réserver ma photo</a></li>
+          <li data-date={a.iso}><p class="d" style="font-size: 40px">{a.date}</p><p style="font-weight: 600; font-size: 17px">{a.nom}</p>{(a.lieu || a.discipline) && <p class="li">{[a.lieu, a.discipline].filter(Boolean).join(" · ")}</p>}<a class="btn contour" href="/reservation?formule=concours-photo">Réserver ma photo</a></li>
         ))}
       </ul>
-    ) : (
+    )}
+    <div data-agenda-vide hidden={agenda.length > 0}>
       <div class="carte stack g16" style="padding: clamp(24px, 3vw, 40px); max-width: 760px">
         <p class="lbl">Agenda</p>
         <p style="margin: 0; font-size: 18px; line-height: 1.6" set:html={paragraphe(t.agenda.vide)} />
         <div class="row g12"><a class="btn clair" href={`mailto:${contact.email}?subject=${encodeURIComponent('Photo de concours')}`}>Écrire à Ilona</a><a class="btn clair" href={contact.instagramLien} style="background: var(--pervenche)">Voir Instagram</a></div>
       </div>
+    </div>
+    {agenda.length > 0 && (
+      <script is:inline>
+        (function () {
+          var n = new Date(), m = n.getMonth() + 1, j = n.getDate();
+          var auj = n.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (j < 10 ? '0' : '') + j;
+          var u = document.querySelector('[data-agenda]');
+          if (!u) return;
+          u.querySelectorAll('li[data-date]').forEach(function (l) { if (l.getAttribute('data-date') < auj) l.remove(); });
+          if (!u.querySelector('li')) { u.remove(); document.querySelector('[data-agenda-vide]').hidden = false; }
+        })();
+      </script>
     )}
   </section>
 

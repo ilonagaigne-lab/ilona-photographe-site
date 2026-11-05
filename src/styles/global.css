@@ -28,6 +28,7 @@ a { color: var(--rose-profond); }
 a:hover { color: var(--encre); }
 :focus-visible { outline: 3px solid var(--rose-profond); outline-offset: 3px; }
 .sombre :focus-visible { outline-color: var(--rose); }
+[hidden] { display: none !important; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .skip { position: absolute; left: 16px; top: -100px; z-index: 100; background: var(--encre); color: var(--gres); padding: 12px 18px; border-radius: 999px; text-decoration: none; }
 .skip:focus { top: 16px; color: var(--gres); }

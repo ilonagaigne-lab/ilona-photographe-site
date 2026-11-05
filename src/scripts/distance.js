@@ -4,17 +4,10 @@ const IGN = 'https://data.geopf.fr';
 
 const depart = () => (document.documentElement.dataset.depart || '1.44,43.6').split(',').map(Number);
 
-// À vol d'oiseau × 1,3 : estimation de secours si le calcul d'itinéraire ne répond pas.
-function volOiseau([lon1, lat1], [lon2, lat2]) {
-  const r = (d) => (d * Math.PI) / 180;
-  const a = Math.sin(r(lat2 - lat1) / 2) ** 2 + Math.cos(r(lat1)) * Math.cos(r(lat2)) * Math.sin(r(lon2 - lon1) / 2) ** 2;
-  return 6371 * 2 * Math.asin(Math.sqrt(a)) * 1.3;
-}
-
 export async function communes(texte) {
   if (texte.trim().length < 3) return [];
   try {
-    const r = await fetch(`${IGN}/geocodage/search?${new URLSearchParams({ q: texte, type: 'municipality', autocomplete: '1', limit: '6' })}`);
+    const r = await fetch(`${IGN}/geocodage/search?${new URLSearchParams({ q: texte, type: 'municipality', autocomplete: '1', limit: '6' })}`, { signal: AbortSignal.timeout(8000) });
     const d = await r.json();
     return d.features.map((f) => ({ nom: `${f.properties.city || f.properties.name} (${f.properties.postcode})`, lon: f.geometry.coordinates[0], lat: f.geometry.coordinates[1] }));
   } catch {
@@ -22,22 +15,24 @@ export async function communes(texte) {
   }
 }
 
+// Renvoie les km par la route, ou null si le calcul échoue : jamais de distance inventée.
 export async function kmDepuisIlona(lon, lat) {
   const [lon0, lat0] = depart();
   try {
     const p = new URLSearchParams({ resource: 'bdtopo-valhalla', start: `${lon0},${lat0}`, end: `${lon},${lat}`, profile: 'car', optimization: 'fastest', distanceUnit: 'kilometer', getSteps: 'false', getBbox: 'false', geometryFormat: 'polyline' });
-    const d = await (await fetch(`${IGN}/navigation/itineraire?${p}`)).json();
-    if (typeof d.distance !== 'number') throw new Error('pas de distance');
+    const d = await (await fetch(`${IGN}/navigation/itineraire?${p}`, { signal: AbortSignal.timeout(8000) })).json();
+    if (typeof d.distance !== 'number' || !isFinite(d.distance)) throw new Error('pas de distance');
     return Math.round(d.distance);
   } catch {
-    return Math.round(volOiseau([lon0, lat0], [lon, lat]));
+    return null;
   }
 }
 
 export const prixDeplacement = (km, gratuit, prixKm) => Math.round(Math.max(0, km - gratuit) * prixKm);
 
 // Branche les suggestions de communes sur un champ texte. rappel({ nom, km }) quand une commune est
-// reconnue, rappel(null) si le texte ne correspond à aucune commune (le client a pu taper une écurie).
+// reconnue (km vaut null si la distance n'a pas pu être calculée), rappel(null) si le texte ne correspond
+// à aucune commune (le client a pu taper une écurie).
 export function brancherCommune(champ, rappel) {
   const liste = document.createElement('datalist');
   liste.id = `${champ.id || champ.name}-communes`;
@@ -54,7 +49,9 @@ export function brancherCommune(champ, rappel) {
     if (!c && texte.length >= 3) c = (await communes(texte))[0];
     if (n !== tour) return;
     if (!c) return rappel(null);
-    rappel({ nom: c.nom, km: await kmDepuisIlona(c.lon, c.lat) });
+    const km = await kmDepuisIlona(c.lon, c.lat);
+    if (n !== tour) return; // un calcul plus récent a pris la suite : on ignore celui-ci
+    rappel({ nom: c.nom, km });
   }
   champ.addEventListener('input', () => {
     clearTimeout(minuteur);

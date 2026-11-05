@@ -9,7 +9,9 @@ interface Props {
   textes: { surtitre: string; titre: string; texte: string; nombre?: number };
   flux: string;
 }
-const { textes, flux } = Astro.props;
+const { textes } = Astro.props;
+// Adresse nettoyée : un espace copié par erreur ne doit pas afficher une section vide.
+const flux = String(Astro.props.flux ?? '').trim();
 const nombre = Math.min(Math.max(Number(textes.nombre) || 6, 3), 12);
 ---
 {flux && (
@@ -66,10 +68,14 @@ const nombre = Math.min(Math.max(Number(textes.nombre) || 6, 3), 12);
       grille.outerHTML = `<p class="texte" style="margin: 0">Retrouvez mes dernières séances sur <a href="${section.querySelector<HTMLAnchorElement>('.btn')!.href}" target="_blank" rel="noopener">Instagram</a>.</p>`;
     };
     async function charger() {
+      // Délai maximal : sans réponse de Behold au bout de 8 s, on affiche le lien vers Instagram.
+      const controle = new AbortController();
+      const delai = setTimeout(() => controle.abort(), 8000);
       try {
-        const reponse = await fetch(section!.dataset.flux!);
+        const reponse = await fetch(section!.dataset.flux!, { signal: controle.signal });
         if (!reponse.ok) throw new Error(String(reponse.status));
         const donnees = await reponse.json();
+        clearTimeout(delai);
         const posts = (donnees.posts ?? []).slice(0, nombre);
         if (!posts.length) return echec();
         grille.replaceChildren(...posts.map((p: any) => {
@@ -95,6 +101,7 @@ const nombre = Math.min(Math.max(Number(textes.nombre) || 6, 3), 12);
         }));
         grille.removeAttribute('aria-busy');
       } catch {
+        clearTimeout(delai);
         echec();
       }
     }

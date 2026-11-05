@@ -23,7 +23,7 @@ const favorisDefaut = false;
 const favoris = t.favoris.photos.map((f, i) => ({ id: f.image.split('/').pop()!.replace(/\.[^.]+$/, ''), src: photo(f.image), alt: f.alt ?? '', pos: cadrage(f, posFavoris[i]), on: favorisDefaut }));
 const univers = t.univers.liste.map((u, i) => ({ titre: u.titre, chip: u.etiquette, classe: u.couleur, href: u.lien, src: photo(u.photo.image), alt: u.photo.alt ?? '', pos: cadrage(u.photo, posUnivers[i]) }));
 ---
-<Base titre="Ilona Photographe · photographe et vidéaste équestre près de Toulouse" description="Ilona, photographe et vidéaste spécialisée dans l’univers équestre et la création de contenu de marque, près de Toulouse. Séances, concours, marques et réseaux sociaux." page="accueil">
+<Base titre="Ilona Photographe · photographe équestre à Toulouse" description="Photographe et vidéaste équestre près de Toulouse : séances avec votre cheval, photos de concours, contenus pour les marques équestres." page="accueil">
 
   <section class="wrap" style="padding-top: clamp(24px, 4vw, 64px)" data-reveal aria-labelledby="titre">
     <p class="lbl">{t.entete.surtitre}</p>

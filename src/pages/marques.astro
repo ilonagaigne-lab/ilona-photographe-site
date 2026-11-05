@@ -100,7 +100,7 @@ const [ligne1, ligne2 = ''] = t.entete.titre.trim().split(/\r?\n/);
         <label class="case"><input type="checkbox" name="video" data-libelle="Besoin vidéo">Vidéo</label>
         <label class="case"><input type="checkbox" name="reseaux" data-libelle="Besoin réseaux sociaux">Réseaux sociaux</label>
       </fieldset>
-      <label class="champ plein">Votre projet en quelques mots<textarea class="saisie" name="message" data-libelle="Projet"></textarea></label>
+      <label class="champ plein">Votre projet en quelques mots<textarea class="saisie" name="message" data-libelle="Projet" maxlength="1200"></textarea></label>
       <button class="btn plein" type="submit" style="justify-self: start">Envoyer ma demande</button>
       <label class="piege" aria-hidden="true">Ne pas remplir<input name="site_web" type="text" tabindex="-1" autocomplete="off"></label>
       <p class="plein statut" data-statut-marque role="status" hidden></p>

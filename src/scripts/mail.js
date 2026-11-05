@@ -5,10 +5,12 @@ export function ouvrirMail(destinataire, sujet, lignes) {
 }
 
 // Envoie la demande au serveur (Resend). Renvoie true si elle est bien partie.
+// Une réponse 200 compte comme envoyée même si sa lecture échoue : pas de second envoi par la messagerie.
 export async function envoyerDemande(donnees) {
   try {
-    const r = await fetch('/api/demande', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(donnees) });
-    return r.ok && (await r.json()).ok === true;
+    const r = await fetch('/api/demande', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(donnees), signal: AbortSignal.timeout(15000) });
+    if (!r.ok) return false;
+    try { return (await r.json()).ok !== false; } catch { return true; }
   } catch {
     return false;
   }

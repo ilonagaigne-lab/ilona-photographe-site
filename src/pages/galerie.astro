@@ -65,8 +65,8 @@ const { quota, prixPhoto } = galerieDemo;
 
 <script>
   const zone = document.getElementById('galerie')!;
-  const quota = Number(zone.dataset.quota);
-  const prix = Number(zone.dataset.prix);
+  const quota = Number(zone.dataset.quota) || 0;
+  const prix = Number(zone.dataset.prix) || 0;
   const q = (s: string) => document.querySelector(s) as HTMLElement;
   let filtre = 'toutes';
   function maj() {
@@ -75,7 +75,7 @@ const { quota, prixPhoto } = galerieDemo;
     const extra = Math.max(0, n - quota);
     q('[data-compte]').textContent = String(n);
     q('[data-inclus]').textContent = String(Math.min(n, quota));
-    q('[data-jauge]').style.transform = `scaleX(${Math.min(n / quota, 1)})`;
+    q('[data-jauge]').style.transform = `scaleX(${quota ? Math.min(n / quota, 1) : (n ? 1 : 0)})`;
     q('[data-supplement]').hidden = extra === 0;
     q('[data-extra]').textContent = String(extra);
     q('[data-total]').textContent = String(extra * prix);
@@ -93,6 +93,8 @@ const { quota, prixPhoto } = galerieDemo;
       tuile.classList.toggle('choisie', on);
       if (on) { tuile.classList.remove('flashe'); void tuile.offsetWidth; tuile.classList.add('flashe'); }
       maj();
+      // Dans « Favoris », une photo retirée disparaît : le focus passe au filtre pour ne pas se perdre.
+      if (!on && filtre === 'favoris') zone.querySelector<HTMLElement>('[data-filtre="favoris"]')?.focus();
       return;
     }
     const f = cible.closest<HTMLElement>('[data-filtre]');

@@ -11,7 +11,7 @@ const resultats = t.resultats.filter((r) => prix[r.id] != null);
 const questions = t.questions;
 const conseils = Object.fromEntries(t.resultat.conseils.map((c) => [c.valeur, c.texte]));
 ---
-<Base titre="Trouvez votre séance photo équestre" description="Trois questions, trente secondes : découvrez la séance photo équestre faite pour vous et votre cheval, avec son prix et les prochains soirs de lumière dorée à Toulouse." page="seances">
+<Base titre="Trouvez votre séance photo équestre" description="Trois questions, trente secondes : trouvez la séance photo équestre faite pour vous et votre cheval, avec son prix et les soirs de lumière dorée." page="seances">
   <section class="wrap section" style="padding-top: clamp(16px, 3vw, 40px)" data-reveal aria-labelledby="titre">
     <div class="quiz" id="quiz" data-prix={JSON.stringify(prix)} data-conseils={JSON.stringify(conseils)}>
       <div class="quiz-tete">
@@ -139,7 +139,7 @@ const conseils = Object.fromEntries(t.resultat.conseils.map((c) => [c.valeur, c.
     const titre = zoneResultat.querySelector<HTMLElement>(`.resultat[data-formule="${formule}"] .resultat-titre`);
     titre?.focus({ preventScroll: true });
     annonce.textContent = `Votre séance : ${titre?.textContent ?? ''}`;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }
 
   quiz.addEventListener('click', (e) => {

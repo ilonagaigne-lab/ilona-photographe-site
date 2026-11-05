@@ -10,6 +10,7 @@ import logo from '../assets/logo-ink.webp';
 import logoBlanc from '../assets/logo-white.webp';
 import { contact, site, seances, concours, depart, fourchettePrix } from '../data';
 import anton from '@fontsource/anton/files/anton-latin-400-normal.woff2?url';
+import poppins from '@fontsource/poppins/files/poppins-latin-400-normal.woff2?url';
 
 interface Etape { nom: string; href: string; }
 interface Props {
@@ -50,7 +51,7 @@ const activite = {
   telephone: contact.telephoneInternational,
   email: contact.email,
   priceRange: fourchettePrix,
-  address: { '@type': 'PostalAddress', addressLocality: 'Toulouse', addressRegion: 'Occitanie', addressCountry: 'FR' },
+  address: { '@type': 'PostalAddress', addressLocality: depart.ville, addressRegion: 'Occitanie', addressCountry: 'FR' },
   areaServed: [{ '@type': 'City', name: 'Toulouse' }, { '@type': 'AdministrativeArea', name: 'Haute-Garonne' }],
   founder: { '@id': `${site.url}/#ilona` },
   sameAs: [contact.instagramLien],
@@ -58,7 +59,7 @@ const activite = {
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
     name: 'Prestations',
-    itemListElement: [...seances.map((s) => ({ nom: `Séance photo équestre ${s.nom}`, prix: s.prix })), ...concours.map((c) => ({ nom: c.nom, prix: c.prix }))].map((o) => ({
+    itemListElement: [...seances.map((s) => ({ nom: `Séance photo équestre ${s.nom}`, prix: s.prix })), ...concours.map((c) => ({ nom: `Concours : ${c.nomCourt || c.nom}`, prix: c.prix }))].map((o) => ({
       '@type': 'Offer', price: o.prix, priceCurrency: 'EUR', itemOffered: { '@type': 'Service', name: o.nom },
     })),
   },
@@ -103,6 +104,7 @@ const ctaFlottant = !['reservation', 'galerie'].includes(page);
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="sitemap" href="/sitemap.xml">
   <link rel="preload" href={anton} as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href={poppins} as="font" type="font/woff2" crossorigin>
   <script is:inline>document.documentElement.classList.add('js');</script>
   <!-- Statistiques de visite Vercel : sans cookie, donc sans bandeau de consentement. -->
   <script is:inline>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>

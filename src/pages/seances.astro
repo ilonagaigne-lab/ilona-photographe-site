@@ -3,13 +3,17 @@ import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
 import Reel from '../components/Reel.astro';
 import { Image } from 'astro:assets';
-import { seances, seanceVedette, deplacement, depart, phraseDeplacement, listeSeances, faq, contact } from '../data';
+import { seances, seanceVedette, deplacement, depart, phraseDeplacement, prixMinSeance, faq, contact } from '../data';
 import { photo, cadrage, surligne, lignes, paragraphe } from '../lib/contenu';
 import t from '../contenu/pages/seances.json';
 
+// Valeurs affichées avant le calcul dans le navigateur : distance de départ 45 km, formule mise en avant.
+const kmDepart = 45;
+const depDepart = Math.round(Math.max(0, kmDepart - deplacement.gratuitJusqua) * deplacement.prixKm);
+const totalDepart = (seanceVedette?.prix ?? 0) + depDepart;
 const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.r } })) };
 ---
-<Base titre="Séances photo équestres et tarifs" description={`Séances photo équestres près de Toulouse : ${listeSeances}. Calculez votre prix, déplacement compris.`} page="seances" schema={[schemaFaq]}>
+<Base titre="Séances photo équestres et tarifs" description={`Séances photo équestres près de Toulouse, dès ${prixMinSeance} €. Calculez votre prix, déplacement compris.`} page="seances" schema={[schemaFaq]}>
 
   <section class="wrap row entre bas g32" style="padding-top: clamp(24px, 4vw, 64px)" data-reveal aria-labelledby="titre">
     <div>
@@ -76,8 +80,8 @@ const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': '
           <p class="li" style="margin: 0; font-size: 14px" data-sortie="trajet" aria-live="polite">Tapez votre commune : je calcule la distance par la route. Ou réglez-la à la main.</p>
         </div>
         <div class="stack g8">
-          <label for="km" class="lbl" style="color: var(--encre)">Distance depuis {depart.ville} : <span style="color: var(--rose-profond)" data-sortie="km">45 km</span></label>
-          <input id="km" type="range" min="0" max="150" step="1" value="45" style="width: 100%; accent-color: var(--rose-profond); height: 44px">
+          <label for="km" class="lbl" style="color: var(--encre)">Distance depuis {depart.ville} : <span style="color: var(--rose-profond)" data-sortie="km">{kmDepart} km</span></label>
+          <input id="km" type="range" min="0" max="150" step="1" value={kmDepart} style="width: 100%; accent-color: var(--rose-profond); height: 44px">
           <div class="row entre" style="font-size: 13px"><span>0 km</span><span>150 km</span></div>
         </div>
         <label class="case"><input type="checkbox" id="segur">Je suis cavalier ou cavalière aux Écuries d’En Ségur (-10 %)</label>
@@ -85,10 +89,10 @@ const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': '
       <div class="carte stack g16" style="flex: 1 1 320px; padding: clamp(22px, 3vw, 36px)" aria-live="polite">
         <p class="lbl">Estimation</p>
         <div class="row entre" style="padding-bottom: 12px; border-bottom: 1px solid rgba(236,235,231,.18)"><span>Séance <span data-sortie="nom">{seanceVedette?.nom}</span></span><span><span data-sortie="prix">{seanceVedette?.prix}</span> €</span></div>
-        <div class="row entre" style="padding-bottom: 12px; border-bottom: 1px solid rgba(236,235,231,.18)"><span>Déplacement</span><span><span data-sortie="deplacement">13</span> €</span></div>
+        <div class="row entre" style="padding-bottom: 12px; border-bottom: 1px solid rgba(236,235,231,.18)"><span>Déplacement</span><span><span data-sortie="deplacement">{depDepart}</span> €</span></div>
         <div class="row entre" data-ligne-remise hidden style="padding-bottom: 12px; border-bottom: 1px solid rgba(236,235,231,.18)"><span>Remise En Ségur</span><span>-<span data-sortie="remise">0</span> €</span></div>
         <p style="margin: 8px 0 0; font-size: 14px">Total estimé</p>
-        <p class="prix" style="font-size: clamp(64px, 7vw, 96px); margin: 0"><span data-sortie="total">193</span> €</p>
+        <p class="prix" style="font-size: clamp(64px, 7vw, 96px); margin: 0"><span data-sortie="total">{totalDepart}</span> €</p>
         <a class="btn clair" href={`/reservation?formule=${seanceVedette?.id}`} data-sortie-lien style="align-self: flex-start; margin-top: auto">Réserver cette séance</a>
       </div>
     </div>
@@ -135,11 +139,13 @@ const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': '
   const km = zone.querySelector<HTMLInputElement>('#km')!;
   const segur = zone.querySelector<HTMLInputElement>('#segur')!;
   const sortie = (n: string) => zone.querySelector(`[data-sortie="${n}"]`)!;
-  let formule = zone.querySelector<HTMLButtonElement>('[aria-pressed="true"]')!;
+  let formule = zone.querySelector<HTMLButtonElement>('[aria-pressed="true"]') ?? zone.querySelector<HTMLButtonElement>('[data-formule]');
+  formule?.setAttribute('aria-pressed', 'true');
   function calcule() {
+    if (!formule) return;
     const prix = Number(formule.dataset.prix);
     const dep = Math.round(Math.max(0, Number(km.value) - gratuit) * prixKm);
-    const remise = segur.checked ? Math.round((prix + dep) * 0.1) : 0;
+    const remise = segur.checked ? Math.round((prix + dep) * 0.1) : 0; // même arrondi que la réservation
     sortie('km').textContent = `${km.value} km`;
     sortie('nom').textContent = formule.dataset.nom!;
     sortie('prix').textContent = String(prix);
@@ -152,13 +158,14 @@ const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': '
   zone.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-formule]');
     if (!b) return;
-    formule.setAttribute('aria-pressed', 'false');
+    formule?.setAttribute('aria-pressed', 'false');
     formule = b; b.setAttribute('aria-pressed', 'true');
     calcule();
   });
   km.addEventListener('input', () => { sortie('trajet').textContent = 'Distance réglée à la main.'; calcule(); });
-  brancherCommune(zone.querySelector<HTMLInputElement>('#commune')!, (r: { nom: string; km: number } | null) => {
+  brancherCommune(zone.querySelector<HTMLInputElement>('#commune')!, (r: { nom: string; km: number | null } | null) => {
     if (!r) { sortie('trajet').textContent = 'Commune introuvable : réglez la distance à la main.'; return; }
+    if (r.km === null) { sortie('trajet').textContent = `${r.nom} : distance non calculée, Ilona la calculera. Vous pouvez aussi la régler à la main.`; return; }
     if (r.km > Number(km.max)) km.max = String(r.km);
     km.value = String(r.km);
     sortie('trajet').textContent = `${r.nom} : ${r.km} km par la route.`;

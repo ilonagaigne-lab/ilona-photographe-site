@@ -17,7 +17,7 @@ for (const x of t.sections as Section[]) {
 blocs.forEach((b) => (b.citation = b.sections.at(-1)?.citation));
 const { titre, nomCourt, description } = t.referencement;
 ---
-<Base titre={`${titre} · Journal`} description={description} page="journal" type="article" fil={[{ nom: 'Journal', href: '/journal/preparer-son-cheval' }, { nom: nomCourt || titre, href: '/journal/preparer-son-cheval' }]} schema={[{ '@type': 'Article', headline: titre, description, author: { '@id': 'https://ilonagaigne.com/#ilona' }, publisher: { '@id': 'https://ilonagaigne.com/#activite' }, inLanguage: 'fr-FR' }]}>
+<Base titre={`${nomCourt || titre} · Journal`} description={description} page="journal" type="article" fil={[{ nom: 'Journal', href: '/journal/preparer-son-cheval' }, { nom: nomCourt || titre, href: '/journal/preparer-son-cheval' }]} schema={[{ '@type': 'Article', headline: titre, description, author: { '@id': 'https://ilonagaigne.com/#ilona' }, publisher: { '@id': 'https://ilonagaigne.com/#activite' }, inLanguage: 'fr-FR' }]}>
   <article>
     <header class="wrap" style="padding-top: clamp(16px, 3vw, 48px)" data-reveal>
       <div class="colonne">

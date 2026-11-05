@@ -27,7 +27,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
           <label class="champ">Commune de la séance<input class="saisie" id="lieu" name="lieu" data-libelle="Lieu" type="text" placeholder="Ex. Muret" required></label>
           <p class="li" data-trajet aria-live="polite" style="margin: -8px 0 0; font-size: 14px">Choisissez votre commune dans la liste : je calcule le déplacement.</p>
           <label class="champ">Nom de l’écurie (facultatif)<input class="saisie" name="ecurie" data-libelle="Écurie" type="text"></label>
-          <label class="champ" style="max-width: 320px">Date souhaitée (facultatif)<input class="saisie" name="date" data-libelle="Date souhaitée" type="date" aria-describedby="soleil"></label>
+          <label class="champ" style="max-width: 320px">Date souhaitée (facultatif)<input class="saisie" name="date" data-libelle="Date souhaitée" type="date" aria-describedby="soleil" data-decrit="soleil"></label>
           <p id="soleil" class="soleil" aria-live="polite">Choisissez une date : je vous indique l’heure de la lumière dorée à Toulouse.</p>
           <div class="stack g12">
             <p style="margin: 0; font-size: 14px; font-weight: 500">Moment de la journée</p>
@@ -48,14 +48,14 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
             <label class="champ">Nom de votre cheval<input class="saisie" name="cheval" data-libelle="Cheval" type="text"></label>
           </div>
           <label class="case"><input type="checkbox" name="segur" data-libelle="Cavalier des Écuries d’En Ségur (-10 %)">Je monte aux Écuries d’En Ségur (-10 %)</label>
-          <label class="champ">Un mot pour Ilona (facultatif)<textarea class="saisie" name="message" data-libelle="Message"></textarea></label>
+          <label class="champ">Un mot pour Ilona (facultatif)<textarea class="saisie" name="message" data-libelle="Message" maxlength="1200"></textarea></label>
           <label class="piege" aria-hidden="true">Ne pas remplir<input name="site_web" type="text" tabindex="-1" autocomplete="off"></label>
         </fieldset>
 
         <fieldset class="pane" data-pane="4" hidden>
           <legend class="d" style="font-size: 44px">On vérifie ensemble</legend>
           <dl class="recap" data-recap></dl>
-          <p class="texte" style="font-size: 15px">Rien n’est réglé maintenant : votre messagerie s’ouvre avec la demande déjà rédigée, et Ilona vous confirme la date et le prix final, déplacement compris.</p>
+          <p class="texte" style="font-size: 15px">Rien n’est réglé maintenant : votre demande part directement chez Ilona, qui vous confirme la date et le prix final, déplacement compris.</p>
         </fieldset>
 
         <div class="pane" data-pane="5" hidden>
@@ -69,6 +69,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
           <div class="carte stack g12" style="padding: 24px">
             <p class="lbl">Rien ne s’est ouvert ?</p>
             <p style="margin: 0; font-size: 15px; line-height: 1.6">Copiez votre demande et collez-la dans un e-mail à <a href={`mailto:${contact.email}`}>{contact.email}</a>, ou appelez le <a href={contact.telephoneLien}>{contact.telephone}</a>.</p>
+            <label class="champ">Votre demande, à copier<textarea class="saisie" data-texte-demande readonly rows="8"></textarea></label>
             <button type="button" class="btn clair" data-copier style="align-self: flex-start">Copier ma demande</button>
             <p data-copie-ok role="status" style="margin: 0; font-size: 14px" hidden>Demande copiée.</p>
           </div>
@@ -76,7 +77,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
           <a class="btn contour" href="/journal/preparer-son-cheval" style="align-self: flex-start">Préparer mon cheval</a>
         </div>
 
-        <p class="erreur" data-erreur role="alert" hidden></p>
+        <p class="erreur" id="erreur-resa" data-erreur role="alert" hidden></p>
         <div class="navigation" data-navigation>
           <button type="button" class="btn contour" data-retour hidden>Retour</button>
           <button type="submit" class="btn" data-suivant>Continuer</button>
@@ -119,6 +120,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
   .navigation .btn[data-suivant] { margin-left: auto; }
   .piege { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .erreur { margin: 16px 0 0; color: var(--rose-profond); font-weight: 500; }
+  .recap :global(dd) { overflow-wrap: anywhere; }
   .recap :global(.modifier) { margin-left: 8px; border: 0; background: none; padding: 10px 4px; color: var(--rose-profond); text-decoration: underline; font: 500 14px 'Poppins', sans-serif; cursor: pointer; }
   .resume { flex: 1 1 300px; padding: 32px; position: sticky; top: 24px; }
   :global(.pied) { display: none; }
@@ -137,34 +139,43 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
   const $ = <T extends HTMLElement>(s: string) => form.querySelector<T>(s)!;
   let etape = 1;
   let texteDemande = '';
-  // Pas de date passée.
-  $<HTMLInputElement>('[name="date"]').min = new Date().toISOString().slice(0, 10);
+  // Pas de date passée : « aujourd'hui » dans le fuseau du visiteur, pas en UTC.
+  const aujourdhui = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+  $<HTMLInputElement>('[name="date"]').min = aujourdhui();
+  const defilement = () => window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 
   // Préselection depuis ?formule=…
   const demande = new URLSearchParams(location.search).get('formule');
   const depart = demande && $<HTMLButtonElement>(`[data-formule="${CSS.escape(demande)}"]`);
   if (depart) { form.querySelectorAll('[data-formule]').forEach((b) => b.setAttribute('aria-pressed', 'false')); depart.setAttribute('aria-pressed', 'true'); }
 
-  const formule = () => $<HTMLButtonElement>('[data-formule][aria-pressed="true"]');
+  // Si aucune formule n'est présélectionnée (ex. séance mise en avant retirée), on prend la première.
+  if (!form.querySelector('[data-formule][aria-pressed="true"]')) form.querySelector('[data-formule]')?.setAttribute('aria-pressed', 'true');
+  const formule = () => form.querySelector<HTMLButtonElement>('[data-formule][aria-pressed="true"]');
   const moment = () => $<HTMLButtonElement>('[data-moment][aria-pressed="true"]');
   const segur = () => $<HTMLInputElement>('[name="segur"]').checked;
 
   // Déplacement estimé une fois la commune reconnue (null tant qu'elle ne l'est pas).
   let trajet: { nom: string; km: number; prix: number } | null = null;
+  const texteDeplacementInitial = form.querySelector('[data-r-deplacement]')!.textContent ?? '';
   const texteTrajet = () => trajet ? (trajet.prix ? `${trajet.prix} € (${trajet.km} km par la route)` : `offert (${trajet.km} km par la route)`) : 'calculé par Ilona';
 
   function resume() {
     const f = formule();
+    if (!f) return;
     const total = Number(f.dataset.prix) + (trajet?.prix ?? 0);
     $('[data-r-nom]').textContent = f.dataset.nom!;
-    $('[data-r-total]').textContent = String(segur() ? Math.round(total * 0.9) : total);
+    // Même arrondi que le calculateur de /seances : total moins la remise arrondie.
+    $('[data-r-total]').textContent = String(segur() ? total - Math.round(total * 0.1) : total);
     $('[data-r-remise]').hidden = !segur();
-    if (trajet) $('[data-r-deplacement]').textContent = `Déplacement ${trajet.prix ? `de ${trajet.prix} € inclus` : 'offert'} (${trajet.km} km).`;
+    $('[data-r-deplacement]').textContent = trajet ? `Déplacement ${trajet.prix ? `de ${trajet.prix} € inclus` : 'offert'} (${trajet.km} km).` : texteDeplacementInitial;
   }
+  if (!formule()) $<HTMLButtonElement>('[data-suivant]').disabled = true; // rien à réserver : les prestations sont vides
 
-  brancherCommune($<HTMLInputElement>('#lieu'), (r: { nom: string; km: number } | null) => {
+  brancherCommune($<HTMLInputElement>('#lieu'), (r: { nom: string; km: number | null } | null) => {
     const sortie = $('[data-trajet]');
     if (!r) { trajet = null; sortie.textContent = 'Commune non reconnue : Ilona calculera le déplacement.'; resume(); return; }
+    if (r.km === null) { trajet = null; sortie.textContent = 'Distance non calculée : Ilona la calculera.'; resume(); return; }
     trajet = { ...r, prix: prixDeplacement(r.km, Number(form.dataset.gratuit), Number(form.dataset.km)) };
     sortie.textContent = `${r.nom} : ${r.km} km par la route, déplacement ${trajet.prix ? `estimé à ${trajet.prix} €` : 'offert'}.`;
     resume();
@@ -184,10 +195,11 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
     $('[data-suivant]').textContent = n === 4 ? 'Envoyer ma demande' : 'Continuer';
     $('[data-erreur]').hidden = true;
     if (n === 4) recap();
-    const titre = form.querySelector<HTMLElement>(`[data-pane="${n}"] legend, [data-pane="${n}"] h2`);
+    // Écran 5 : le titre du bloc affiché (envoyé ou à envoyer soi-même), pas celui du bloc masqué.
+    const titre = form.querySelector<HTMLElement>(`[data-pane="${n}"] legend, [data-pane="${n}"] > div:not([hidden]) h2`);
     titre?.setAttribute('tabindex', '-1');
     titre?.focus({ preventScroll: true });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    defilement();
   }
 
   function recap() {
@@ -200,33 +212,65 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
       ['Date', `${date} · ${moment().dataset.moment}`],
       ['Contact', `${v('prenom')} ${v('nom')} · ${v('email')}`],
       ['Remise', segur() ? 'Écuries d’En Ségur, -10 %' : 'Aucune'],
+      ['Total estimé', `${$('[data-r-total]').textContent} €`],
     ];
     const dl = $('[data-recap]');
     const etapeDe: Record<string, number> = { Prestation: 1, Lieu: 2, Déplacement: 2, Date: 2, Contact: 3, Remise: 3 };
     dl.replaceChildren(...lignes.flatMap(([a, b]) => {
       const dt = document.createElement('dt'); dt.textContent = a;
       const dd = document.createElement('dd'); dd.textContent = b + ' ';
-      const modif = document.createElement('button');
-      modif.type = 'button'; modif.className = 'modifier'; modif.textContent = 'Modifier';
-      modif.setAttribute('aria-label', `Modifier : ${a}`);
-      modif.addEventListener('click', () => afficher(etapeDe[a]));
-      dd.append(modif);
+      if (etapeDe[a]) {
+        const modif = document.createElement('button');
+        modif.type = 'button'; modif.className = 'modifier'; modif.textContent = 'Modifier';
+        modif.setAttribute('aria-label', `Modifier : ${a}`);
+        modif.addEventListener('click', () => afficher(etapeDe[a]));
+        dd.append(modif);
+      }
       return [dt, dd];
     }));
   }
 
+  // Même règle que le serveur (api/demande.js).
+  const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  // Une phrase qui dit quoi faire, ou '' si le champ est bon.
+  function probleme(c: HTMLInputElement): string {
+    const v = c.value.trim();
+    if (c.name === 'lieu' && !v) return 'Indiquez la commune de la séance.';
+    if (c.name === 'prenom' && !v) return 'Indiquez votre prénom.';
+    if (c.name === 'nom' && !v) return 'Indiquez votre nom.';
+    if (c.name === 'email') {
+      if (!v) return 'Indiquez votre adresse e-mail.';
+      if (v.length > 254 || !EMAIL.test(v)) return 'Indiquez une adresse e-mail valide, par exemple nom@exemple.fr.';
+    }
+    if (c.name === 'date') {
+      if (c.validity.badInput) return 'Cette date n’est pas valide : choisissez-la dans le calendrier.';
+      if (c.value && c.value < aujourdhui()) return 'Choisissez une date à partir d’aujourd’hui.';
+    }
+    return '';
+  }
+
   function valide(n: number) {
-    const champs = [...form.querySelectorAll<HTMLInputElement>(`[data-pane="${n}"] [required]`)];
-    const faux = champs.find((c) => !c.checkValidity());
-    if (faux) {
+    const champs = [...form.querySelectorAll<HTMLInputElement>(`[data-pane="${n}"] input:not([type="checkbox"]):not([name="site_web"])`)];
+    champs.forEach((c) => { c.removeAttribute('aria-invalid'); (c.dataset.decrit ? c.setAttribute('aria-describedby', c.dataset.decrit) : c.removeAttribute('aria-describedby')); });
+    for (const c of champs) {
+      const message = probleme(c);
+      if (!message) continue;
       const err = $('[data-erreur]');
-      err.textContent = `Merci de compléter : ${faux.closest('label')?.firstChild?.textContent?.trim()}`;
+      err.textContent = message;
       err.hidden = false;
-      faux.focus();
+      c.setAttribute('aria-invalid', 'true');
+      c.setAttribute('aria-describedby', 'erreur-resa');
+      c.focus();
       return false;
     }
+    $('[data-erreur]').hidden = true;
     return true;
   }
+  // Une saisie corrigée retire son signalement.
+  form.addEventListener('input', (e) => {
+    const c = e.target as HTMLElement;
+    if (c.getAttribute('aria-invalid')) { c.removeAttribute('aria-invalid'); (c.dataset.decrit ? c.setAttribute('aria-describedby', c.dataset.decrit) : c.removeAttribute('aria-describedby')); $('[data-erreur]').hidden = true; }
+  });
 
   form.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-formule], [data-moment]');
@@ -251,9 +295,17 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
   // Coups de cœur choisis sur l'accueil.
   let coups: { alt: string; src: string }[] = [];
   try { coups = JSON.parse(localStorage.getItem('ilona-coups-de-coeur') || '[]'); } catch { coups = []; }
+  if (!Array.isArray(coups)) coups = [];
   if (coups.length) {
-    $('[data-coups]').hidden = false;
-    $('[data-coups-liste]').replaceChildren(...coups.map((c) => { const li = document.createElement('li'); const img = document.createElement('img'); img.src = c.src; img.alt = c.alt; li.append(img); return li; }));
+    const bloc = $('[data-coups]');
+    const liste = $('[data-coups-liste]');
+    bloc.hidden = false;
+    liste.replaceChildren(...coups.map((c) => {
+      const li = document.createElement('li'); const img = document.createElement('img');
+      // Photo changée ou retirée depuis la visite : la vignette cassée disparaît.
+      img.addEventListener('error', () => { li.remove(); coups = coups.filter((x) => x !== c); if (!liste.children.length) bloc.hidden = true; });
+      img.src = c.src; img.alt = c.alt; li.append(img); return li;
+    }));
   }
   $('[data-retour]').addEventListener('click', () => afficher(etape - 1));
   form.addEventListener('submit', async (e) => {
@@ -263,7 +315,8 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
     const lignes = [`Prestation : ${formule().dataset.nom} (${formule().dataset.prix} €)`, `Déplacement : ${texteTrajet()}`, `Total estimé : ${$('[data-r-total]').textContent} €`, `Moment : ${moment().dataset.moment}`, ...lignesDuFormulaire(form),
       coups.length ? `Coups de cœur sur le site : ${coups.map((c) => c.alt).join(' ; ')}` : '',
       new URLSearchParams(location.search).get('source') === 'quiz' ? 'Formule conseillée par le quiz du site' : ''];
-    texteDemande = lignes.join('\n');
+    texteDemande = lignes.filter(Boolean).join('\n');
+    $<HTMLTextAreaElement>('[data-texte-demande]').value = texteDemande;
     const bouton = $<HTMLButtonElement>('[data-suivant]');
     bouton.disabled = true; bouton.textContent = 'Envoi en cours…';
     const v = (n: string) => ($<HTMLInputElement>(`[name="${n}"]`).value || '').trim();
@@ -275,7 +328,8 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
     afficher(5);
   });
   $('[data-copier]').addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(texteDemande); $('[data-copie-ok]').hidden = false; } catch { $('[data-copie-ok]').textContent = 'Copie impossible : sélectionnez le texte du récapitulatif.'; $('[data-copie-ok]').hidden = false; }
+    try { await navigator.clipboard.writeText(texteDemande); $('[data-copie-ok]').textContent = 'Demande copiée.'; $('[data-copie-ok]').hidden = false; } catch { $('[data-copie-ok]').textContent = 'Copie impossible : sélectionnez le texte de la demande ci-dessus.'; $('[data-copie-ok]').hidden = false; }
   });
+  $<HTMLTextAreaElement>('[data-texte-demande]').addEventListener('focus', (e) => (e.target as HTMLTextAreaElement).select());
   resume();
 </script>

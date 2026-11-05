@@ -32,8 +32,9 @@ async function localiser(adresse: string) {
 }
 export const depart = await localiser(contenuContact.adresse ?? '');
 
-const chiffres = contenuContact.telephone.replace(/\D/g, '');
-const international = `+33${chiffres.replace(/^0/, '')}`;
+const chiffres = contenuContact.telephone.replace(/\(0\)/g, '').replace(/\D/g, '');
+// 06 12…, +33 6 12… et 0033 6 12… donnent tous +33612…
+const international = `+33${chiffres.replace(/^(0033|33|0)/, '')}`;
 const pseudo = contenuContact.instagram.replace(/^@/, '').trim();
 export const contact = {
   telephone: contenuContact.telephone,

@@ -38,6 +38,7 @@ collections:
             name: seances
             widget: list
             summary: "{{fields.nom}} · {{fields.prix}} €"
+            min: 1
             fields:
               - { label: Identifiant, name: id, widget: hidden }
               - { label: Nom, name: nom, widget: string }
@@ -53,7 +54,7 @@ collections:
                 name: photo
                 widget: object
                 fields: &champs-photo
-                  - { label: Image, name: image, widget: image, choose_url: false, hint: "Photo en JPG, de préférence moins de 10 Mo." }
+                  - { label: Image, name: image, widget: image, choose_url: false, hint: "Photo en JPG, de préférence moins de 10 Mo. Ne supprimez pas de la médiathèque une photo encore utilisée sur le site : la mise en ligne échouerait." }
                   - { label: Description de la photo, name: alt, widget: string, required: false, hint: "Ce que montre la photo, pour Google et les personnes malvoyantes. Ex. : Cavalière et son cheval bai au pré." }
                   - label: Cadrage
                     name: cadrage
@@ -74,6 +75,7 @@ collections:
             name: concours
             widget: list
             summary: "{{fields.nom}} · {{fields.prix}} €"
+            min: 1
             fields:
               - { label: Identifiant, name: id, widget: hidden }
               - { label: Nom, name: nom, widget: string, hint: "Ex. : Photo + vidéo" }
@@ -101,7 +103,7 @@ collections:
         label: Coordonnées
         file: src/contenu/contact.json
         fields:
-          - { label: Adresse de départ, name: adresse, widget: string, hint: "Votre adresse ou votre commune : point de départ du calcul des déplacements. Seule la commune apparaît sur le site." }
+          - { label: Adresse de départ, name: adresse, widget: string, hint: "Saisissez seulement votre commune ou code postal : ce fichier est public. C’est le point de départ du calcul des déplacements. Ex. : Toulouse ou 31000." }
           - { label: Téléphone, name: telephone, widget: string, hint: "Format : 06 12 34 56 78" }
           - { label: E-mail, name: email, widget: string, pattern: ['^[^\s@]+@[^\s@]+\.[^\s@]{2,}$', "Adresse e-mail invalide"] }
           - { label: Compte Instagram, name: instagram, widget: string, hint: "Sans le @" }
@@ -496,7 +498,7 @@ collections:
                 summary: "{{fields.titre}}"
                 fields:
                   - { label: Étiquette, name: etiquette, widget: string }
-                  - { label: Couleur de l'étiquette, name: couleur, widget: select, default: "", options: [{ label: Blanche, value: "" }, { label: Dorée, value: "or" }, { label: Pervenche, value: "pervenche" }] }
+                  - { label: Couleur de l’étiquette, name: couleur, widget: select, required: false, default: "", options: [{ label: Blanche, value: "" }, { label: Dorée, value: "or" }, { label: Pervenche, value: "pervenche" }] }
                   - { label: Titre, name: titre, widget: string }
                   - { label: Points, name: points, widget: list, field: { label: Point, name: point, widget: string } }
           - label: Produits & événements
@@ -511,7 +513,7 @@ collections:
                 fields:
                   - { label: Photo, name: photo, widget: object, fields: *champs-photo }
                   - { label: Étiquette, name: etiquette, widget: string }
-                  - { label: Couleur de l'étiquette, name: couleur, widget: select, default: "", options: [{ label: Blanche, value: "" }, { label: Dorée, value: "or" }, { label: Pervenche, value: "pervenche" }] }
+                  - { label: Couleur de l’étiquette, name: couleur, widget: select, required: false, default: "", options: [{ label: Blanche, value: "" }, { label: Dorée, value: "or" }, { label: Pervenche, value: "pervenche" }] }
                   - { label: Légende, name: legende, widget: string }
           - label: Étude de cas
             name: cas
@@ -622,6 +624,8 @@ collections:
             summary: "{{fields.titre}}"
             hint: "Gardez l’ordre des questions : la 1re choisit la séance, la 2e choisit le conseil."
             allow_add: false
+            min: 3
+            max: 3
             fields:
               - { label: Code, name: cle, widget: hidden }
               - { label: Question, name: titre, widget: string }
@@ -661,6 +665,8 @@ collections:
                 widget: list
                 summary: "{{fields.valeur}}"
                 allow_add: false
+                min: 3
+                max: 3
                 fields:
                   - { label: Caractère, name: valeur, widget: hidden }
                   - { label: Conseil, name: texte, widget: text }
@@ -739,7 +745,29 @@ collections:
               - { label: Intertitre, name: titre, widget: string }
               - { label: Texte, name: texte, widget: text, hint: "Une ligne vide = un nouveau paragraphe." }
               - { label: Liste à puces (facultatif), name: liste, widget: list, required: false, field: { label: Point, name: point, widget: string } }
-              - { label: Photo (facultatif), name: photo, widget: object, required: false, collapsed: true, fields: *champs-photo }
+              - label: Photo (facultatif)
+                name: photo
+                widget: object
+                required: false
+                collapsed: true
+                hint: "Laissez vide pour une partie sans photo."
+                # Copie des champs de l’ancre « champs-photo » où la photo n’est pas obligatoire : sans cela, une partie sans photo ne s’enregistre pas.
+                fields:
+                  - { label: Image, name: image, widget: image, required: false, choose_url: false, hint: "Photo en JPG, de préférence moins de 10 Mo. Ne supprimez pas de la médiathèque une photo encore utilisée sur le site : la mise en ligne échouerait." }
+                  - { label: Description de la photo, name: alt, widget: string, required: false, hint: "Ce que montre la photo, pour Google et les personnes malvoyantes. Ex. : Cavalière et son cheval bai au pré." }
+                  - label: Cadrage
+                    name: cadrage
+                    widget: select
+                    required: false
+                    default: ""
+                    hint: "Partie de la photo à garder visible quand elle est recadrée. Vide = réglage d’origine."
+                    options:
+                      - { label: "Réglage d’origine", value: "" }
+                      - { label: Centre, value: centre }
+                      - { label: Haut, value: haut }
+                      - { label: Bas, value: bas }
+                      - { label: Gauche, value: gauche }
+                      - { label: Droite, value: droite }
               - { label: Légende de la photo (facultatif), name: legende, widget: string, required: false }
               - { label: Grande citation après cette partie (facultatif), name: citation, widget: text, required: false, hint: "*mot* = surligné en rose." }
           - label: Mémo
@@ -779,7 +807,7 @@ collections:
             summary: "{{fields.alt}}"
             hint: "Les photos s’affichent entières, sans recadrage."
             fields:
-              - { label: Photo, name: image, widget: image }
+              - { label: Photo, name: image, widget: image, hint: "Photo en JPG, de préférence moins de 10 Mo. Ne supprimez pas de la médiathèque une photo encore utilisée sur le site : la mise en ligne échouerait." }
               - { label: Description de la photo, name: alt, widget: string, required: false, hint: "Pour les personnes malvoyantes et Google." }
               - { label: Déjà en favori (démo), name: on, widget: boolean, default: false }
 
