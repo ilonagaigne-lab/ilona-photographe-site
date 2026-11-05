@@ -84,7 +84,7 @@ Pas de tests automatiques ni de TypeScript strict : le build est le contrôle de
 - `git push` sur `main` = déploiement automatique sur Vercel (compte d'Ilona, équipe « iloetroc »). Vercel uniquement, jamais d'autre hébergeur.
 - Relancer un déploiement : commit vide puis push ; état : `gh api repos/ilonagaigne-lab/ilona-photographe-site/commits/HEAD/statuses`.
 - **Jamais de commit ni de push sans l'accord de Joris.** Messages de commit courts, en français, sans ligne « Co-Authored-By ».
-- Le dossier est sur iCloud : captures d'écran et fichiers de travail dans `/tmp` ou le `.context/` du workspace Conductor.
+- Conductor : chaque chantier a son propre workspace (installation automatique, boutons « dev » et « preview » sur `$CONDUCTOR_PORT`, voir `.conductor/settings.toml`). Captures d'écran et fichiers de travail dans le `.context/` du workspace, jamais dans le dossier iCloud.
 
 ## Reste à faire connu
 
