@@ -4,7 +4,7 @@
       "id": "sport",
       "nom": "Sport",
       "prix": 90,
-      "accroche": "Votre couple en mouvement : le geste, l’effort, la concentration.",
+      "accroche": "Votre couple en mouvement : le geste, l’effort, la concentration.",
       "details": [],
       "photo": {
         "image": "/src/assets/photos/cheval-cavaliere-poney.jpg",
@@ -32,7 +32,7 @@
       "id": "signature",
       "nom": "Signature",
       "prix": 180,
-      "accroche": "La séance éditoriale : lieu, lumière et tenue pensés ensemble avant le jour J.",
+      "accroche": "La séance éditoriale : lieu, lumière et tenue pensés ensemble avant le jour J.",
       "details": [],
       "photo": {
         "image": "/src/assets/photos/cheval-cowgirl-bai.jpg",
@@ -83,7 +83,7 @@
       "nom": "Réel souvenir",
       "nomCourt": "Réel souvenir",
       "prix": 50,
-      "description": "Un montage court et vertical d’une minute, prêt à partager sur vos réseaux.",
+      "description": "Un montage court et vertical, prêt à partager sur vos réseaux.",
       "photo": false,
       "video": true,
       "vedette": false
@@ -96,5 +96,8 @@
   "galerieDemo": {
     "quota": 8,
     "prixPhoto": 10
+  },
+  "remiseSegur": {
+    "taux": 10
   }
 }

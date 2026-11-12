@@ -1,11 +1,29 @@
 {
+  "referencement": {
+    "titre": "Votre galerie privée",
+    "description": "Galerie privée : choisissez vos photos favorites après votre séance."
+  },
   "entete": {
-    "demo": "Démonstration : chaque client recevra un lien privé vers sa propre galerie.",
+    "deconnexion": "Se déconnecter",
+    "demo": "Démonstration : chaque client recevra un lien privé vers sa propre galerie.",
     "galerie": "Galerie d’exemple",
     "seance": "Séance Signature",
     "surtitre": "Votre galerie privée",
     "titre": "Choisissez vos *favoris*",
-    "vide": "Aucun favori pour l’instant. Touchez un cœur pour commencer."
+    "vide": "Aucun favori pour l’instant. Touchez un cœur pour commencer.",
+    "nombrePhotos": "{n} photos",
+    "consigne": "Votre formule inclut {quota} photos. Touchez le cœur (ou Tab puis Espace) pour choisir. Au-delà, chaque photo s’ajoute à {prix} €.",
+    "filtres": "Filtrer les photos",
+    "toutes": "Toutes ({n})",
+    "favoris": "Favoris ({n})",
+    "numero": "N° {n}"
+  },
+  "barre": {
+    "inclus": "photos incluses choisies",
+    "supplement": "+ {extra} en supplément × {prix} € = {total}",
+    "valider": "Valider ma sélection",
+    "validerEtRegler": "Valider et régler {total} €",
+    "alerteDemo": "Démonstration : ici, la sélection sera envoyée à Ilona et les photos supplémentaires réglées en ligne."
   },
   "photos": [
     { "image": "/src/assets/photos/cheval-cowgirl-isabelle.jpg", "alt": "Cavalière contre l’encolure d’un cheval isabelle", "on": true },

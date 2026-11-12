@@ -2,28 +2,35 @@
 import Base from '../layouts/Base.astro';
 import Coeur from '../components/Coeur.astro';
 import { Image } from 'astro:assets';
-import { galerieDemo } from '../data';
-import { photo, surligne } from '../lib/contenu';
+import { galerieDemo, commun } from '../data';
+import { photo, surligne, paragraphe, gabarit } from '../lib/contenu';
 import t from '../contenu/pages/galerie.json';
 
 const photos = t.photos;
 const { quota, prixPhoto } = galerieDemo;
+// Les {mots} des textes saisis dans le back office sont remplacés ici ; les nombres qui bougent restent dans des balises que le script met à jour.
+const [favorisAvant, favorisApres = ''] = t.entete.favoris.split('{n}');
+const supplement = paragraphe(t.barre.supplement)
+  .replace('{extra}', '<span data-extra>0</span>')
+  .replace('{prix}', String(prixPhoto))
+  .replace('{total}', '<span class="prix" style="font-size: 32px"><span data-total>0</span>\u00a0€</span>');
+const textes = { valider: t.barre.valider, validerEtRegler: t.barre.validerEtRegler, alerteDemo: t.barre.alerteDemo };
 ---
-<Base titre="Votre galerie privée" description="Galerie privée : choisissez vos photos favorites après votre séance." page="galerie" indexer={false}>
-  <a slot="entete-action" class="nl" href="/" style="font-size: 14px">Se déconnecter</a>
+<Base titre={t.referencement.titre} description={t.referencement.description} page="galerie" indexer={false}>
+  <a slot="entete-action" class="nl garde" href="/" style="font-size: 14px">{t.entete.deconnexion}</a>
 
-  <section class="wrap" style="padding-top: 24px; padding-bottom: 48px" data-reveal id="galerie" data-quota={quota} data-prix={prixPhoto}>
+  <section class="wrap" style="padding-top: 24px; padding-bottom: 48px" data-reveal id="galerie" data-quota={quota} data-prix={prixPhoto} data-textes={JSON.stringify(textes)}>
     <p class="demo">{t.entete.demo}</p>
-    <p style="margin: 0 0 32px; font-size: 14px"><strong style="font-weight: 600">{t.entete.galerie}</strong> · {t.entete.seance} · {photos.length} photos</p>
+    <p style="margin: 0 0 32px; font-size: 14px"><strong style="font-weight: 600">{t.entete.galerie}</strong> · {t.entete.seance} · {gabarit(t.entete.nombrePhotos, { n: photos.length })}</p>
     <div class="row entre bas g24" style="margin-bottom: 32px">
       <div class="stack g12">
         <p class="lbl">{t.entete.surtitre}</p>
         <h1 class="d" style="font-size: clamp(52px, 7vw, 104px)" set:html={surligne(t.entete.titre)} />
-        <p class="texte" style="max-width: 620px; font-size: 16px">Votre formule inclut {quota} photos. Touchez le cœur (ou Tab puis Espace) pour choisir. Au-delà, chaque photo s’ajoute à {prixPhoto} €.</p>
+        <p class="texte" style="max-width: 620px; font-size: 16px">{gabarit(t.entete.consigne, { quota, prix: prixPhoto })}</p>
       </div>
-      <div class="row g8" role="group" aria-label="Filtrer les photos">
-        <button class="pastille" type="button" data-filtre="toutes" aria-pressed="true">Toutes ({photos.length})</button>
-        <button class="pastille" type="button" data-filtre="favoris" aria-pressed="false">Favoris (<span data-compte>0</span>)</button>
+      <div class="row g8" role="group" aria-label={t.entete.filtres}>
+        <button class="pastille" type="button" data-filtre="toutes" aria-pressed="true">{gabarit(t.entete.toutes, { n: photos.length })}</button>
+        <button class="pastille" type="button" data-filtre="favoris" aria-pressed="false">{favorisAvant}<span data-compte>0</span>{favorisApres}</button>
       </div>
     </div>
     <ul class="grille-photos">
@@ -31,8 +38,8 @@ const { quota, prixPhoto } = galerieDemo;
         <li class:list={['tuile', { choisie: p.on }]} data-curseur="choisir">
           <Image src={photo(p.image)} alt={p.alt ?? ''} widths={[400, 700]} sizes="(max-width: 760px) 50vw, 25vw" />
           <span class="flash" aria-hidden="true"></span><span class="cadre" aria-hidden="true"></span>
-          <span class="num">N° {String(i + 1).padStart(2, '0')}</span>
-          <Coeur choisie={p.on} nom={p.alt ?? ''} />
+          <span class="num">{gabarit(t.entete.numero, { n: String(i + 1).padStart(2, '0') })}</span>
+          <Coeur choisie={p.on} nom={p.alt || gabarit(commun.lecteurs.photoNumero, { n: i + 1 })} />
         </li>
       ))}
     </ul>
@@ -42,11 +49,11 @@ const { quota, prixPhoto } = galerieDemo;
   <div class="barre sombre" aria-live="polite">
     <div class="wrap row entre centre" style="padding-block: 18px; gap: 14px 40px">
       <div class="stack g8" style="flex: 1 1 320px">
-        <p style="margin: 0; font-size: 15px"><span class="prix" style="font-size: 32px"><span data-inclus>0</span> / {quota}</span>  photos incluses choisies</p>
+        <p style="margin: 0; font-size: 15px"><span class="prix" style="font-size: 32px"><span data-inclus>0</span> / {quota}</span> {t.barre.inclus}</p>
         <div class="jauge" aria-hidden="true"><span data-jauge style="transform: scaleX(0)"></span></div>
       </div>
-      <p data-supplement hidden style="margin: 0; font-size: 15px">+ <span data-extra>0</span> en supplément × {prixPhoto} € = <span class="prix" style="font-size: 32px"><span data-total>0</span> €</span></p>
-      <button class="btn clair" type="button" data-valider>Valider ma sélection</button>
+      <p data-supplement hidden style="margin: 0; font-size: 15px" set:html={supplement} />
+      <button class="btn clair" type="button" data-valider>{t.barre.valider}</button>
     </div>
   </div>
 </Base>
@@ -60,13 +67,21 @@ const { quota, prixPhoto } = galerieDemo;
   .grille-photos .tuile[hidden] { display: none; }
   .barre { position: sticky; bottom: 0; z-index: 10; box-shadow: 0 -20px 40px -20px rgba(34,34,34,.4); }
   :global(.pied) { display: none; }
-  @media (max-width: 560px) { .grille-photos { columns: 2; column-gap: 8px; } .grille-photos .tuile { margin-bottom: 8px; } }
+  /* La barre collée en bas ne doit jamais cacher la photo qui reçoit le focus au clavier. */
+  :global(html) { scroll-padding-bottom: 140px; }
+  @media (max-width: 560px) {
+    .grille-photos { columns: 2; column-gap: 8px; } .grille-photos .tuile { margin-bottom: 8px; }
+    .barre .wrap { padding-block: 12px !important; gap: 10px 16px !important; }
+    .barre .btn { min-height: 44px; }
+    :global(html) { scroll-padding-bottom: 180px; }
+  }
 </style>
 
 <script>
   const zone = document.getElementById('galerie')!;
   const quota = Number(zone.dataset.quota) || 0;
   const prix = Number(zone.dataset.prix) || 0;
+  const T = JSON.parse(zone.dataset.textes || '{}');
   const q = (s: string) => document.querySelector(s) as HTMLElement;
   let filtre = 'toutes';
   function maj() {
@@ -79,7 +94,7 @@ const { quota, prixPhoto } = galerieDemo;
     q('[data-supplement]').hidden = extra === 0;
     q('[data-extra]').textContent = String(extra);
     q('[data-total]').textContent = String(extra * prix);
-    q('[data-valider]').textContent = extra ? `Valider et régler ${extra * prix} €` : 'Valider ma sélection';
+    q('[data-valider]').textContent = extra ? T.validerEtRegler.replace('{total}', String(extra * prix)) : T.valider;
     for (const t of tuiles) t.hidden = filtre === 'favoris' && !t.classList.contains('choisie');
     q('[data-vide]').hidden = !(filtre === 'favoris' && n === 0);
   }
@@ -105,7 +120,7 @@ const { quota, prixPhoto } = galerieDemo;
     }
   });
   q('[data-valider]').addEventListener('click', () => {
-    alert('Démonstration : ici, la sélection sera envoyée à Ilona et les photos supplémentaires réglées en ligne.');
+    alert(T.alerteDemo);
   });
   maj();
 </script>

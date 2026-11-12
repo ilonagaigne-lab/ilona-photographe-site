@@ -36,6 +36,15 @@
           "value": "public, max-age=604800"
         }
       ]
+    },
+    {
+      "source": "/(favicon.svg|masque-titre.svg|og-image.jpg)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
     }
   ],
   "redirects": [
@@ -43,6 +52,21 @@
       "source": "/favicon.ico",
       "destination": "/favicon.svg",
       "permanent": true
+    },
+    {
+      "source": "/journal",
+      "destination": "/journal/preparer-son-cheval",
+      "permanent": false
+    },
+    {
+      "source": "/academie",
+      "destination": "/academie/lire-la-lumiere-du-soir",
+      "permanent": false
+    },
+    {
+      "source": "/etudes-de-cas",
+      "destination": "/etudes-de-cas/galoplan",
+      "permanent": false
     }
   ]
 }

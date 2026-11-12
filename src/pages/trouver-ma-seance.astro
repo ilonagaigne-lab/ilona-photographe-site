@@ -10,10 +10,11 @@ const prix: Record<string, number> = Object.fromEntries([...seances, ...concours
 const resultats = t.resultats.filter((r) => prix[r.id] != null);
 const questions = t.questions;
 const conseils = Object.fromEntries(t.resultat.conseils.map((c) => [c.valeur, c.texte]));
+const gabarit = (texte: string, valeurs: Record<string, string | number> = {}) => texte.replace(/\{(\w+)\}/g, (_, k) => String(valeurs[k] ?? ''));
 ---
-<Base titre="Trouvez votre séance photo équestre" description="Trois questions, trente secondes : trouvez la séance photo équestre faite pour vous et votre cheval, avec son prix et les soirs de lumière dorée." page="seances">
+<Base titre={t.meta.titre} description={t.meta.description} page="seances">
   <section class="wrap section" style="padding-top: clamp(16px, 3vw, 40px)" data-reveal aria-labelledby="titre">
-    <div class="quiz" id="quiz" data-prix={JSON.stringify(prix)} data-conseils={JSON.stringify(conseils)}>
+    <div class="quiz" id="quiz" data-conseils={JSON.stringify(conseils)} data-textes={JSON.stringify(t.interface)}>
       <div class="quiz-tete">
         <p class="lbl">{t.entete.surtitre}</p>
         <div class="quiz-progression" aria-hidden="true"><span data-barre></span></div>
@@ -24,7 +25,7 @@ const conseils = Object.fromEntries(t.resultat.conseils.map((c) => [c.valeur, c.
       {questions.map((q, i) => (
         <fieldset class="quiz-etape" data-question={q.cle} hidden={i > 0}>
           <legend class="d quiz-question" tabindex="-1">{q.titre}</legend>
-          <p class="quiz-compte">Question {i + 1} sur {questions.length}</p>
+          <p class="quiz-compte">{gabarit(t.interface.compteQuestion, { n: i + 1, total: questions.length })}</p>
           <div class="quiz-choix">
             {q.options.map((o) => (
               <button type="button" class="quiz-option" data-valeur={o.valeur}>
@@ -33,7 +34,7 @@ const conseils = Object.fromEntries(t.resultat.conseils.map((c) => [c.valeur, c.
               </button>
             ))}
           </div>
-          {i > 0 && <button type="button" class="quiz-retour" data-retour>← Question précédente</button>}
+          {i > 0 && <button type="button" class="quiz-retour" data-retour>{t.interface.questionPrecedente}</button>}
         </fieldset>
       ))}
 
@@ -62,8 +63,8 @@ const conseils = Object.fromEntries(t.resultat.conseils.map((c) => [c.valeur, c.
           <p class="li" style="margin: 0; font-size: 14px">{t.resultat.noteSoirs}</p>
         </div>
         <div class="row g12">
-          <a class="btn grand" href="/reservation" data-reserver>Réserver cette séance</a>
-          <button type="button" class="btn contour" data-recommencer>Refaire le quiz</button>
+          <a class="btn grand" href="/reservation" data-reserver>{t.interface.reserver}</a>
+          <button type="button" class="btn contour" data-recommencer>{t.interface.recommencer}</button>
         </div>
         <p style="margin: 0; font-size: 15px">{t.resultat.hesitation} <a href="/seances">{t.resultat.lienComparer}</a>.</p>
       </div>
@@ -109,6 +110,8 @@ const conseils = Object.fromEntries(t.resultat.conseils.map((c) => [c.valeur, c.
   const annonce = quiz.querySelector<HTMLElement>('[data-annonce]')!;
   const reponses: Record<string, string> = {};
   const conseils: Record<string, string> = JSON.parse(quiz.dataset.conseils || '{}');
+  const T = JSON.parse(quiz.dataset.textes || '{}');
+  const gabarit = (texte: string, valeurs: Record<string, string | number> = {}) => texte.replace(/\{(\w+)\}/g, (_, k) => String(valeurs[k] ?? ''));
 
   function montrer(i: number) {
     etapes.forEach((e, k) => (e.hidden = k !== i));
@@ -116,7 +119,7 @@ const conseils = Object.fromEntries(t.resultat.conseils.map((c) => [c.valeur, c.
     barre.style.transform = `scaleX(${Math.max(0.05, i / etapes.length)})`;
     const titre = etapes[i].querySelector<HTMLElement>('legend')!;
     titre.focus({ preventScroll: true });
-    annonce.textContent = `Question ${i + 1} sur ${etapes.length} : ${titre.textContent}`;
+    annonce.textContent = gabarit(T.annonceQuestion, { n: i + 1, total: etapes.length, titre: titre.textContent ?? '' });
   }
 
   function resultat() {
@@ -132,13 +135,15 @@ const conseils = Object.fromEntries(t.resultat.conseils.map((c) => [c.valeur, c.
     liste.replaceChildren(...prochainsSamedis(3).map((d) => {
       const { doree, coucher } = lumiereDuSoir(d);
       const li = document.createElement('li');
-      li.innerHTML = `<strong>${jour(d)}</strong><span>Lumière dorée de ${heure(doree)} à ${heure(coucher)}</span>`;
+      const quand = document.createElement('strong'); quand.textContent = jour(d);
+      const creneau = document.createElement('span'); creneau.textContent = gabarit(T.creneauDore, { debut: heure(doree), fin: heure(coucher) });
+      li.append(quand, creneau);
       return li;
     }));
-    quiz.querySelector<HTMLAnchorElement>('[data-reserver]')!.href = `/reservation?formule=${formule}&source=quiz`;
+    quiz.querySelector<HTMLAnchorElement>('[data-reserver]')!.href = `/reservation?formule=${encodeURIComponent(formule)}&source=quiz`;
     const titre = zoneResultat.querySelector<HTMLElement>(`.resultat[data-formule="${formule}"] .resultat-titre`);
     titre?.focus({ preventScroll: true });
-    annonce.textContent = `Votre séance : ${titre?.textContent ?? ''}`;
+    annonce.textContent = gabarit(T.annonceResultat, { nom: titre?.textContent ?? '' });
     window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }
 

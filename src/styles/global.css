@@ -27,7 +27,7 @@ img, video { max-width: 100%; height: auto; display: block; }
 a { color: var(--rose-profond); }
 a:hover { color: var(--encre); }
 :focus-visible { outline: 3px solid var(--rose-profond); outline-offset: 3px; }
-.sombre :focus-visible { outline-color: var(--rose); }
+.sombre :focus-visible, .carte :focus-visible { outline-color: var(--rose); }
 [hidden] { display: none !important; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .skip { position: absolute; left: 16px; top: -100px; z-index: 100; background: var(--encre); color: var(--gres); padding: 12px 18px; border-radius: 999px; text-decoration: none; }
@@ -57,6 +57,7 @@ a:hover { color: var(--encre); }
 .chapo { font-size: clamp(17px, 1.4vw, 20px); line-height: 1.65; margin: 0; max-width: 560px; }
 .texte { font-size: clamp(16px, 1.2vw, 18px); line-height: 1.7; margin: 0; }
 .deborde { white-space: nowrap; margin-right: calc(-1 * var(--marge)); }
+@media (max-width: 760px) { .deborde { white-space: normal; margin-right: 0; } }
 .prix { font-family: 'Anton', Impact, sans-serif; color: var(--rose); line-height: 1; }
 .liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: clamp(17px, 1.4vw, 20px); line-height: 1.5; }
 
@@ -71,9 +72,10 @@ a:hover { color: var(--encre); }
 .sombre .hl.plein { color: var(--encre); }
 
 /* Révélation des titres */
-.rv { display: block; overflow: hidden; padding: .16em .1em .02em; margin: -.16em -.1em 0; }
+/* Marge basse : la queue du Q et la virgule d'Anton descendent sous la ligne et ne doivent pas être coupées. */
+.rv { display: block; overflow: hidden; padding: .16em .1em .14em; margin: -.16em -.1em -.12em; }
 .rv:first-child { margin-top: 0; }
-.rv + .rv { margin-top: -.04em; }
+.rv + .rv { margin-top: -.16em; }
 .rv > span { display: block; animation: monte 1s var(--lumiere) both; animation-delay: var(--d, .1s); }
 
 /* Titre-pochoir : le texte vectorisé (masque-titre.svg) découpe la vidéo, le trait rose passe dessous */
@@ -143,6 +145,7 @@ a:hover { color: var(--encre); }
 .reel { border-radius: 16px; overflow: hidden; aspect-ratio: 9 / 16; background: #111; box-shadow: var(--ombre); }
 .reel.or { box-shadow: 0 0 0 3px var(--or), var(--ombre); }
 .reel video { width: 100%; height: 100%; object-fit: cover; }
+.reel video:focus-visible { outline-offset: -4px; outline-color: var(--gres); }
 
 /* Formulaires */
 .champ { display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 500; }
@@ -166,7 +169,7 @@ textarea.saisie { padding: 14px 16px; min-height: 120px; resize: vertical; }
 .entete-actions { display: flex; align-items: center; gap: 12px; }
 .burger { display: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent; box-shadow: inset 0 0 0 1.5px var(--encre); color: var(--encre); align-items: center; justify-content: center; cursor: pointer; padding: 0; }
 @media (max-width: 1080px) {
-  .nav-principale, .entete-actions .nl { display: none; }
+  .nav-principale, .entete-actions .nl:not(.garde) { display: none; }
   .burger { display: inline-flex; }
   .entete-actions .btn { min-height: 44px; padding: 0 18px; font-size: 14px; }
 }
@@ -182,6 +185,7 @@ textarea.saisie { padding: 14px 16px; min-height: 120px; resize: vertical; }
 .menu.ouvert li a { transform: none; }
 .menu.ouvert li:nth-child(2) a { transition-delay: .05s; } .menu.ouvert li:nth-child(3) a { transition-delay: .1s; }
 .menu.ouvert li:nth-child(4) a { transition-delay: .15s; } .menu.ouvert li:nth-child(5) a { transition-delay: .2s; }
+.menu li a:focus-visible { outline-offset: -4px; }
 .menu li a[aria-current="page"] { color: var(--encre); }
 .menu li a[aria-current="page"]::before { content: ""; position: absolute; left: -.08em; right: -.08em; top: -.06em; bottom: .08em; background: var(--rose); z-index: -1; }
 .menu-bas { margin-top: auto; padding-top: 40px; display: flex; flex-direction: column; gap: 16px; }
@@ -190,9 +194,8 @@ textarea.saisie { padding: 14px 16px; min-height: 120px; resize: vertical; }
 
 /* Fil d'Ariane */
 .fil { padding-top: 8px; }
-.fil ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: nowrap; gap: 4px; font-size: 14px; white-space: nowrap; min-width: 0; }
-.fil li { flex: none; }
-.fil li:last-child { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.fil ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0 4px; font-size: 14px; min-width: 0; }
+.fil li { min-width: 0; }
 .fil li + li::before { content: "/"; margin: 0 8px; opacity: .5; }
 .fil a { color: var(--encre); display: inline-block; padding: 10px 0; }
 .fil [aria-current] { display: inline-block; padding: 10px 0; color: var(--rose-profond); font-weight: 500; }
@@ -202,6 +205,7 @@ textarea.saisie { padding: 14px 16px; min-height: 120px; resize: vertical; }
 @media (max-width: 1080px) {
   .cta-flottant { display: inline-flex; position: fixed; right: 16px; bottom: 16px; z-index: 40; box-shadow: var(--ombre); visibility: hidden; opacity: 0; transform: translateY(20px); transition: opacity .3s var(--lumiere), transform .3s var(--lumiere), visibility 0s .3s; }
   .cta-flottant.visible { visibility: visible; opacity: 1; transform: none; transition: opacity .3s var(--lumiere), transform .3s var(--lumiere); }
+  .cta-flottant.visible.masque { visibility: hidden; opacity: 0; transform: translateY(20px); transition: opacity .3s var(--lumiere), transform .3s var(--lumiere), visibility 0s .3s; }
 }
 
 /* FAQ */
@@ -218,6 +222,7 @@ textarea.saisie { padding: 14px 16px; min-height: 120px; resize: vertical; }
 .pied .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px 32px; padding-block: 36px; }
 .pied ul { display: flex; flex-wrap: wrap; gap: 0 22px; list-style: none; margin: 0; padding: 0; }
 .pied p { margin: 0; font-size: 14px; }
+@media (max-width: 1080px) { .pied .wrap { padding-bottom: 92px; } }
 
 /* Obturateur entre les pages */
 .obturateur { position: fixed; inset: 0; z-index: 90; pointer-events: none; }

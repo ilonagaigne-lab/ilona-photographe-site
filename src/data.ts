@@ -6,7 +6,8 @@ import contenuAgenda from './contenu/agenda.json';
 import contenuTemoignages from './contenu/temoignages.json';
 import contenuGaloplan from './contenu/galoplan.json';
 import contenuFaq from './contenu/faq.json';
-import type { PhotoSaisie } from './lib/contenu';
+import contenuCommun from './contenu/interface.json';
+import { gabarit, type PhotoSaisie } from './lib/contenu';
 
 export const site = {
   url: 'https://ilonagaigne.com',
@@ -92,6 +93,14 @@ export const phraseDeplacement = `Déplacement offert jusqu’à ${deplacement.g
 
 export const galerieDemo = prestations.galerieDemo;
 
+// Remise des cavaliers des Écuries d'En Ségur : un seul taux (en %), saisi dans « Formules et tarifs ».
+export const tauxSegur = Number(prestations.remiseSegur?.taux) || 0;
+// Remise arrondie à l'euro, pour un montant donné (même règle partout : séances, réservation).
+export const remiseSegur = (montant: number) => Math.round((montant * tauxSegur) / 100);
+
+// Mots et boutons communs à plusieurs pages (Photo, Vidéo, Réserver une séance…), saisis une seule fois.
+export const commun = contenuCommun;
+
 // Étude de cas GaloPlan. Vide = section masquée.
 export const galoplan: { citation: string; auteur: string; resultats: { valeur: string; libelle: string }[] } = {
   citation: contenuGaloplan.citation ?? '',
@@ -104,7 +113,7 @@ export const galoplan: { citation: string; auteur: string; resultats: { valeur: 
 export const faq = [
   { q: 'Où se déroulent les séances photo ?', r: `À votre écurie ou au pré, autour de ${depart.ville}. ${phraseDeplacement}` },
   { q: 'Combien coûte une séance photo équestre ?', r: `${seances.length > 1 ? `${seances.length} formules` : 'Une formule'} : ${listeSeances}.${concours.length ? ` En concours : ${listeConcours}.` : ''}` },
-  ...(contenuFaq.questions ?? []).filter((x) => x.question && x.reponse).map((x) => ({ q: x.question, r: x.reponse })),
+  ...(contenuFaq.questions ?? []).filter((x) => x.question && x.reponse).map((x) => ({ q: x.question, r: gabarit(x.reponse, { taux: tauxSegur }) })),
 ];
 
 // Témoignages clients (avec l'accord des clients). Vide = section masquée.

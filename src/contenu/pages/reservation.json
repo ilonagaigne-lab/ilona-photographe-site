@@ -1,0 +1,150 @@
+{
+  "page": {
+    "titreOnglet": "Demander une séance photo équestre",
+    "description": "Demandez votre séance photo équestre près de Toulouse, une photo de concours ou un réel, au moment qui vous arrange, en quatre étapes.",
+    "lienQuitter": "Quitter la réservation",
+    "titre": "Réserver *votre séance*"
+  },
+  "etapes": {
+    "libelle": "Étapes",
+    "prestation": "Prestation",
+    "lieu": "Lieu & date",
+    "coordonnees": "Coordonnées",
+    "recapitulatif": "Récapitulatif",
+    "terminee": "terminée",
+    "numero": "Étape {n} sur {total}"
+  },
+  "prestation": {
+    "titre": "Quelle prestation ?",
+    "titreSeances": "Séances équestres",
+    "titreConcours": "Concours"
+  },
+  "lieu": {
+    "titre": "Où et quand ?",
+    "communeLibelle": "Commune de la séance",
+    "communeExemple": "Ex. Muret",
+    "communeAide": "Choisissez votre commune dans la liste : je calcule le déplacement.",
+    "ecurieLibelle": "Nom de l’écurie (facultatif)",
+    "dateLibelle": "Date souhaitée (facultatif)",
+    "dateAideVide": "Pas de date en tête ? Laissez vide, Ilona vous propose un créneau.",
+    "dateAideChoisie": "Le {jour}, toutes les heures sont possibles. Pour la lumière dorée : de {debut} à {fin}.",
+    "momentTitre": "Moment de la journée"
+  },
+  "moments": {
+    "peuImporte": {
+      "libelle": "Peu importe",
+      "note": "Ilona vous propose un horaire"
+    },
+    "matin": {
+      "libelle": "Le matin",
+      "note": "Lumière douce, chevaux reposés"
+    },
+    "apresMidi": {
+      "libelle": "L’après-midi",
+      "note": "Selon vos disponibilités"
+    },
+    "finDeJournee": {
+      "libelle": "En fin de journée",
+      "note": "Lumière dorée",
+      "noteAvecHeure": "Lumière dorée dès {heure}"
+    }
+  },
+  "trajet": {
+    "calcul": "Calcul du déplacement en cours…",
+    "reconnuPayant": "{commune} : {km} km par la route, déplacement estimé à {prix} €.",
+    "reconnuOffert": "{commune} : {km} km par la route, déplacement offert.",
+    "communeInconnue": "Commune non reconnue : Ilona calculera le déplacement.",
+    "nonCalcule": "Distance non calculée : Ilona la calculera."
+  },
+  "coordonnees": {
+    "titre": "Vos coordonnées",
+    "prenom": "Prénom",
+    "nom": "Nom",
+    "email": "E-mail",
+    "telephone": "Téléphone",
+    "cheval": "Nom de votre cheval",
+    "segur": "Je monte aux Écuries d’En Ségur (-{taux} %)",
+    "message": "Un mot pour Ilona (facultatif)"
+  },
+  "recapitulatif": {
+    "titre": "On vérifie ensemble",
+    "note": "Rien n’est réglé maintenant : votre demande part directement chez Ilona, qui vous confirme la date, l’heure et le prix final, déplacement compris.",
+    "prestation": "Prestation",
+    "lieu": "Lieu",
+    "deplacement": "Déplacement",
+    "date": "Date",
+    "moment": "Moment",
+    "contact": "Contact",
+    "telephone": "Téléphone",
+    "cheval": "Cheval",
+    "message": "Message",
+    "remise": "Remise",
+    "total": "Total estimé",
+    "dateAConvenir": "à convenir",
+    "deplacementACalculer": "calculé par Ilona",
+    "deplacementPayant": "{prix} € ({km} km par la route)",
+    "deplacementOffert": "offert ({km} km par la route)",
+    "remiseOui": "Écuries d’En Ségur, -{taux} %",
+    "remiseNon": "Aucune",
+    "totalHorsDeplacement": "{total} € + déplacement",
+    "modifier": "Modifier",
+    "modifierRubrique": "Modifier : {rubrique}"
+  },
+  "resume": {
+    "titre": "Votre réservation",
+    "remise": "Remise En Ségur de {taux} % incluse.",
+    "deplacementInitial": "Déplacement calculé selon votre commune, offert jusqu’à {gratuit} km de {ville}.",
+    "deplacementPayant": "Déplacement de {prix} € inclus ({km} km).",
+    "deplacementOffert": "Déplacement offert ({km} km).",
+    "coupsDeCoeur": "Vos coups de cœur",
+    "question": "Une question ?"
+  },
+  "navigation": {
+    "retour": "Retour",
+    "continuer": "Continuer",
+    "envoyer": "Envoyer ma demande",
+    "envoiEnCours": "Envoi en cours…"
+  },
+  "erreurs": {
+    "commune": "Indiquez la commune de la séance.",
+    "prenom": "Indiquez votre prénom.",
+    "nom": "Indiquez votre nom.",
+    "emailVide": "Indiquez votre adresse e-mail.",
+    "emailInvalide": "Indiquez une adresse e-mail valide, par exemple nom@exemple.fr.",
+    "telephone": "Indiquez un numéro de téléphone valide, par exemple 06 12 34 56 78, ou laissez le champ vide.",
+    "dateInvalide": "Cette date n’est pas valide : choisissez-la dans le calendrier.",
+    "datePassee": "Choisissez une date à partir d’aujourd’hui."
+  },
+  "confirmation": {
+    "envoyeeTitre": "Demande *reçue*",
+    "envoyeeTexte": "Merci ! Votre demande est bien arrivée chez Ilona. Elle vous répond par e-mail pour confirmer la date, l’heure et le prix final, déplacement compris.",
+    "secoursTitre": "Demande *prête*",
+    "secoursTexte": "L’envoi automatique n’a pas abouti, mais votre demande n’est pas perdue. Votre messagerie s’est ouverte avec la demande déjà rédigée : elle ne part qu’une fois envoyée depuis votre messagerie. Ilona vous répond ensuite par e-mail pour confirmer la date, l’heure et le prix final.",
+    "secoursAideTitre": "Rien ne s’est ouvert ?",
+    "secoursAide": "Copiez votre demande et collez-la dans un e-mail à {email}, ou appelez le {telephone}.",
+    "copieLibelle": "Votre demande, à copier",
+    "copierBouton": "Copier ma demande",
+    "copieOk": "Demande copiée.",
+    "copieEchec": "Copie impossible : sélectionnez le texte de la demande ci-dessus.",
+    "boutonSuite": "Préparer mon cheval"
+  },
+  "demande": {
+    "sujet": "Réservation · {formule}",
+    "prestation": "Prestation : {nom} ({prix} €)",
+    "lieu": "Lieu : {valeur}",
+    "ecurie": "Écurie : {valeur}",
+    "deplacement": "Déplacement : {valeur}",
+    "date": "Date souhaitée : {valeur}",
+    "moment": "Moment : {valeur}",
+    "total": "Total estimé : {valeur}",
+    "prenom": "Prénom : {valeur}",
+    "nom": "Nom : {valeur}",
+    "email": "E-mail : {valeur}",
+    "telephone": "Téléphone : {valeur}",
+    "cheval": "Cheval : {valeur}",
+    "remise": "Remise : Cavalier des Écuries d’En Ségur (-{taux} %)",
+    "message": "Message : {valeur}",
+    "coups": "Coups de cœur sur le site : {valeur}",
+    "quiz": "Formule conseillée par le quiz du site"
+  }
+}

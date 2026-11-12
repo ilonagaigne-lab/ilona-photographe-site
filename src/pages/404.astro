@@ -1,18 +1,21 @@
 ---
 import Base from '../layouts/Base.astro';
 import { Image } from 'astro:assets';
+import { commun } from '../data';
 import { photo, cadrage, lignes, paragraphe } from '../lib/contenu';
 import t from '../contenu/pages/404.json';
+
+const { boutons } = commun;
 ---
-<Base titre="Page introuvable" description="Cette page est sortie du cadre." indexer={false}>
+<Base titre={t.referencement.titre} description={t.referencement.description} indexer={false}>
   <section class="wrap row centre" style="min-height: 70vh; padding-block: 32px 64px; gap: 48px clamp(40px, 6vw, 96px)" data-reveal>
     <div class="stack g24" style="flex: 3 1 480px">
       <p class="lbl">{t.entete.surtitre}</p>
       <h1 class="d" style="font-size: clamp(88px, 16vw, 240px)" set:html={lignes(t.entete.titre)} />
       <p class="texte" style="max-width: 480px" set:html={paragraphe(t.entete.texte)} />
       <div class="row g12">
-        <a class="btn" href="/">Revenir à l’accueil</a>
-        <a class="btn contour" href="/seances">Voir les séances</a>
+        <a class="btn" href="/">{t.entete.boutonAccueil}</a>
+        <a class="btn contour" href="/seances">{boutons.voirSeances}</a>
       </div>
     </div>
     <div class="hors-champ" aria-hidden="true">

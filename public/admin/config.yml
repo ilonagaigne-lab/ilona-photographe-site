@@ -41,9 +41,9 @@ collections:
             min: 1
             fields:
               - { label: Identifiant, name: id, widget: hidden }
-              - { label: Nom, name: nom, widget: string }
-              - { label: Prix (€), name: prix, widget: number, value_type: int, min: 0 }
-              - { label: Accroche, name: accroche, widget: text }
+              - { label: Nom, name: nom, widget: string, hint: "Nom de la formule, affiché sur les cartes et dans la réservation. Ex. : Sport" }
+              - { label: Prix (€), name: prix, widget: number, value_type: int, min: 0, hint: "Prix en euros, sans le symbole. Il se met à jour partout sur le site. Ex. : 90" }
+              - { label: Accroche, name: accroche, widget: text, hint: "Phrase courte sous le nom de la formule. Ex. : Votre couple en mouvement : le geste, l’effort, la…" }
               - label: Ce qui est inclus
                 name: details
                 widget: list
@@ -80,8 +80,8 @@ collections:
               - { label: Identifiant, name: id, widget: hidden }
               - { label: Nom, name: nom, widget: string, hint: "Ex. : Photo + vidéo" }
               - { label: Nom court, name: nomCourt, widget: string, required: false, hint: "Utilisé dans les listes et les boutons. Ex. : Photo + vidéo" }
-              - { label: Prix (€), name: prix, widget: number, value_type: int, min: 0 }
-              - { label: Description, name: description, widget: text }
+              - { label: Prix (€), name: prix, widget: number, value_type: int, min: 0, hint: "Prix en euros, sans le symbole. Il se met à jour partout sur le site. Ex. : 60" }
+              - { label: Description, name: description, widget: text, hint: "Phrase qui décrit le format, sous son nom. Ex. : Votre parcours en images, livré dans votre galerie privée." }
               - { label: Comprend de la photo, name: photo, widget: boolean, default: true }
               - { label: Comprend de la vidéo, name: video, widget: boolean, default: false }
               - { label: Mise en avant, name: vedette, widget: boolean, default: false }
@@ -90,14 +90,19 @@ collections:
             widget: object
             hint: "Le départ est votre adresse, à saisir dans « Coordonnées »."
             fields:
-              - { label: Offert jusqu’à (km), name: gratuitJusqua, widget: number, value_type: int, min: 0 }
-              - { label: Prix par km au-delà (€), name: prixKm, widget: number, value_type: float, min: 0, step: 0.05 }
+              - { label: Offert jusqu’à (km), name: gratuitJusqua, widget: number, value_type: int, min: 0, hint: "Distance en km depuis votre point de départ jusqu’à laquelle le déplacement est offert. Ex. : 20" }
+              - { label: Prix par km au-delà (€), name: prixKm, widget: number, value_type: float, min: 0, step: 0.05, hint: "Prix de chaque kilomètre au-delà, en euros (avec un point pour la virgule). Ex. : 0.3" }
           - label: Galerie client
             name: galerieDemo
             widget: object
             fields:
-              - { label: Photos incluses, name: quota, widget: number, value_type: int, min: 0 }
-              - { label: Prix d’une photo en plus (€), name: prixPhoto, widget: number, value_type: int, min: 0 }
+              - { label: Photos incluses, name: quota, widget: number, value_type: int, min: 0, hint: "Nombre de photos comprises dans la formule. Ex. : 8" }
+              - { label: Prix d’une photo en plus (€), name: prixPhoto, widget: number, value_type: int, min: 0, hint: "Prix en euros de chaque photo choisie en plus. Ex. : 10" }
+          - label: Remise Écuries d’En Ségur
+            name: remiseSegur
+            widget: object
+            fields:
+              - { label: Remise (%), name: taux, widget: number, value_type: int, min: 1, max: 50, hint: "Pourcentage retiré du total pour les cavaliers des Écuries d’En Ségur. Il s’applique tout seul au calculateur de la page Séances, à la réservation, à l’accueil et aux questions fréquentes. Ex. : 10" }
 
       - name: contact
         label: Coordonnées
@@ -105,9 +110,90 @@ collections:
         fields:
           - { label: Adresse de départ, name: adresse, widget: string, hint: "Saisissez seulement votre commune ou code postal : ce fichier est public. C’est le point de départ du calcul des déplacements. Ex. : Toulouse ou 31000." }
           - { label: Téléphone, name: telephone, widget: string, hint: "Format : 06 12 34 56 78" }
-          - { label: E-mail, name: email, widget: string, pattern: ['^[^\s@]+@[^\s@]+\.[^\s@]{2,}$', "Adresse e-mail invalide"] }
+          - { label: E-mail, name: email, widget: string, pattern: ['^[^\s@]+@[^\s@]+\.[^\s@]{2,}$', "Adresse e-mail invalide"], hint: "Adresse affichée au public et qui reçoit les demandes. Ex. : ilonagaigne@gmail.com" }
           - { label: Compte Instagram, name: instagram, widget: string, hint: "Sans le @" }
           - { label: Flux Instagram (Behold), name: fluxInstagram, widget: string, required: false, hint: "Adresse du flux donnée par behold.so (elle commence par https://feeds.behold.so/). Elle affiche vos derniers posts sur l’accueil. Vide = section masquée." }
+
+      - name: interface
+        label: Boutons et mots communs
+        file: src/contenu/interface.json
+        description: Les mots qui reviennent sur plusieurs pages (boutons, pastilles Photo et Vidéo, menu, pied de page). Modifiés ici une seule fois, ils changent partout sur le site.
+        fields:
+          - label: Pastilles
+            name: etiquettes
+            widget: object
+            hint: "Les petites étiquettes posées sur les cartes de formules et les galeries."
+            fields:
+              - { label: Pastille photo, name: photo, widget: string, hint: "Ex. : Photo" }
+              - { label: Pastille vidéo (dorée), name: video, widget: string, hint: "Ex. : Vidéo" }
+              - { label: Pastille réseaux (pervenche), name: reseaux, widget: string, hint: "Ex. : Réseaux" }
+          - label: Boutons
+            name: boutons
+            widget: object
+            hint: "Les boutons qui se répètent d’une page à l’autre."
+            fields:
+              - { label: Bouton de réservation, name: reserver, widget: string, hint: "Sur l’accueil, les séances, l’Académie, le menu du téléphone et le bouton flottant. Ex. : Réserver une séance" }
+              - { label: Bouton vers le quiz, name: trouverSeance, widget: string, hint: "Ex. : Trouver ma séance en 30 s" }
+              - { label: Bouton vers les séances, name: voirSeances, widget: string, hint: "Sur l’accueil et la page introuvable. Ex. : Voir les séances" }
+              - { label: Bouton vers la page Marques, name: parlerProjet, widget: string, hint: "Sur l’accueil, la page Marques et l’étude de cas. Ex. : Parler de votre projet" }
+          - label: Mot « dès » devant un prix
+            name: mots
+            widget: object
+            fields:
+              - { label: Mot avant le prix, name: des, widget: string, hint: "Ex. : dès" }
+          - label: Textes lus par les lecteurs d’écran
+            name: lecteurs
+            widget: object
+            hint: "Ces textes restent invisibles : seuls les lecteurs d’écran (utilisés par les personnes aveugles ou malvoyantes) les lisent. Seule exception, « Aller au contenu » apparaît quand on navigue au clavier avec la touche Tab."
+            fields:
+              - { label: Lien d’évitement, name: allerContenu, widget: string, hint: "Premier lien de chaque page, visible seulement au clavier (touche Tab) et lu par les lecteurs d’écran : il saute le menu pour aller au contenu. Ex. : Aller au contenu" }
+              - { label: Bouton qui ouvre le menu du téléphone, name: ouvrirMenu, widget: string, hint: "Lu seulement par les lecteurs d’écran : le bouton n’affiche qu’une icône. Ex. : Ouvrir le menu" }
+              - { label: Chemin de navigation (fil d’Ariane), name: filAriane, widget: string, hint: "Lu seulement par les lecteurs d’écran : nom du chemin affiché au-dessus du titre des pages profondes. Ex. : Fil d’Ariane" }
+              - { label: Nom d’une photo sans description, name: photoNumero, widget: string, hint: "Lu seulement par les lecteurs d’écran sur le bouton cœur d’une photo dont la description est vide. {n} est remplacé par le numéro de la photo (1, 2, 3…) : gardez-le. Ex. : photo {n}" }
+          - label: Menu et pied de page
+            name: menu
+            widget: object
+            hint: "Les mots du menu en haut, du menu du téléphone et du bas de chaque page. Les adresses des pages ne changent pas."
+            fields:
+              - label: Séances
+                name: seances
+                widget: object
+                fields:
+                  - { label: Nom dans le menu du haut, name: libelle, widget: string, hint: "Ex. : Séances équestres" }
+                  - { label: Nom dans le menu du téléphone, name: court, widget: string, hint: "Plus court. Ex. : Séances" }
+              - label: Concours
+                name: concours
+                widget: object
+                fields:
+                  - { label: Nom dans le menu du haut, name: libelle, widget: string, hint: "Ex. : Concours" }
+                  - { label: Nom dans le menu du téléphone, name: court, widget: string, hint: "Plus court. Ex. : Concours" }
+              - label: Marques
+                name: marques
+                widget: object
+                fields:
+                  - { label: Nom dans le menu du haut, name: libelle, widget: string, hint: "Aussi utilisé dans le fil d’Ariane de l’étude de cas. Ex. : Marques & réseaux" }
+                  - { label: Nom dans le menu du téléphone, name: court, widget: string, hint: "Plus court. Ex. : Marques" }
+              - label: Académie
+                name: academie
+                widget: object
+                fields:
+                  - { label: Nom dans le menu du haut, name: libelle, widget: string, hint: "Aussi utilisé dans le fil d’Ariane de la leçon. Ex. : Académie" }
+                  - { label: Nom dans le menu du téléphone, name: court, widget: string, hint: "Plus court. Ex. : Académie" }
+              - label: Journal
+                name: journal
+                widget: object
+                fields:
+                  - { label: Nom dans le menu du haut, name: libelle, widget: string, hint: "Aussi utilisé dans le fil d’Ariane de l’article. Ex. : Journal" }
+                  - { label: Nom dans le menu du téléphone, name: court, widget: string, hint: "Plus court. Ex. : Journal" }
+              - { label: Lien vers la galerie client (en haut), name: galerie, widget: string, hint: "Ex. : Ma galerie" }
+              - { label: Lien vers la galerie client (menu du téléphone), name: galerieMenu, widget: string, hint: "Ex. : Accéder à ma galerie" }
+              - { label: Bouton court de réservation, name: reserverCourt, widget: string, hint: "En haut à droite et dans le pied de page. Ex. : Réserver" }
+              - { label: Premier maillon du fil d’Ariane, name: accueil, widget: string, hint: "Au-dessus du titre des pages profondes. Ex. : Accueil" }
+              - { label: Pied de page · Tarifs, name: piedTarifs, widget: string, hint: "Ex. : Tarifs" }
+              - { label: Pied de page · Questions, name: piedQuestions, widget: string, hint: "Ex. : Questions fréquentes" }
+              - { label: Pied de page · Contact, name: piedContact, widget: string, hint: "Ex. : Contact" }
+              - { label: Pied de page · Instagram, name: piedInstagram, widget: string, hint: "Ex. : Instagram" }
+              - { label: Phrase du bas de page, name: piedMention, widget: string, hint: "L’année et le © s’ajoutent tout seuls devant. Ex. : Ilona Photographe · photographe équestre près de Toulouse" }
 
   - name: contenu
     label: Agenda, avis et questions
@@ -126,8 +212,8 @@ collections:
             add_to_top: true
             summary: "{{fields.date | date('DD/MM/YYYY')}} · {{fields.nom}}"
             fields:
-              - { label: Date, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "DD/MM/YYYY", time_format: false, picker_utc: true }
-              - { label: Nom du concours, name: nom, widget: string }
+              - { label: Date, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "DD/MM/YYYY", time_format: false, picker_utc: true, hint: "Jour du concours. Il disparaît de la page une fois passé. Ex. : 14/06/2026" }
+              - { label: Nom du concours, name: nom, widget: string, hint: "Nom du concours, tel qu’il s’affiche dans l’agenda. Ex. : Concours de saut d’obstacles" }
               - { label: Lieu, name: lieu, widget: string, required: false, hint: "Ex. : Écuries d’En Ségur, Muret" }
               - { label: Discipline, name: discipline, widget: string, required: false, hint: "Ex. : CSO, dressage, complet" }
 
@@ -143,8 +229,8 @@ collections:
             summary: "{{fields.auteur}}"
             fields:
               - { label: Texte, name: texte, widget: text, hint: "Sans guillemets, ils sont ajoutés automatiquement." }
-              - { label: Prénom du client, name: auteur, widget: string }
-              - { label: Nom du cheval, name: cheval, widget: string, required: false }
+              - { label: Prénom du client, name: auteur, widget: string, hint: "Prénom seulement, avec l’accord du client. Ex. : Juliette" }
+              - { label: Nom du cheval, name: cheval, widget: string, required: false, hint: "Affiché après le prénom. Ex. : Bingo" }
               - { label: Séance, name: seance, widget: string, required: false, hint: "Ex. : Séance Complicité" }
 
       - name: faq
@@ -157,15 +243,15 @@ collections:
             widget: list
             summary: "{{fields.question}}"
             fields:
-              - { label: Question, name: question, widget: string }
-              - { label: Réponse, name: reponse, widget: text }
+              - { label: Question, name: question, widget: string, hint: "La question, telle que la pose un visiteur. Ex. : Comment réserver ?" }
+              - { label: Réponse, name: reponse, widget: text, hint: "Réponse claire en une ou deux phrases : Google et les assistants IA la reprennent. {taux} est remplacé par le taux de remise En Ségur saisi dans « Formules et tarifs » : ne le remplacez pas par un chiffre. Ex. : En quatre étapes sur la page Réservation : prestation, lieu…" }
 
       - name: galoplan
         label: Résultats GaloPlan
         file: src/contenu/galoplan.json
         description: La section « Résultats » de l’étude de cas s’affiche dès qu’une citation ou un chiffre est rempli.
         fields:
-          - { label: Citation du client, name: citation, widget: text, required: false }
+          - { label: Citation du client, name: citation, widget: text, required: false, hint: "Phrase du client, sans guillemets (ils s’ajoutent seuls). Vide = citation masquée." }
           - { label: Auteur de la citation, name: auteur, widget: string, required: false, hint: "Ex. : Fondateur de GaloPlan" }
           - label: Chiffres clés
             name: resultats
@@ -186,34 +272,42 @@ collections:
         label: "Page Accueil"
         file: src/contenu/pages/index.json
         fields:
+          - label: Référencement Google
+            name: referencement
+            widget: object
+            fields:
+              - { label: "Titre de la page (onglet du navigateur et Google)", name: titre, widget: string, hint: "Environ 60 caractères. Sur l’accueil, rien ne s’ajoute derrière. Ex. : Ilona Photographe · photographe équestre à Toulouse" }
+              - { label: "Description pour Google", name: description, widget: text, hint: "Environ 150 caractères, affichée sous le titre dans les résultats de recherche. Ex. : Photographe et vidéaste équestre près de Toulouse : séances avec votre cheval, photos de concours." }
           - label: En-tête
             name: entete
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne en capitales, au-dessus du titre. Ex. : Photographe & vidéaste équestre · près de Toulouse" }
+              - { label: "Titre caché (lu par Google et les lecteurs d’écran)", name: titreCache, widget: string, hint: "Le grand titre de l’accueil est une vidéo dans les lettres : ce texte la décrit sans s’afficher. Ex. : Surligner l’instant." }
+              - { label: "Nom de la liste des repères (lecteurs d’écran)", name: reperesLibelle, widget: string, hint: "Lu à voix haute avant les repères, jamais affiché. Ex. : En bref" }
               - label: Vidéo du grand titre « Surligner l’instant »
                 name: videoTitre
                 widget: object
                 hint: "La vidéo qui apparaît à l’intérieur des lettres du grand titre."
                 fields:
-                  - { label: Vidéo (ordinateur), name: fichier, widget: file, media_folder: /public/videos, public_folder: /videos }
+                  - { label: Vidéo (ordinateur), name: fichier, widget: file, media_folder: /public/videos, public_folder: /videos, hint: "Fichier MP4, moins de 25 Mo. Ex. : titre-video.mp4" }
                   - { label: Vidéo (téléphone), name: fichierMobile, widget: file, media_folder: /public/videos, public_folder: /videos, hint: "Version plus légère, affichée sur téléphone." }
                   - { label: Image d’attente, name: affiche, widget: image, required: false, media_folder: /public/videos, public_folder: /videos, hint: "Image affichée le temps que la vidéo se charge." }
-              - { label: Introduction, name: chapo, widget: text }
+              - { label: Introduction, name: chapo, widget: text, hint: "Introduction, sous le titre. Ex. : Je photographie et filme les chevaux et leurs cavaliers, du…" }
               - label: Repères (sous l’introduction)
                 name: reperes
                 widget: list
                 summary: "{{fields.fort}} {{fields.texte}}"
-                hint: "{prix-seance} = le prix de la séance la moins chère, mis à jour tout seul."
+                hint: "{prix-seance} = le prix de la séance la moins chère, {taux} = le pourcentage de la remise En Ségur : ils se mettent à jour tout seuls."
                 fields:
-                  - { label: Mot en gras, name: fort, widget: string, hint: "{prix-seance} = le prix de la séance la moins chère, mis à jour tout seul." }
-                  - { label: Suite, name: texte, widget: string }
+                  - { label: Mot en gras, name: fort, widget: string, hint: "{prix-seance} = le prix de la séance la moins chère, {taux} = la remise En Ségur. Ne les retirez pas. Ex. : Dès {prix-seance}" }
+                  - { label: Suite, name: texte, widget: string, hint: "Suite du repère, après le mot en gras. Ex. : la séance" }
           - label: Grande photo
             name: grandePhoto
             widget: object
             fields:
               - { label: Photo, name: photo, widget: object, fields: *champs-photo }
-              - { label: Légende, name: legende, widget: string }
+              - { label: Légende, name: legende, widget: string, hint: "Légende posée sur la grande photo. Ex. : Séance au coucher du soleil · Haute-Garonne" }
           - label: Vous êtes…
             name: portes
             widget: object
@@ -224,19 +318,20 @@ collections:
                 widget: list
                 summary: "{{fields.titre}}"
                 fields:
-                  - { label: Titre, name: titre, widget: string }
+                  - { label: Titre, name: titre, widget: string, hint: "Titre de la carte : il décrit le visiteur. Ex. : Cavalier ou propriétaire" }
                   - { label: Texte, name: texte, widget: text, hint: "{prix-seance} et {prix-concours} = le prix le plus bas, mis à jour tout seul." }
-                  - { label: Texte du lien, name: fleche, widget: string }
+                  - { label: Texte du lien, name: fleche, widget: string, hint: "Texte du lien en bas de la carte. Ex. : Trouver ma séance →" }
                   - { label: Lien (adresse de la page), name: lien, widget: string, hint: "Par exemple /concours" }
                   - { label: Photo, name: photo, widget: object, fields: *champs-photo }
           - label: Bonjour, moi c’est Ilona
             name: moi
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne en capitales, au-dessus du titre. Ex. : Bonjour, moi c’est Ilona" }
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Texte, name: texte, widget: text }
-              - { label: Liste, name: liste, widget: list, field: { label: Ligne, name: ligne, widget: string } }
+              - { label: Texte, name: texte, widget: text, hint: "Texte de cette section. Ex. : Photographe et vidéaste spécialisée dans l’univers équestre…" }
+              - { label: Liste, name: liste, widget: list, hint: "Une ligne par élément, sous le texte. Ex. : Photo animalière & portrait", field: { label: Ligne, name: ligne, widget: string } }
+              - { label: Texte du bouton, name: bouton, widget: string, hint: "Mène à la page Séances. Ex. : Mon approche" }
               - { label: Photo, name: photo, widget: object, fields: *champs-photo }
           - label: Trois façons de garder l’instant
             name: offres
@@ -244,37 +339,39 @@ collections:
             hint: "Les prix des séances et des concours viennent de la page Tarifs."
             fields:
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Mention, name: mention, widget: string }
-              - { label: Titre de la carte Séances, name: seances, widget: string }
-              - { label: Titre de la carte Concours, name: concours, widget: string }
+              - { label: Mention, name: mention, widget: string, hint: "Petite ligne à côté du titre de la section. Ex. : Séances · Concours · Marques" }
+              - { label: Titre de la carte Séances, name: seances, widget: string, hint: "Titre de la carte Séances. Ex. : Séances équestres" }
+              - { label: Titre de la carte Concours, name: concours, widget: string, hint: "Titre de la carte Concours. Ex. : Concours" }
+              - { label: Bouton de la carte Concours, name: boutonAgenda, widget: string, hint: "Mène à la page Concours. Ex. : Voir l’agenda" }
               - label: Carte Marques
                 name: marques
                 widget: object
                 fields:
-                  - { label: Titre, name: titre, widget: string }
-                  - { label: Prix affiché, name: prix, widget: string }
-                  - { label: Liste, name: liste, widget: list, field: { label: Ligne, name: ligne, widget: string } }
+                  - { label: Titre, name: titre, widget: string, hint: "Titre de la carte Marques. Ex. : Marques & réseaux" }
+                  - { label: Prix affiché, name: prix, widget: string, hint: "Ce qui s’affiche à la place d’un prix. Ex. : Sur devis" }
+                  - { label: Liste, name: liste, widget: list, hint: "Une ligne par élément, dans la carte. Ex. : Contenu photo & vidéo", field: { label: Ligne, name: ligne, widget: string } }
           - label: Bandeau quiz
             name: quiz
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne en capitales, au-dessus du titre. Ex. : Vous hésitez entre deux formules ?" }
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Texte, name: texte, widget: text }
+              - { label: Texte, name: texte, widget: text, hint: "Texte de cette section. Ex. : Trois questions sur vous et votre cheval : je vous conseille…" }
+              - { label: Texte du bouton, name: bouton, widget: string, hint: "Mène au quiz. Ex. : Commencer le quiz →" }
           - label: Univers
             name: univers
             widget: object
             fields:
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Texte, name: texte, widget: text }
+              - { label: Texte, name: texte, widget: text, hint: "Texte de cette section. Ex. : Du pré à la vitrine : les chevaux, les concours, les…" }
               - label: Univers
                 name: liste
                 widget: list
                 summary: "{{fields.titre}}"
                 hint: "La vidéo se place après le 4e univers."
                 fields:
-                  - { label: Titre, name: titre, widget: string }
-                  - { label: Étiquette, name: etiquette, widget: string }
+                  - { label: Titre, name: titre, widget: string, hint: "Nom de l’univers, sur la photo. Ex. : Cheval" }
+                  - { label: Étiquette, name: etiquette, widget: string, hint: "Pastille à côté du nom de l’univers. Ex. : Séances" }
                   - label: Couleur de l’étiquette
                     name: couleur
                     widget: select
@@ -290,8 +387,8 @@ collections:
                 name: video
                 widget: object
                 fields:
-                  - { label: Titre, name: titre, widget: string }
-                  - { label: Étiquette, name: etiquette, widget: string }
+                  - { label: Titre, name: titre, widget: string, hint: "Nom de la vidéo. Ex. : Vidéo" }
+                  - { label: Étiquette, name: etiquette, widget: string, hint: "Pastille à côté du nom de la vidéo. Ex. : Réel" }
                   - label: Vidéo
                     name: video
                     widget: object
@@ -303,10 +400,14 @@ collections:
             name: favoris
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne en capitales, au-dessus du titre. Ex. : Votre galerie privée" }
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Texte, name: texte, widget: text }
-              - { label: Photos, name: photos, widget: list, summary: "{{fields.alt}}", fields: *champs-photo }
+              - { label: Texte, name: texte, widget: text, hint: "Texte de cette section. Ex. : Touchez le cœur des images qui vous parlent : vos coups de…" }
+              - { label: "Compteur : un seul coup de cœur", name: compteUn, widget: string, hint: "Affiché à côté du chiffre quand il y en a 0 ou 1. Ex. : coup de cœur" }
+              - { label: "Compteur : plusieurs coups de cœur", name: comptePlusieurs, widget: string, hint: "Affiché à côté du chiffre quand il y en a 2 ou plus. Ex. : coups de cœur" }
+              - { label: Bouton de réservation, name: boutonReserver, widget: string, hint: "Mène à la réservation avec les photos choisies. Ex. : Réserver avec mes coups de cœur" }
+              - { label: Bouton vers la galerie client, name: boutonGalerie, widget: string, hint: "Ex. : Voir une galerie client" }
+              - { label: Photos, name: photos, widget: list, summary: "{{fields.alt}}", fields: *champs-photo, hint: "Les photos proposées au visiteur pour ses coups de cœur." }
           - label: Témoignages
             name: avis
             widget: object
@@ -317,24 +418,24 @@ collections:
             name: segur
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
-              - { label: Titre, name: titre, widget: string }
-              - { label: Texte, name: texte, widget: text }
-              - { label: Remise, name: remise, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne au-dessus du nom de l’écurie. Ex. : Pour les cavaliers des" }
+              - { label: Titre, name: titre, widget: string, hint: "Nom de l’écurie. Ex. : Écuries d’En Ségur" }
+              - { label: Texte, name: texte, widget: text, hint: "Comment la remise s’obtient. Ex. : Remise appliquée à la réservation, sur simple mention de…" }
+              - { label: Remise, name: remise, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose. {taux} = le pourcentage saisi dans « Formules et tarifs » : ne le retirez pas. Ex. : *-{taux} % sur toutes*" }
           - label: Apprendre avec Ilona
             name: apprendre
             widget: object
             fields:
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Mention, name: mention, widget: string }
+              - { label: Mention, name: mention, widget: string, hint: "Petite ligne à côté du titre de la section. Ex. : Académie · Journal" }
               - label: Articles
                 name: articles
                 widget: list
                 summary: "{{fields.titre}}"
                 fields:
-                  - { label: Étiquette, name: etiquette, widget: string }
-                  - { label: Titre, name: titre, widget: string }
-                  - { label: Texte, name: texte, widget: text }
+                  - { label: Étiquette, name: etiquette, widget: string, hint: "Pastille au-dessus du titre de l’article. Ex. : Leçon de l’Académie" }
+                  - { label: Titre, name: titre, widget: string, hint: "Titre de l’article ou de la leçon. Ex. : Lire la lumière du soir" }
+                  - { label: Texte, name: texte, widget: text, hint: "Résumé en une ou deux phrases. Ex. : Où placer votre cheval quand le soleil descend, et pourquoi…" }
                   - { label: Lien (adresse de la page), name: lien, widget: string, hint: "Par exemple /journal/preparer-son-cheval" }
                   - { label: Photo, name: photo, widget: object, fields: *champs-photo }
           - label: Fin de page
@@ -342,41 +443,55 @@ collections:
             widget: object
             fields:
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Mention, name: mention, widget: string }
+              - { label: Mention, name: mention, widget: string, hint: "Petite ligne à côté du titre de la section. Ex. : Basée près de Toulouse · frais de déplacement calculés à la…" }
           - label: Derniers posts Instagram
             name: instagram
             widget: object
             hint: "Les posts se mettent à jour tout seuls. L’adresse du flux se règle dans « Coordonnées »."
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne à côté de la pastille Instagram. Ex. : Mes derniers posts" }
               - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
-              - { label: Texte, name: texte, widget: text, required: false }
+              - { label: Texte, name: texte, widget: text, required: false, hint: "Texte de cette section. Ex. : Les dernières séances, tout juste sorties du pré." }
               - { label: Nombre de posts, name: nombre, widget: number, value_type: int, min: 3, max: 12, default: 6, hint: "6 conseillé : une rangée sur ordinateur, deux sur téléphone." }
+              - { label: Pastille devant le petit titre, name: etiquette, widget: string, hint: "Ex. : Instagram" }
+              - { label: Bouton vers votre compte, name: suivre, widget: string, hint: "{compte} = votre @pseudo, saisi dans « Coordonnées » : ne le retirez pas. Ex. : Suivre {compte}" }
+              - { label: Phrase si les posts ne se chargent pas, name: secours, widget: string, hint: "{instagram} devient un lien vers votre compte : ne le retirez pas. Ex. : Retrouvez mes dernières séances sur {instagram}." }
+              - { label: "Description de chaque post (lecteurs d’écran)", name: voirPublication, widget: string, hint: "Lue seulement par les lecteurs d’écran, jamais affichée. Ex. : Voir la publication sur Instagram" }
 
       - name: page-seances
         label: "Page Séances"
         file: src/contenu/pages/seances.json
         fields:
+          - label: Référencement Google
+            name: referencement
+            widget: object
+            fields:
+              - &champ-titre-page { label: "Titre de la page (onglet du navigateur et Google)", name: titre, widget: string, hint: "Environ 60 caractères. « · Ilona Photographe » s’ajoute tout seul. Ex. : Séances photo équestres et tarifs" }
+              - { label: "Description pour Google", name: description, widget: text, hint: "Environ 150 caractères, affichée sous le titre dans les résultats de recherche. {prix-seance} = le prix de la séance la moins chère, mis à jour tout seul : ne le retirez pas. Ex. : Séances photo équestres près de Toulouse, dès {prix-seance}. Calculez votre prix, déplacement compris." }
           - label: En-tête
             name: entete
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne en capitales, au-dessus du titre. Ex. : Séances & tarifs · près de Toulouse" }
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Introduction, name: chapo, widget: text }
+              - { label: Introduction, name: chapo, widget: text, hint: "Introduction, sous le titre. Ex. : Quatre formules, du portrait sportif à la collection…" }
           - { label: Photo du bandeau, name: bandeau, widget: object, fields: *champs-photo }
           - label: Formules
             name: formules
             widget: object
             fields:
               - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
-              - { label: Mention, name: mention, widget: string }
+              - { label: Mention, name: mention, widget: string, hint: "Petite ligne à côté du titre de la section. Ex. : Prix TTC · déplacement en sus" }
+              - { label: Phrase avant le lien du quiz, name: quizTexte, widget: string, hint: "Ex. : Vous hésitez entre deux formules ?" }
+              - { label: Lien vers le quiz, name: quizLien, widget: string, hint: "Ex. : Trouvez la vôtre en 30 secondes →" }
+              - { label: Bouton de chaque formule, name: choisir, widget: string, hint: "{nom} = le premier mot du nom de la formule : ne le retirez pas. Ex. : Choisir {nom}" }
           - label: Vidéo
             name: video
             widget: object
             fields:
               - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
-              - { label: Texte, name: texte, widget: text }
+              - { label: Texte, name: texte, widget: text, hint: "Texte de cette section. Ex. : Platinium d’en Fer, à la tombée du jour. Ajoutez la vidéo à…" }
+              - { label: Texte du bouton, name: bouton, widget: string, hint: "Mène à la réservation. Ex. : Ajouter la vidéo" }
               - label: Vidéo
                 name: video
                 widget: object
@@ -385,24 +500,41 @@ collections:
             name: deroule
             widget: object
             fields:
-              - { label: Titre, name: titre, widget: string }
+              - { label: Titre, name: titre, widget: string, hint: "Titre de ce bloc. *mot* = surligné en rose. Ex. : Comment ça se *passe*" }
               - label: Étapes
                 name: etapes
                 widget: list
                 summary: "{{fields.titre}}"
                 fields:
-                  - { label: Titre, name: titre, widget: string }
-                  - { label: Texte, name: texte, widget: text }
+                  - { label: Titre, name: titre, widget: string, hint: "Nom de l’étape. Ex. : Vous réservez" }
+                  - { label: Texte, name: texte, widget: text, hint: "Ce qui se passe à cette étape. Ex. : Formule, lieu et moment souhaité en quatre étapes. Je…" }
           - label: Calculateur
             name: calcul
             widget: object
             fields:
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+              - { label: "Étape 1 : titre", name: formuleTitre, widget: string, hint: "Ex. : 1 · La formule" }
+              - { label: "Étape 2 : titre", name: communeTitre, widget: string, hint: "Ex. : 2 · Votre commune" }
+              - { label: Exemple grisé dans le champ commune, name: communeExemple, widget: string, hint: "Texte gris qui disparaît dès que l’on écrit. Ex. : Muret" }
+              - { label: Aide sous le champ commune, name: communeAide, widget: string, hint: "Ex. : Tapez votre commune : je calcule la distance par la route. Ou réglez-la à la main." }
+              - { label: Titre de la distance, name: distance, widget: string, hint: "{ville} = votre commune de départ, saisie dans « Coordonnées » : ne le retirez pas. Ex. : Distance depuis {ville} :" }
+              - { label: Case des Écuries d’En Ségur, name: segur, widget: string, hint: "{taux} = le pourcentage saisi dans « Formules et tarifs » : ne le retirez pas. Ex. : Je suis cavalier ou cavalière aux Écuries d’En Ségur (-{taux} %)" }
+              - { label: Titre de l’estimation, name: estimation, widget: string, hint: "Ex. : Estimation" }
+              - { label: Ligne de la séance, name: ligneSeance, widget: string, hint: "{nom} = la formule choisie : ne le retirez pas. Ex. : Séance {nom}" }
+              - { label: Ligne du déplacement, name: ligneDeplacement, widget: string, hint: "Ex. : Déplacement" }
+              - { label: Ligne de la remise, name: ligneRemise, widget: string, hint: "Visible seulement quand la case En Ségur est cochée. Ex. : Remise En Ségur" }
+              - { label: Titre du total, name: total, widget: string, hint: "Ex. : Total estimé" }
+              - { label: Bouton de réservation, name: reserver, widget: string, hint: "Ex. : Réserver cette séance" }
+              - { label: "Message : distance réglée à la main", name: distanceManuelle, widget: string, hint: "Ex. : Distance réglée à la main." }
+              - { label: "Message : commune introuvable", name: communeIntrouvable, widget: string, hint: "Ex. : Commune introuvable : réglez la distance à la main." }
+              - { label: "Message : distance impossible à calculer", name: distanceNonCalculee, widget: string, hint: "{commune} = la commune trouvée : ne le retirez pas. Ex. : {commune} : distance non calculée, Ilona la calculera." }
+              - { label: "Message : distance calculée", name: distanceCalculee, widget: string, hint: "{commune} et {km} sont remplacés par la page : ne les retirez pas. Ex. : {commune} : {km} km par la route." }
           - label: Questions fréquentes
             name: faq
             widget: object
             fields:
               - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose. Les questions se modifient dans « Agenda, avis et questions »." }
+              - { label: Phrase sous les questions, name: autreQuestion, widget: string, hint: "{telephone} et {email} deviennent des liens, avec les valeurs de « Coordonnées » : ne les retirez pas. Ex. : Une autre question ? Appelez Ilona au {telephone} ou écrivez à {email}." }
           - label: Fin de page
             name: fin
             widget: object
@@ -413,13 +545,19 @@ collections:
         label: "Page Concours"
         file: src/contenu/pages/concours.json
         fields:
+          - label: Référencement Google
+            name: referencement
+            widget: object
+            fields:
+              - *champ-titre-page
+              - { label: "Description pour Google", name: description, widget: text, hint: "Environ 150 caractères, affichée sous le titre dans les résultats de recherche. {liste-concours} = la liste des formats et de leurs prix, mise à jour toute seule : ne le retirez pas. Ex. : Photographe de concours équestre près de Toulouse : {liste-concours}. Réservez avant l’épreuve." }
           - label: En-tête
             name: entete
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne en capitales, au-dessus du titre. Ex. : Photo & vidéo de concours" }
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Introduction, name: chapo, widget: text }
+              - { label: Introduction, name: chapo, widget: text, hint: "Introduction, sous le titre. Ex. : Vous vous concentrez sur votre parcours, je m’occupe de le…" }
               - { label: Photo, name: photo, widget: object, fields: *champs-photo }
           - label: Formats
             name: formats
@@ -427,13 +565,15 @@ collections:
             hint: "Les formats et leurs prix se modifient dans la page Tarifs."
             fields:
               - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - { label: Bouton de chaque format, name: choisir, widget: string, hint: "{nom} = le nom du format : ne le retirez pas. Ex. : Choisir {nom}" }
           - label: Réel souvenir
             name: reel
             widget: object
             fields:
-              - { label: Étiquette, name: etiquette, widget: string }
+              - { label: Étiquette, name: etiquette, widget: string, hint: "Pastille dorée au-dessus du titre. Ex. : Réel souvenir" }
+              - { label: Texte du bouton, name: bouton, widget: string, hint: "Le prix s’ajoute tout seul derrière. Ex. : Réserver mon réel" }
               - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
-              - { label: Texte, name: texte, widget: text }
+              - { label: Texte, name: texte, widget: text, hint: "Texte de cette section. Ex. : Juliette et Bingo, du paddock au tour d’honneur. Un montage…" }
               - { label: Vidéo, name: video, widget: object, fields: *champs-video }
           - label: Agenda
             name: agenda
@@ -441,52 +581,64 @@ collections:
             hint: "Les dates de concours se modifient dans « Agenda »."
             fields:
               - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
-              - { label: Texte, name: texte, widget: text }
-              - { label: Message quand aucune date n’est prévue, name: vide, widget: text }
+              - { label: Texte, name: texte, widget: text, hint: "Texte de cette section. Ex. : Une épreuve en vue ? Écrivez-moi, on regarde ensemble." }
+              - { label: Bouton de chaque date, name: bouton, widget: string, hint: "Ex. : Réserver ma photo" }
+              - { label: Message quand aucune date n’est prévue, name: vide, widget: text, hint: "Affiché quand aucune date n’est prévue dans l’agenda. Ex. : Les prochaines dates sont annoncées sur Instagram. Dites-moi…" }
+              - { label: Petit titre de ce message, name: videTitre, widget: string, hint: "Ex. : Agenda" }
+              - { label: Bouton pour vous écrire, name: ecrire, widget: string, hint: "Ouvre la messagerie. Ex. : Écrire à Ilona" }
+              - { label: Objet de cet e-mail, name: objetMail, widget: string, hint: "Ce que le visiteur voit comme objet dans sa messagerie. Ex. : Photo de concours" }
+              - { label: Bouton vers Instagram, name: instagram, widget: string, hint: "Ex. : Voir Instagram" }
           - label: Fin de page
             name: fin
             widget: object
             fields:
               - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
+              - { label: Texte du bouton, name: bouton, widget: string, hint: "Mène à la réservation. Ex. : Réserver mon concours" }
 
       - name: page-marques
         label: "Page Marques & réseaux"
         file: src/contenu/pages/marques.json
         fields:
+          - label: Référencement Google
+            name: referencement
+            widget: object
+            fields:
+              - *champ-titre-page
+              - { label: "Description pour Google", name: description, widget: text, hint: "Environ 150 caractères, affichée sous le titre dans les résultats de recherche. Ex. : Photo, vidéo et community management pour les marques équestres : selleries, écuries, éleveurs. Sur devis." }
           - label: En-tête
             name: entete
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne en capitales, au-dessus du titre. Ex. : Contenu de marque · réseaux sociaux" }
               - { label: Titre, name: titre, widget: text, hint: "Deux lignes : la seconde est décalée vers la droite. Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Introduction, name: chapo, widget: text }
+              - { label: Introduction, name: chapo, widget: text, hint: "Introduction, sous le titre. Ex. : Selleries, écuries, éleveurs, créateurs d’équipement : je…" }
           - label: Formats pour les réseaux
             name: formats
             widget: object
             fields:
               - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
-              - { label: Texte, name: texte, widget: text }
+              - { label: Texte, name: texte, widget: text, hint: "Texte de cette section. Ex. : Chaque tournage livre des formats prêts à publier …" }
               - label: Écran 1 (réel vidéo)
                 name: reel
                 widget: object
                 fields:
                   - { label: Vidéo, name: video, widget: object, fields: *champs-video }
-                  - { label: Étiquette, name: etiquette, widget: string }
-                  - { label: Légende, name: legende, widget: string }
+                  - { label: Étiquette, name: etiquette, widget: string, hint: "Petite pastille posée sur la carte ou l’image. Ex. : Réel" }
+                  - { label: Légende, name: legende, widget: string, hint: "Légende affichée sous l’image. Ex. : Chocolatier" }
               - label: Écran 2 (carrousel)
                 name: carrousel
                 widget: object
                 fields:
                   - { label: Photo, name: photo, widget: object, fields: *champs-photo }
-                  - { label: Étiquette, name: etiquette, widget: string }
-                  - { label: Légende, name: legende, widget: string }
+                  - { label: Étiquette, name: etiquette, widget: string, hint: "Petite pastille posée sur la carte ou l’image. Ex. : Carrousel" }
+                  - { label: Légende, name: legende, widget: string, hint: "Légende affichée sous l’image. Ex. : Série photo" }
               - label: Écran 3 (story)
                 name: story
                 widget: object
                 fields:
                   - { label: Photo, name: photo, widget: object, fields: *champs-photo }
-                  - { label: Étiquette, name: etiquette, widget: string }
-                  - { label: Légende, name: legende, widget: string }
+                  - { label: Étiquette, name: etiquette, widget: string, hint: "Petite pastille posée sur la carte ou l’image. Ex. : Story" }
+                  - { label: Légende, name: legende, widget: string, hint: "Légende affichée sous l’image. Ex. : Coulisses" }
           - label: Ce que je fais
             name: services
             widget: object
@@ -497,10 +649,10 @@ collections:
                 widget: list
                 summary: "{{fields.titre}}"
                 fields:
-                  - { label: Étiquette, name: etiquette, widget: string }
+                  - { label: Étiquette, name: etiquette, widget: string, hint: "Pastille de la carte (Photo, Vidéo, Réseaux…). Ex. : Photo" }
                   - { label: Couleur de l’étiquette, name: couleur, widget: select, required: false, default: "", options: [{ label: Blanche, value: "" }, { label: Dorée, value: "or" }, { label: Pervenche, value: "pervenche" }] }
-                  - { label: Titre, name: titre, widget: string }
-                  - { label: Points, name: points, widget: list, field: { label: Point, name: point, widget: string } }
+                  - { label: Titre, name: titre, widget: string, hint: "Nom du service. Ex. : Shooting produit & lifestyle" }
+                  - { label: Points, name: points, widget: list, hint: "Une ligne par point de la carte. Ex. : Réels et formats courts", field: { label: Point, name: point, widget: string } }
           - label: Produits & événements
             name: produits
             widget: object
@@ -512,17 +664,18 @@ collections:
                 summary: "{{fields.legende}}"
                 fields:
                   - { label: Photo, name: photo, widget: object, fields: *champs-photo }
-                  - { label: Étiquette, name: etiquette, widget: string }
+                  - { label: Étiquette, name: etiquette, widget: string, hint: "Petite pastille posée sur la carte ou l’image. Ex. : Packshot" }
                   - { label: Couleur de l’étiquette, name: couleur, widget: select, required: false, default: "", options: [{ label: Blanche, value: "" }, { label: Dorée, value: "or" }, { label: Pervenche, value: "pervenche" }] }
-                  - { label: Légende, name: legende, widget: string }
+                  - { label: Légende, name: legende, widget: string, hint: "Ce que montre la photo. Ex. : Maroquinerie" }
           - label: Étude de cas
             name: cas
             widget: object
             fields:
               - { label: Photo, name: photo, widget: object, fields: *champs-photo }
-              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne en capitales, au-dessus du titre. Ex. : Étude de cas" }
               - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
-              - { label: Texte, name: texte, widget: text }
+              - { label: Texte, name: texte, widget: text, hint: "Texte de cette section. Ex. : Deux réels verticaux pour l’app du cheval partagé : un film…" }
+              - { label: Texte du bouton, name: bouton, widget: string, hint: "Mène à l’étude de cas GaloPlan. Ex. : Lire l’étude de cas" }
           - label: Les étapes
             name: temps
             widget: object
@@ -533,29 +686,72 @@ collections:
                 widget: list
                 summary: "{{fields.titre}}"
                 fields:
-                  - { label: Titre, name: titre, widget: string }
-                  - { label: Texte, name: texte, widget: text }
+                  - { label: Titre, name: titre, widget: string, hint: "Nom de l’étape. Ex. : Le brief" }
+                  - { label: Texte, name: texte, widget: text, hint: "Ce qui se passe à cette étape. Ex. : Votre cible, vos produits, le ton juste." }
           - label: Contact
             name: contact
             widget: object
             fields:
               - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
               - { label: Texte, name: texte, widget: text, hint: "L’e-mail et le téléphone s’affichent tout seuls en dessous." }
+          - label: Formulaire de contact
+            name: formulaire
+            widget: object
+            hint: "Les mots du formulaire que voit le visiteur."
+            fields:
+              - { label: Champ nom, name: nom, widget: string, hint: "Ex. : Votre nom" }
+              - { label: Champ marque, name: marque, widget: string, hint: "Ex. : Votre marque" }
+              - { label: Champ e-mail, name: email, widget: string, hint: "Ex. : E-mail" }
+              - { label: Titre des cases à cocher, name: besoin, widget: string, hint: "Ex. : Ce dont vous avez besoin" }
+              - { label: Case photo, name: photo, widget: string, hint: "Ex. : Photo" }
+              - { label: Case vidéo, name: video, widget: string, hint: "Ex. : Vidéo" }
+              - { label: Case réseaux sociaux, name: reseaux, widget: string, hint: "Ex. : Réseaux sociaux" }
+              - { label: Champ message, name: projet, widget: string, hint: "Ex. : Votre projet en quelques mots" }
+              - { label: Bouton d’envoi, name: envoyer, widget: string, hint: "Ex. : Envoyer ma demande" }
+              - { label: Texte du bouton pendant l’envoi, name: envoiEnCours, widget: string, hint: "Ex. : Envoi en cours…" }
+              - { label: Message quand la demande est bien partie, name: merci, widget: text, hint: "Ex. : Merci, votre demande est bien arrivée. Ilona revient vers vous très vite par e-mail." }
+              - { label: Message quand la messagerie s’ouvre à la place, name: messagerie, widget: text, hint: "Si l’envoi automatique échoue, la messagerie du visiteur s’ouvre avec la demande rédigée. Ex. : Votre messagerie s’est ouverte avec la demande rédigée : il ne reste qu’à l’envoyer." }
+              - { label: "Titre de l’aide « rien ne s’est ouvert »", name: secoursAideTitre, widget: string, hint: "Apparaît si l’envoi automatique échoue. Ex. : Rien ne s’est ouvert ?" }
+              - { label: "Aide « rien ne s’est ouvert »", name: secoursAide, widget: text, hint: "{email}, {telephone} sont remplacés par la page : ne les retirez pas. Votre e-mail et votre téléphone viennent de « Coordonnées », avec un lien cliquable. Ex. : Copiez votre demande et collez-la dans un e-mail à {email}, ou appelez le {telephone}." }
+              - { label: "Titre de la zone de texte à copier", name: copieLibelle, widget: string, hint: "Ex. : Votre demande, à copier" }
+              - { label: "Bouton « copier »", name: copierBouton, widget: string, hint: "Ex. : Copier ma demande" }
+              - { label: "Message après la copie", name: copieOk, widget: string, hint: "Ex. : Demande copiée." }
+              - { label: "Message si la copie échoue", name: copieEchec, widget: string, hint: "Ex. : Copie impossible : sélectionnez le texte de la demande ci-dessus." }
+          - label: Texte de l’e-mail que vous recevez
+            name: courriel
+            widget: object
+            hint: "Chaque ligne du message reçu pour une demande de marque s’écrit « mot : réponse du visiteur ». Ici, vous choisissez le mot de chaque ligne."
+            fields:
+              - { label: Objet (si la messagerie s’ouvre), name: sujet, widget: string, hint: "Ex. : Projet de marque" }
+              - { label: Ligne nom, name: nom, widget: string, hint: "Ex. : Nom" }
+              - { label: Ligne marque, name: marque, widget: string, hint: "Ex. : Marque" }
+              - { label: Ligne e-mail, name: email, widget: string, hint: "Ex. : E-mail" }
+              - { label: Ligne besoin photo, name: photo, widget: string, hint: "Affichée si la case est cochée. Ex. : Besoin photo" }
+              - { label: Ligne besoin vidéo, name: video, widget: string, hint: "Affichée si la case est cochée. Ex. : Besoin vidéo" }
+              - { label: Ligne besoin réseaux sociaux, name: reseaux, widget: string, hint: "Affichée si la case est cochée. Ex. : Besoin réseaux sociaux" }
+              - { label: Ligne projet, name: projet, widget: string, hint: "Ex. : Projet" }
 
       - name: page-galoplan
         label: "Étude de cas GaloPlan (page)"
         file: src/contenu/pages/galoplan.json
         fields:
+          - label: Référencement Google
+            name: referencement
+            widget: object
+            fields:
+              - *champ-titre-page
+              - { label: "Nom court (chemin de navigation en haut de page)", name: nomCourt, widget: string, hint: "Affiché dans le fil d’Ariane au-dessus du titre. Ex. : Étude de cas GaloPlan" }
+              - { label: "Description pour Google", name: description, widget: text, hint: "Environ 150 caractères, affichée sous le titre dans les résultats de recherche. Ex. : Deux réels verticaux tournés à l’écurie pour GaloPlan, l’app du cheval partagé." }
           - label: En-tête
             name: entete
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne en capitales, au-dessus du titre. Ex. : Étude de cas · contenu vidéo" }
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Introduction, name: chapo, widget: text }
-              - { label: Client, name: client, widget: string }
-              - { label: Formats, name: formats, widget: string }
-              - { label: Durées, name: durees, widget: string }
+              - { label: Introduction, name: chapo, widget: text, hint: "Introduction, sous le titre. Ex. : Deux réels pour présenter l’app du cheval partagé là où elle…" }
+              - { label: Client, name: client, widget: string, hint: "Nom du client, dans le tableau sous l’introduction. Ex. : GaloPlan, application équestre" }
+              - { label: Formats, name: formats, widget: string, hint: "Formats livrés, dans le tableau sous l’introduction. Ex. : 2 réels verticaux, sous-titrés" }
+              - { label: Durées, name: durees, widget: string, hint: "Durées des vidéos, dans le tableau sous l’introduction. Ex. : 46 s et 52 s" }
           - label: Les deux réels
             name: reels
             widget: object
@@ -565,15 +761,15 @@ collections:
                 widget: object
                 fields:
                   - { label: Vidéo, name: video, widget: object, fields: *champs-video }
-                  - { label: Légende, name: legende, widget: string }
-                  - { label: Durée, name: duree, widget: string }
+                  - { label: Légende, name: legende, widget: string, hint: "Nom de la vidéo, sous le lecteur. Ex. : Film de lancement" }
+                  - { label: Durée, name: duree, widget: string, hint: "Durée de la vidéo. Ex. : 46 s" }
               - label: Vlog de séance
                 name: vlog
                 widget: object
                 fields:
                   - { label: Vidéo, name: video, widget: object, fields: *champs-video }
-                  - { label: Légende, name: legende, widget: string }
-                  - { label: Durée, name: duree, widget: string }
+                  - { label: Légende, name: legende, widget: string, hint: "Nom de la vidéo, sous le lecteur. Ex. : Vlog de séance" }
+                  - { label: Durée, name: duree, widget: string, hint: "Durée de la vidéo. Ex. : 52 s" }
           - label: Le récit
             name: recit
             widget: object
@@ -582,20 +778,20 @@ collections:
                 name: contexte
                 widget: object
                 fields:
-                  - { label: Titre, name: titre, widget: string }
-                  - { label: Texte, name: texte, widget: text }
+                  - { label: Titre, name: titre, widget: string, hint: "Titre de ce paragraphe du récit. Ex. : Le contexte" }
+                  - { label: Texte, name: texte, widget: text, hint: "Texte de cette section. Ex. : GaloPlan réunit tous ceux qui s’occupent d’un même cheval …" }
               - label: Le défi
                 name: defi
                 widget: object
                 fields:
-                  - { label: Titre, name: titre, widget: string }
-                  - { label: Texte, name: texte, widget: text }
+                  - { label: Titre, name: titre, widget: string, hint: "Titre de ce paragraphe du récit. Ex. : Le défi" }
+                  - { label: Texte, name: texte, widget: text, hint: "Texte de cette section. Ex. : Faire comprendre une application en moins d’une minute, sans…" }
               - label: Ce que j’ai fait
                 name: realisation
                 widget: object
                 fields:
-                  - { label: Titre, name: titre, widget: string }
-                  - { label: Points, name: points, widget: list, field: { label: Point, name: point, widget: string } }
+                  - { label: Titre, name: titre, widget: string, hint: "Titre de cette liste. Ex. : Ce que j’ai fait" }
+                  - { label: Points, name: points, widget: list, hint: "Une ligne par point de la liste. Ex. : Tournage à l’écurie, à pied et à cheval", field: { label: Point, name: point, widget: string } }
           - label: Images du tournage
             name: images
             widget: list
@@ -607,17 +803,47 @@ collections:
             widget: object
             fields:
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
+          - label: Petits titres de la page
+            name: libelles
+            widget: object
+            hint: "Les mots qui annoncent chaque information de la page."
+            fields:
+              - { label: Titre « client », name: client, widget: string, hint: "Ex. : Client" }
+              - { label: Titre « mission », name: mission, widget: string, hint: "Ex. : Mission" }
+              - { label: Titre « formats », name: formats, widget: string, hint: "Ex. : Formats" }
+              - { label: Titre « durées », name: durees, widget: string, hint: "Ex. : Durées" }
+              - { label: Nom de la zone des deux réels, name: reels, widget: string, hint: "Lu seulement par les lecteurs d’écran, jamais affiché. Ex. : Les deux réels" }
+              - { label: Nom de la zone des images, name: images, widget: string, hint: "Lu seulement par les lecteurs d’écran, jamais affiché. Ex. : Images extraites du vlog" }
+              - { label: Titre de la section des chiffres, name: resultats, widget: string, hint: "Affiché dès qu’une citation ou un chiffre est rempli dans « Résultats GaloPlan ». Ex. : Résultats" }
 
       - name: page-quiz
         label: "Quiz « Trouver ma séance »"
         file: src/contenu/pages/quiz.json
         fields:
+          - label: Référencement Google
+            name: meta
+            widget: object
+            fields:
+              - *champ-titre-page
+              - { label: Description pour Google, name: description, widget: text, hint: "Environ 150 caractères, affichée sous le titre dans les résultats de recherche. Ex. : Trois questions, trente secondes : trouvez la séance photo équestre faite pour vous et votre cheval." }
           - label: En-tête
             name: entete
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
-              - { label: "Titre caché (lu par Google et les lecteurs d’écran)", name: titre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne au-dessus des questions. Ex. : Trouvez votre séance · 30 secondes" }
+              - { label: "Titre caché (lu par Google et les lecteurs d’écran)", name: titre, widget: string, hint: "Titre que Google et les lecteurs d’écran lisent, sans l’afficher. Ex. : Trouvez votre séance photo équestre" }
+          - label: Textes des boutons et des annonces
+            name: interface
+            widget: object
+            hint: "Les petits textes du quiz. Les mots entre accolades sont remplacés par la page : ne les retirez pas."
+            fields:
+              - { label: Numéro de la question, name: compteQuestion, widget: string, hint: "{n} = le numéro, {total} = le nombre de questions. Ex. : Question {n} sur {total}" }
+              - { label: Bouton pour revenir, name: questionPrecedente, widget: string, hint: "Ex. : ← Question précédente" }
+              - { label: Annonce d’une question (lecteurs d’écran), name: annonceQuestion, widget: string, hint: "Lue seulement par les lecteurs d’écran, jamais affichée. {n}, {total} et {titre} sont remplacés par la page. Ex. : Question {n} sur {total} : {titre}" }
+              - { label: Annonce du résultat (lecteurs d’écran), name: annonceResultat, widget: string, hint: "Lue seulement par les lecteurs d’écran, jamais affichée. {nom} = le nom de la séance conseillée. Ex. : Votre séance : {nom}" }
+              - { label: Bouton de réservation, name: reserver, widget: string, hint: "Ex. : Réserver cette séance" }
+              - { label: Bouton pour refaire le quiz, name: recommencer, widget: string, hint: "Ex. : Refaire le quiz" }
+              - { label: Créneau de lumière dorée, name: creneauDore, widget: string, hint: "Affiché sous chaque samedi proposé. {debut} et {fin} sont les heures calculées pour Toulouse. Ex. : Lumière dorée de {debut} à {fin}" }
           - label: Questions
             name: questions
             widget: list
@@ -628,7 +854,7 @@ collections:
             max: 3
             fields:
               - { label: Code, name: cle, widget: hidden }
-              - { label: Question, name: titre, widget: string }
+              - { label: Question, name: titre, widget: string, hint: "La question posée au visiteur. Ex. : Qu’aimeriez-vous garder de vous deux ?" }
               - label: Réponses
                 name: options
                 widget: list
@@ -636,8 +862,8 @@ collections:
                 allow_add: false
                 fields:
                   - { label: Code, name: valeur, widget: hidden }
-                  - { label: Réponse, name: libelle, widget: string }
-                  - { label: Précision (petit texte sous la réponse), name: note, widget: string, required: false }
+                  - { label: Réponse, name: libelle, widget: string, hint: "Le choix proposé, en gras. Ex. : Le sport et l’effort" }
+                  - { label: Précision (petit texte sous la réponse), name: note, widget: string, required: false, hint: "Petite précision sous le choix. Vide = rien n’est affiché. Ex. : Au travail, à l’obstacle" }
           - label: Résultats (une fiche par séance)
             name: resultats
             widget: list
@@ -646,9 +872,9 @@ collections:
             allow_add: false
             fields:
               - { label: Code de la séance, name: id, widget: hidden }
-              - { label: Nom affiché, name: nom, widget: string }
-              - { label: Phrase d’accroche, name: titre, widget: string }
-              - { label: Texte, name: texte, widget: text }
+              - { label: Nom affiché, name: nom, widget: string, hint: "Nom de la séance conseillée, en grand. Ex. : Sport" }
+              - { label: Phrase d’accroche, name: titre, widget: string, hint: "Phrase d’accroche sous le nom. Ex. : Le geste, l’effort, la concentration" }
+              - { label: Texte, name: texte, widget: text, hint: "Pourquoi cette séance convient. Ex. : Votre couple en mouvement, au travail ou à l’obstacle : des…" }
               - label: Photos (deux)
                 name: photos
                 widget: list
@@ -658,8 +884,8 @@ collections:
             name: resultat
             widget: object
             fields:
-              - { label: Petit titre au-dessus de la séance, name: surtitre, widget: string }
-              - { label: Titre du conseil, name: titreConseil, widget: string }
+              - { label: Petit titre au-dessus de la séance, name: surtitre, widget: string, hint: "Petite ligne au-dessus du nom de la séance conseillée. Ex. : Votre séance" }
+              - { label: Titre du conseil, name: titreConseil, widget: string, hint: "Titre de l’encadré de conseil. Ex. : Le conseil d’Ilona" }
               - label: Conseils (selon le caractère du cheval)
                 name: conseils
                 widget: list
@@ -669,11 +895,204 @@ collections:
                 max: 3
                 fields:
                   - { label: Caractère, name: valeur, widget: hidden }
-                  - { label: Conseil, name: texte, widget: text }
-              - { label: Titre des soirs de lumière dorée, name: titreSoirs, widget: string }
-              - { label: Petite note sous les soirs, name: noteSoirs, widget: string }
-              - { label: Phrase avant le lien, name: hesitation, widget: string }
-              - { label: Texte du lien vers les séances, name: lienComparer, widget: string }
+                  - { label: Conseil, name: texte, widget: text, hint: "Conseil adapté au caractère du cheval. Ex. : Un cheval posé se prête aux plans rapprochés : on prendra le…" }
+              - { label: Titre des soirs de lumière dorée, name: titreSoirs, widget: string, hint: "Titre de la liste des prochains samedis. Ex. : Lumière dorée à Toulouse ces prochains samedis" }
+              - { label: Petite note sous les soirs, name: noteSoirs, widget: string, hint: "Petite note sous la liste des samedis. Ex. : Heures calculées pour Toulouse. Vous pouvez aussi demander un…" }
+              - { label: Phrase avant le lien, name: hesitation, widget: string, hint: "Phrase avant le lien vers les séances. Ex. : Vous hésitez encore ?" }
+              - { label: Texte du lien vers les séances, name: lienComparer, widget: string, hint: "Lien vers la page Séances. Ex. : Comparer les quatre formules" }
+
+      - name: page-reservation
+        label: "Réservation"
+        file: src/contenu/pages/reservation.json
+        description: "Tous les textes de la réservation en quatre étapes, du titre au message de confirmation. Les mots entre accolades, comme {prix}, sont remplacés par la page : ne les retirez pas. Les prix, la remise et les coordonnées viennent de « Formules et coordonnées »."
+        fields:
+          - label: "Haut de page"
+            name: page
+            widget: object
+            fields:
+              - { label: "Titre de la page (onglet du navigateur et Google)", name: titreOnglet, widget: string, hint: "Environ 60 caractères. « · Ilona Photographe » s’ajoute tout seul. Ex. : Demander une séance photo équestre" }
+              - { label: "Description pour Google", name: description, widget: text, hint: "Environ 150 caractères, affichée sous le titre dans les résultats de recherche. Ex. : Demandez votre séance photo équestre près de Toulouse, en quatre étapes." }
+              - { label: "Lien pour quitter la réservation (en haut à droite)", name: lienQuitter, widget: string, hint: "Ramène à la page Séances. Ex. : Quitter la réservation" }
+              - { label: "Grand titre", name: titre, widget: string, hint: "Entourez un mot d’astérisques pour le surligner en rose. Ex. : Réserver *votre séance*" }
+          - label: "Les quatre étapes (barre du haut)"
+            name: etapes
+            widget: object
+            hint: "Les intitulés de la barre en haut de la réservation."
+            fields:
+              - { label: "Nom de la barre d’étapes", name: libelle, widget: string, hint: "Lu à voix haute par les lecteurs d’écran, jamais affiché. Ex. : Étapes" }
+              - { label: "Étape 1", name: prestation, widget: string, hint: "Ex. : Prestation" }
+              - { label: "Étape 2", name: lieu, widget: string, hint: "Ex. : Lieu & date" }
+              - { label: "Étape 3", name: coordonnees, widget: string, hint: "Ex. : Coordonnées" }
+              - { label: "Étape 4", name: recapitulatif, widget: string, hint: "Ex. : Récapitulatif" }
+              - { label: "Mot ajouté à une étape terminée", name: terminee, widget: string, hint: "Lu seulement par les lecteurs d’écran, jamais affiché. Ex. : terminée" }
+              - { label: "Annonce du numéro d’étape", name: numero, widget: string, hint: "Lu seulement par les lecteurs d’écran, jamais affiché. {n}, {total} sont remplacés par la page : ne les retirez pas. Ex. : Étape {n} sur {total}" }
+          - label: "Étape 1 : Quelle prestation ?"
+            name: prestation
+            widget: object
+            fields:
+              - { label: "Question", name: titre, widget: string, hint: "Ex. : Quelle prestation ?" }
+              - { label: "Titre de la liste des séances", name: titreSeances, widget: string, hint: "Les noms et les prix viennent de « Formules et tarifs ». Ex. : Séances équestres" }
+              - { label: "Titre de la liste des concours", name: titreConcours, widget: string, hint: "Ex. : Concours" }
+          - label: "Étape 2 : Où et quand ?"
+            name: lieu
+            widget: object
+            fields:
+              - { label: "Question", name: titre, widget: string, hint: "Ex. : Où et quand ?" }
+              - { label: "Titre du champ « commune »", name: communeLibelle, widget: string, hint: "Ex. : Commune de la séance" }
+              - { label: "Exemple grisé dans le champ « commune »", name: communeExemple, widget: string, hint: "Texte gris qui disparaît dès que l’on écrit. Ex. : Muret" }
+              - { label: "Aide sous le champ « commune »", name: communeAide, widget: string, hint: "Affichée tant que la commune n’est pas choisie. Ex. : Choisissez votre commune dans la liste : je calcule le déplacement." }
+              - { label: "Titre du champ « écurie »", name: ecurieLibelle, widget: string, hint: "Ex. : Nom de l’écurie (facultatif)" }
+              - { label: "Titre du champ « date »", name: dateLibelle, widget: string, hint: "Ex. : Date souhaitée (facultatif)" }
+              - { label: "Aide quand aucune date n’est choisie", name: dateAideVide, widget: string, hint: "Ex. : Pas de date en tête ? Laissez vide, Ilona vous propose un créneau." }
+              - { label: "Aide quand une date est choisie", name: dateAideChoisie, widget: string, hint: "Donne les heures de lumière dorée du jour choisi. {jour}, {debut}, {fin} sont remplacés par la page : ne les retirez pas. Ex. : Le {jour}, toutes les heures sont possibles. Pour la lumière dorée : de {debut} à {fin}." }
+              - { label: "Titre du choix du moment", name: momentTitre, widget: string, hint: "Ex. : Moment de la journée" }
+          - label: "Étape 2 : les quatre moments de la journée"
+            name: moments
+            widget: object
+            hint: "Les noms de ces quatre choix servent aussi dans le récapitulatif et dans l’e-mail reçu par Ilona."
+            fields:
+              - label: "« Peu importe » (choisi au départ)"
+                name: peuImporte
+                widget: object
+                fields:
+                  - { label: "Nom du choix", name: libelle, widget: string, hint: "Il est repris dans le récapitulatif et dans l’e-mail. Ex. : Peu importe" }
+                  - { label: "Petite ligne dessous", name: note, widget: string, hint: "Ex. : Ilona vous propose un horaire" }
+              - label: "Le matin"
+                name: matin
+                widget: object
+                fields:
+                  - { label: "Nom du choix", name: libelle, widget: string, hint: "Ex. : Le matin" }
+                  - { label: "Petite ligne dessous", name: note, widget: string, hint: "Ex. : Lumière douce, chevaux reposés" }
+              - label: "L’après-midi"
+                name: apresMidi
+                widget: object
+                fields:
+                  - { label: "Nom du choix", name: libelle, widget: string, hint: "Ex. : L’après-midi" }
+                  - { label: "Petite ligne dessous", name: note, widget: string, hint: "Ex. : Selon vos disponibilités" }
+              - label: "En fin de journée (lumière dorée)"
+                name: finDeJournee
+                widget: object
+                fields:
+                  - { label: "Nom du choix", name: libelle, widget: string, hint: "Ex. : En fin de journée" }
+                  - { label: "Petite ligne dessous", name: note, widget: string, hint: "Ex. : Lumière dorée" }
+                  - { label: "Petite ligne quand une date est choisie", name: noteAvecHeure, widget: string, hint: "{heure} est remplacé par la page : ne le retirez pas. Ex. : Lumière dorée dès {heure}" }
+          - label: "Étape 2 : messages sur le déplacement"
+            name: trajet
+            widget: object
+            hint: "Phrases affichées sous le champ « commune ». Les prix et les kilomètres viennent de « Formules et tarifs »."
+            fields:
+              - { label: "Pendant le calcul", name: calcul, widget: string, hint: "Ex. : Calcul du déplacement en cours…" }
+              - { label: "Commune reconnue, déplacement payant", name: reconnuPayant, widget: string, hint: "{commune}, {km}, {prix} sont remplacés par la page : ne les retirez pas. Ex. : {commune} : {km} km par la route, déplacement estimé à {prix} €." }
+              - { label: "Commune reconnue, déplacement offert", name: reconnuOffert, widget: string, hint: "{commune}, {km} sont remplacés par la page : ne les retirez pas. Ex. : {commune} : {km} km par la route, déplacement offert." }
+              - { label: "Commune non reconnue", name: communeInconnue, widget: string, hint: "Ex. : Commune non reconnue : Ilona calculera le déplacement." }
+              - { label: "Distance impossible à calculer", name: nonCalcule, widget: string, hint: "Ex. : Distance non calculée : Ilona la calculera." }
+          - label: "Étape 3 : Vos coordonnées"
+            name: coordonnees
+            widget: object
+            fields:
+              - { label: "Titre de l’étape", name: titre, widget: string, hint: "Ex. : Vos coordonnées" }
+              - { label: "Champ prénom", name: prenom, widget: string, hint: "Ex. : Prénom" }
+              - { label: "Champ nom", name: nom, widget: string, hint: "Ex. : Nom" }
+              - { label: "Champ e-mail", name: email, widget: string, hint: "Ex. : E-mail" }
+              - { label: "Champ téléphone", name: telephone, widget: string, hint: "Ex. : Téléphone" }
+              - { label: "Champ nom du cheval", name: cheval, widget: string, hint: "Ex. : Nom de votre cheval" }
+              - { label: "Case des Écuries d’En Ségur", name: segur, widget: string, hint: "Le pourcentage vient de « Formules et tarifs » : {taux} est remplacé par la page : ne le retirez pas. Ex. : Je monte aux Écuries d’En Ségur (-{taux} %)" }
+              - { label: "Champ message", name: message, widget: string, hint: "Ex. : Un mot pour Ilona (facultatif)" }
+          - label: "Étape 4 : le récapitulatif"
+            name: recapitulatif
+            widget: object
+            hint: "Les intitulés de chaque ligne du récapitulatif."
+            fields:
+              - { label: "Titre de l’étape", name: titre, widget: string, hint: "Ex. : On vérifie ensemble" }
+              - { label: "Phrase sous le récapitulatif", name: note, widget: text, hint: "Ex. : Rien n’est réglé maintenant : votre demande part directement chez Ilona." }
+              - { label: "Ligne « prestation »", name: prestation, widget: string, hint: "Ex. : Prestation" }
+              - { label: "Ligne « lieu »", name: lieu, widget: string, hint: "Ex. : Lieu" }
+              - { label: "Ligne « déplacement »", name: deplacement, widget: string, hint: "Ex. : Déplacement" }
+              - { label: "Ligne « date »", name: date, widget: string, hint: "Ex. : Date" }
+              - { label: "Ligne « moment »", name: moment, widget: string, hint: "Ex. : Moment" }
+              - { label: "Ligne « contact »", name: contact, widget: string, hint: "Ex. : Contact" }
+              - { label: "Ligne « téléphone »", name: telephone, widget: string, hint: "Ex. : Téléphone" }
+              - { label: "Ligne « cheval »", name: cheval, widget: string, hint: "Ex. : Cheval" }
+              - { label: "Ligne « message »", name: message, widget: string, hint: "Ex. : Message" }
+              - { label: "Ligne « remise »", name: remise, widget: string, hint: "Ex. : Remise" }
+              - { label: "Ligne « total »", name: total, widget: string, hint: "Ex. : Total estimé" }
+              - { label: "Date non choisie", name: dateAConvenir, widget: string, hint: "Ex. : à convenir" }
+              - { label: "Déplacement non calculé", name: deplacementACalculer, widget: string, hint: "Ex. : calculé par Ilona" }
+              - { label: "Déplacement payant", name: deplacementPayant, widget: string, hint: "{prix}, {km} sont remplacés par la page : ne les retirez pas. Ex. : {prix} € ({km} km par la route)" }
+              - { label: "Déplacement offert", name: deplacementOffert, widget: string, hint: "{km} est remplacé par la page : ne le retirez pas. Ex. : offert ({km} km par la route)" }
+              - { label: "Remise En Ségur appliquée", name: remiseOui, widget: string, hint: "{taux} est remplacé par la page : ne le retirez pas. Ex. : Écuries d’En Ségur, -{taux} %" }
+              - { label: "Aucune remise", name: remiseNon, widget: string, hint: "Ex. : Aucune" }
+              - { label: "Total quand le déplacement n’est pas calculé", name: totalHorsDeplacement, widget: string, hint: "{total} est remplacé par la page : ne le retirez pas. Ex. : {total} € + déplacement" }
+              - { label: "Bouton pour modifier une ligne", name: modifier, widget: string, hint: "Ex. : Modifier" }
+              - { label: "Description du bouton pour les lecteurs d’écran", name: modifierRubrique, widget: string, hint: "Lue seulement par les lecteurs d’écran, jamais affichée. {rubrique} est remplacé par la page : ne le retirez pas. Ex. : Modifier : {rubrique}" }
+          - label: "Encadré « Votre réservation » (à droite)"
+            name: resume
+            widget: object
+            fields:
+              - { label: "Titre de l’encadré", name: titre, widget: string, hint: "Ex. : Votre réservation" }
+              - { label: "Phrase quand la remise est cochée", name: remise, widget: string, hint: "{taux} est remplacé par la page : ne le retirez pas. Ex. : Remise En Ségur de {taux} % incluse." }
+              - { label: "Phrase avant le calcul du déplacement", name: deplacementInitial, widget: string, hint: "{gratuit}, {ville} sont remplacés par la page : ne les retirez pas. Ex. : Déplacement calculé selon votre commune, offert jusqu’à {gratuit} km de {ville}." }
+              - { label: "Phrase quand le déplacement est payant", name: deplacementPayant, widget: string, hint: "{prix}, {km} sont remplacés par la page : ne les retirez pas. Ex. : Déplacement de {prix} € inclus ({km} km)." }
+              - { label: "Phrase quand le déplacement est offert", name: deplacementOffert, widget: string, hint: "{km} est remplacé par la page : ne le retirez pas. Ex. : Déplacement offert ({km} km)." }
+              - { label: "Titre de la liste des coups de cœur", name: coupsDeCoeur, widget: string, hint: "Les photos choisies sur l’accueil. Ex. : Vos coups de cœur" }
+              - { label: "Phrase avant votre téléphone", name: question, widget: string, hint: "Le numéro s’ajoute tout seul. Ex. : Une question ?" }
+          - label: "Boutons du bas"
+            name: navigation
+            widget: object
+            fields:
+              - { label: "Bouton pour revenir", name: retour, widget: string, hint: "Ex. : Retour" }
+              - { label: "Bouton pour continuer", name: continuer, widget: string, hint: "Ex. : Continuer" }
+              - { label: "Bouton d’envoi (dernière étape)", name: envoyer, widget: string, hint: "Ex. : Envoyer ma demande" }
+              - { label: "Texte pendant l’envoi", name: envoiEnCours, widget: string, hint: "Ex. : Envoi en cours…" }
+          - label: "Messages quand un champ est mal rempli"
+            name: erreurs
+            widget: object
+            fields:
+              - { label: "Commune manquante", name: commune, widget: string, hint: "Ex. : Indiquez la commune de la séance." }
+              - { label: "Prénom manquant", name: prenom, widget: string, hint: "Ex. : Indiquez votre prénom." }
+              - { label: "Nom manquant", name: nom, widget: string, hint: "Ex. : Indiquez votre nom." }
+              - { label: "E-mail manquant", name: emailVide, widget: string, hint: "Ex. : Indiquez votre adresse e-mail." }
+              - { label: "E-mail incorrect", name: emailInvalide, widget: string, hint: "Ex. : Indiquez une adresse e-mail valide, par exemple nom@exemple.fr." }
+              - { label: "Téléphone incorrect", name: telephone, widget: string, hint: "Ex. : Indiquez un numéro de téléphone valide, par exemple 06 12 34 56 78, ou laissez le champ vide." }
+              - { label: "Date illisible", name: dateInvalide, widget: string, hint: "Ex. : Cette date n’est pas valide : choisissez-la dans le calendrier." }
+              - { label: "Date déjà passée", name: datePassee, widget: string, hint: "Ex. : Choisissez une date à partir d’aujourd’hui." }
+          - label: "Écran de confirmation (après l’envoi)"
+            name: confirmation
+            widget: object
+            fields:
+              - { label: "Titre quand la demande est bien partie", name: envoyeeTitre, widget: string, hint: "Entourez un mot d’astérisques pour le surligner en rose. Ex. : Demande *reçue*" }
+              - { label: "Texte quand la demande est bien partie", name: envoyeeTexte, widget: text, hint: "Ex. : Merci ! Votre demande est bien arrivée chez Ilona." }
+              - { label: "Titre quand l’envoi automatique échoue", name: secoursTitre, widget: string, hint: "Entourez un mot d’astérisques pour le surligner en rose. Ex. : Demande *prête*" }
+              - { label: "Texte quand l’envoi automatique échoue", name: secoursTexte, widget: text, hint: "Expliquez que la messagerie du visiteur s’est ouverte avec la demande déjà rédigée. Ex. : Votre messagerie s’est ouverte avec la demande déjà rédigée : il ne reste qu’à l’envoyer." }
+              - { label: "Titre de l’aide « rien ne s’est ouvert »", name: secoursAideTitre, widget: string, hint: "Ex. : Rien ne s’est ouvert ?" }
+              - { label: "Aide « rien ne s’est ouvert »", name: secoursAide, widget: text, hint: "{email}, {telephone} sont remplacés par la page : ne les retirez pas. Votre e-mail et votre téléphone viennent de « Coordonnées », avec un lien cliquable. Ex. : Copiez votre demande et collez-la dans un e-mail à {email}, ou appelez le {telephone}." }
+              - { label: "Titre de la zone de texte à copier", name: copieLibelle, widget: string, hint: "Ex. : Votre demande, à copier" }
+              - { label: "Bouton « copier »", name: copierBouton, widget: string, hint: "Ex. : Copier ma demande" }
+              - { label: "Message après la copie", name: copieOk, widget: string, hint: "Ex. : Demande copiée." }
+              - { label: "Message si la copie échoue", name: copieEchec, widget: string, hint: "Ex. : Copie impossible : sélectionnez le texte de la demande ci-dessus." }
+              - { label: "Bouton vers l’article de préparation", name: boutonSuite, widget: string, hint: "Mène à l’article « Préparer son cheval ». Ex. : Préparer mon cheval" }
+          - label: "Texte de l’e-mail que vous recevez"
+            name: demande
+            widget: object
+            hint: "Chaque ligne du message que vous recevez à chaque demande. Changez les mots avant les deux-points si vous voulez, mais gardez {valeur} : c’est la réponse du visiteur."
+            fields:
+              - { label: "Objet de l’e-mail de repli", name: sujet, widget: string, hint: "Objet quand la demande part depuis la messagerie du visiteur. {formule} est remplacé par la page : ne le retirez pas. Ex. : Réservation · {formule}" }
+              - { label: "Ligne prestation", name: prestation, widget: string, hint: "{nom}, {prix} sont remplacés par la page : ne les retirez pas. Ex. : Prestation : {nom} ({prix} €)" }
+              - { label: "Ligne lieu", name: lieu, widget: string, hint: "{valeur} est remplacé par la page : ne le retirez pas. Ex. : Lieu : {valeur}" }
+              - { label: "Ligne écurie", name: ecurie, widget: string, hint: "{valeur} est remplacé par la page : ne le retirez pas. Ex. : Écurie : {valeur}" }
+              - { label: "Ligne déplacement", name: deplacement, widget: string, hint: "{valeur} est remplacé par la page : ne le retirez pas. Ex. : Déplacement : {valeur}" }
+              - { label: "Ligne date", name: date, widget: string, hint: "{valeur} est remplacé par la page : ne le retirez pas. Ex. : Date souhaitée : {valeur}" }
+              - { label: "Ligne moment", name: moment, widget: string, hint: "{valeur} est remplacé par la page : ne le retirez pas. Ex. : Moment : {valeur}" }
+              - { label: "Ligne total", name: total, widget: string, hint: "{valeur} est remplacé par la page : ne le retirez pas. Ex. : Total estimé : {valeur}" }
+              - { label: "Ligne prénom", name: prenom, widget: string, hint: "{valeur} est remplacé par la page : ne le retirez pas. Ex. : Prénom : {valeur}" }
+              - { label: "Ligne nom", name: nom, widget: string, hint: "{valeur} est remplacé par la page : ne le retirez pas. Ex. : Nom : {valeur}" }
+              - { label: "Ligne e-mail", name: email, widget: string, hint: "{valeur} est remplacé par la page : ne le retirez pas. Ex. : E-mail : {valeur}" }
+              - { label: "Ligne téléphone", name: telephone, widget: string, hint: "{valeur} est remplacé par la page : ne le retirez pas. Ex. : Téléphone : {valeur}" }
+              - { label: "Ligne cheval", name: cheval, widget: string, hint: "{valeur} est remplacé par la page : ne le retirez pas. Ex. : Cheval : {valeur}" }
+              - { label: "Ligne remise En Ségur", name: remise, widget: string, hint: "{taux} est remplacé par la page : ne le retirez pas. Ex. : Remise : Cavalier des Écuries d’En Ségur (-{taux} %)" }
+              - { label: "Ligne message", name: message, widget: string, hint: "{valeur} est remplacé par la page : ne le retirez pas. Ex. : Message : {valeur}" }
+              - { label: "Ligne coups de cœur", name: coups, widget: string, hint: "{valeur} est remplacé par la page : ne le retirez pas. Ex. : Coups de cœur sur le site : {valeur}" }
+              - { label: "Ligne quand le visiteur vient du quiz", name: quiz, widget: string, hint: "Ex. : Formule conseillée par le quiz du site" }
 
       - name: page-academie-lumiere
         label: "Article Académie : la lumière du soir"
@@ -683,37 +1102,44 @@ collections:
             name: referencement
             widget: object
             fields:
-              - { label: Titre de l’article (onglet du navigateur et Google), name: titre, widget: string }
-              - { label: Description pour Google, name: description, widget: text }
+              - { label: Titre de l’article (onglet du navigateur et Google), name: titre, widget: string, hint: "Environ 60 caractères. « · Académie » s’ajoute tout seul. Ex. : Lire la lumière du soir" }
+              - { label: Description pour Google, name: description, widget: text, hint: "Environ 150 caractères, affichée sous le titre dans les résultats de recherche. Ex. : Leçon de l’Académie : où placer votre cheval quand le soleil…" }
           - label: Sommaire du module
             name: sommaire
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
-              - { label: Leçons, name: lecons, widget: list, hint: "La 3e leçon est celle de cette page ; les autres sont marquées « bientôt ».", field: { label: Leçon, name: lecon, widget: string } }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petit titre de la liste des leçons du module. Ex. : Module · La lumière" }
+              - { label: "Nom de la liste (lecteurs d’écran)", name: libelle, widget: string, hint: "Lu seulement par les lecteurs d’écran, jamais affiché. Ex. : Leçons du module" }
+              - { label: Leçons, name: lecons, widget: list, hint: "La 3e leçon est celle de cette page ; les autres sont marquées avec le mot ci-dessous.", field: { label: Leçon, name: lecon, widget: string } }
+              - { label: Mot ajouté aux leçons à venir, name: bientot, widget: string, hint: "Ex. : bientôt" }
           - label: En-tête
             name: entete
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne en capitales, au-dessus du titre. Ex. : Académie · Leçon 03 · lecture 6 min" }
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Introduction, name: chapo, widget: text }
+              - { label: Introduction, name: chapo, widget: text, hint: "Introduction, sous le titre. Ex. : Où placer votre cheval quand le soleil descend, et pourquoi…" }
           - { label: Photo principale, name: photo, widget: object, fields: *champs-photo }
           - label: Parties de l’article
             name: sections
             widget: list
             summary: "{{fields.titre}}"
             fields:
-              - { label: Intertitre, name: titre, widget: string }
+              - { label: Intertitre, name: titre, widget: string, hint: "Titre de cette partie de la leçon. Ex. : Pourquoi la fin de journée" }
               - { label: Texte, name: texte, widget: text, hint: "Une ligne vide = un nouveau paragraphe." }
           - label: Exercice
             name: exercice
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
-              - { label: Titre, name: titre, widget: string }
-              - { label: Cases à cocher, name: etapes, widget: list, field: { label: Case, name: etape, widget: string } }
-              - { label: Phrase avant le compte Instagram, name: partage, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne en capitales, au-dessus du titre. Ex. : Exercice de la semaine" }
+              - { label: Titre, name: titre, widget: string, hint: "Titre de ce bloc. Ex. : Trois photos, une heure" }
+              - { label: Cases à cocher, name: etapes, widget: list, hint: "Une case par ligne. Ex. : Une photo en contre-jour, mise au point sur l’œil.", field: { label: Case, name: etape, widget: string } }
+              - { label: Phrase avant le compte Instagram, name: partage, widget: string, hint: "Le compte Instagram s’ajoute tout seul derrière. Ex. : Partagez-les en identifiant" }
+          - label: Bas de l’article
+            name: fin
+            widget: object
+            fields:
+              - { label: Bouton vers l’autre article, name: lireAussi, widget: string, hint: "Mène à l’article « Préparer son cheval ». Le bouton de réservation vient de « Boutons et mots communs ». Ex. : Lire aussi : préparer son cheval" }
 
       - name: page-journal-preparer
         label: "Article Journal : préparer son cheval"
@@ -723,18 +1149,18 @@ collections:
             name: referencement
             widget: object
             fields:
-              - { label: Titre de l’article (onglet du navigateur et Google), name: titre, widget: string }
-              - { label: Nom court (chemin de navigation en haut de page), name: nomCourt, widget: string }
-              - { label: Description pour Google, name: description, widget: text }
+              - { label: Titre de l’article (onglet du navigateur et Google), name: titre, widget: string, hint: "Environ 60 caractères. « · Journal » s’ajoute tout seul. Ex. : Préparer son cheval pour sa séance photo" }
+              - { label: Nom court (chemin de navigation en haut de page), name: nomCourt, widget: string, hint: "Version courte du titre pour le fil d’Ariane et l’onglet. Ex. : Préparer son cheval" }
+              - { label: Description pour Google, name: description, widget: text, hint: "Environ 150 caractères, affichée sous le titre dans les résultats de recherche. Ex. : Pansage, crins, harnachement, tenue du cavalier : la liste…" }
           - label: En-tête
             name: entete
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne en capitales, au-dessus du titre. Ex. : Journal · Avant la séance" }
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Introduction, name: chapo, widget: text }
-              - { label: Auteur, name: auteur, widget: string }
-              - { label: Temps de lecture, name: lecture, widget: string }
+              - { label: Introduction, name: chapo, widget: text, hint: "Introduction, sous le titre. Ex. : Pansage, crins, tenue du cavalier : la liste simple à relire…" }
+              - { label: Auteur, name: auteur, widget: string, hint: "Prénom de l’auteur, à côté de sa photo. Ex. : Ilona" }
+              - { label: Temps de lecture, name: lecture, widget: string, hint: "Durée de lecture, après le prénom. Ex. : 5 min de lecture" }
               - { label: Photo de l’auteur, name: avatar, widget: object, fields: *champs-photo }
           - { label: Grande photo, name: bandeau, widget: object, fields: *champs-photo }
           - label: Parties de l’article
@@ -742,9 +1168,9 @@ collections:
             widget: list
             summary: "{{fields.titre}}"
             fields:
-              - { label: Intertitre, name: titre, widget: string }
+              - { label: Intertitre, name: titre, widget: string, hint: "Titre de cette partie de l’article. Ex. : La veille" }
               - { label: Texte, name: texte, widget: text, hint: "Une ligne vide = un nouveau paragraphe." }
-              - { label: Liste à puces (facultatif), name: liste, widget: list, required: false, field: { label: Point, name: point, widget: string } }
+              - { label: Liste à puces (facultatif), name: liste, widget: list, required: false, hint: "Une ligne par puce. Vide = pas de liste dans cette partie. Ex. : Crins et queue démêlés", field: { label: Point, name: point, widget: string } }
               - label: Photo (facultatif)
                 name: photo
                 widget: object
@@ -768,39 +1194,64 @@ collections:
                       - { label: Bas, value: bas }
                       - { label: Gauche, value: gauche }
                       - { label: Droite, value: droite }
-              - { label: Légende de la photo (facultatif), name: legende, widget: string, required: false }
+              - { label: Légende de la photo (facultatif), name: legende, widget: string, required: false, hint: "Légende sous la photo de cette partie. Ex. : Un filet propre, un frontal qui accroche la lumière." }
               - { label: Grande citation après cette partie (facultatif), name: citation, widget: text, required: false, hint: "*mot* = surligné en rose." }
           - label: Mémo
             name: memo
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
-              - { label: Titre, name: titre, widget: string }
-              - { label: Points à retenir, name: points, widget: list, field: { label: Point, name: point, widget: string } }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne en capitales, au-dessus du titre. Ex. : À retenir" }
+              - { label: Titre, name: titre, widget: string, hint: "Titre de l’encadré final. Ex. : Le mémo de la veille" }
+              - { label: Points à retenir, name: points, widget: list, hint: "Une ligne par point à retenir. Ex. : Friandises, longe, un complice", field: { label: Point, name: point, widget: string } }
           - label: « À lire aussi »
             name: suite
             widget: object
             fields:
               - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
-              - { label: Étiquette, name: etiquette, widget: string }
-              - { label: Titre de l’article conseillé, name: article, widget: string }
-              - { label: Résumé, name: resume, widget: string }
+              - { label: Étiquette, name: etiquette, widget: string, hint: "Pastille au-dessus du titre de l’article conseillé. Ex. : Académie" }
+              - { label: Titre de l’article conseillé, name: article, widget: string, hint: "Titre de l’article conseillé. Ex. : Lire la lumière du soir" }
+              - { label: Résumé, name: resume, widget: string, hint: "Résumé de l’article conseillé, en une phrase. Ex. : Où placer votre cheval quand le soleil descend." }
+              - { label: Texte du bouton de réservation, name: bouton, widget: string, hint: "Mène à la réservation. Ex. : Réserver ma séance" }
               - { label: Photo, name: photo, widget: object, fields: *champs-photo }
 
       - name: page-galerie
         label: "Galerie client (démo)"
         file: src/contenu/pages/galerie.json
         fields:
+          - label: Onglet du navigateur
+            name: referencement
+            widget: object
+            hint: "Cette page est privée : Google ne la référence pas."
+            fields:
+              - { label: Titre de la page (onglet du navigateur), name: titre, widget: string, hint: "Ex. : Votre galerie privée" }
+              - { label: Description, name: description, widget: text, hint: "Ex. : Galerie privée : choisissez vos photos favorites après votre séance." }
           - label: En-tête
             name: entete
             widget: object
             fields:
-              - { label: Bandeau « démonstration », name: demo, widget: string }
-              - { label: Nom de la galerie, name: galerie, widget: string }
+              - { label: Lien pour quitter la galerie, name: deconnexion, widget: string, hint: "Ex. : Se déconnecter" }
+              - { label: Bandeau « démonstration », name: demo, widget: string, hint: "Bandeau coloré en haut de la galerie d’exemple. Ex. : Démonstration : chaque client recevra un lien privé vers sa…" }
+              - { label: Nom de la galerie, name: galerie, widget: string, hint: "Nom de la galerie, en gras au-dessus du titre. Ex. : Galerie d’exemple" }
               - { label: Séance, name: seance, widget: string, hint: "Le nombre de photos s’ajoute tout seul." }
-              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne en capitales, au-dessus du titre. Ex. : Votre galerie privée" }
               - { label: Titre, name: titre, widget: string, hint: "*mot* = surligné en rose." }
-              - { label: Message quand aucun favori, name: vide, widget: string }
+              - { label: Message quand aucun favori, name: vide, widget: string, hint: "Affiché quand le filtre « Favoris » ne contient rien. Ex. : Aucun favori pour l’instant. Touchez un cœur pour commencer." }
+              - { label: Nombre de photos, name: nombrePhotos, widget: string, hint: "{n} = le nombre de photos de la galerie : ne le retirez pas. Ex. : {n} photos" }
+              - { label: Consigne, name: consigne, widget: text, hint: "{quota} = les photos incluses, {prix} = le prix d’une photo en plus (ils viennent de « Formules et tarifs »). Ne les retirez pas. Ex. : Votre formule inclut {quota} photos. Touchez le cœur pour choisir. Au-delà, chaque photo s’ajoute à {prix} €." }
+              - { label: Nom du groupe de filtres, name: filtres, widget: string, hint: "Lu seulement par les lecteurs d’écran, jamais affiché. Ex. : Filtrer les photos" }
+              - { label: Bouton « toutes les photos », name: toutes, widget: string, hint: "{n} = le nombre de photos : ne le retirez pas. Ex. : Toutes ({n})" }
+              - { label: Bouton « favoris », name: favoris, widget: string, hint: "{n} = le nombre de favoris, qui bouge tout seul : ne le retirez pas. Ex. : Favoris ({n})" }
+              - { label: Numéro de chaque photo, name: numero, widget: string, hint: "{n} = le numéro : ne le retirez pas. Ex. : N° {n}" }
+          - label: Barre du bas
+            name: barre
+            widget: object
+            hint: "La barre qui suit le visiteur en bas de l’écran."
+            fields:
+              - { label: Texte après le compteur, name: inclus, widget: string, hint: "Le compteur (3 / 8) s’affiche devant. Ex. : photos incluses choisies" }
+              - { label: Photos en supplément, name: supplement, widget: string, hint: "{extra} = les photos en plus, {prix} = le prix d’une photo, {total} = le montant avec son €. Ne les retirez pas. Ex. : + {extra} en supplément × {prix} € = {total}" }
+              - { label: Bouton de validation, name: valider, widget: string, hint: "Ex. : Valider ma sélection" }
+              - { label: Bouton quand il y a des photos en supplément, name: validerEtRegler, widget: string, hint: "{total} = le montant à régler : ne le retirez pas. Ex. : Valider et régler {total} €" }
+              - { label: Message de démonstration, name: alerteDemo, widget: text, hint: "Affiché au clic sur le bouton tant que la galerie n’est qu’une démonstration. Ex. : Démonstration : ici, la sélection sera envoyée à Ilona." }
           - label: Photos
             name: photos
             widget: list
@@ -815,11 +1266,19 @@ collections:
         label: "Page introuvable (404)"
         file: src/contenu/pages/404.json
         fields:
+          - label: Onglet du navigateur
+            name: referencement
+            widget: object
+            hint: "Cette page n’est pas référencée par Google."
+            fields:
+              - { label: Titre de la page (onglet du navigateur), name: titre, widget: string, hint: "Ex. : Page introuvable" }
+              - { label: Description, name: description, widget: text, hint: "Ex. : Cette page est sortie du cadre." }
           - label: En-tête
             name: entete
             widget: object
             fields:
-              - { label: Petit titre, name: surtitre, widget: string }
+              - { label: Petit titre, name: surtitre, widget: string, hint: "Petite ligne au-dessus du titre. Ex. : Erreur 404" }
               - { label: Titre, name: titre, widget: text, hint: "Un retour à la ligne = une nouvelle ligne. *mot* = surligné en rose." }
-              - { label: Texte, name: texte, widget: text }
+              - { label: Texte, name: texte, widget: text, hint: "Explication, sous le titre. Ex. : Cette page est sortie du cadre. Elle a peut-être changé…" }
+              - { label: Bouton vers l’accueil, name: boutonAccueil, widget: string, hint: "Le bouton vers les séances vient de « Boutons et mots communs ». Ex. : Revenir à l’accueil" }
           - { label: Photo, name: photo, widget: object, fields: *champs-photo }

@@ -1,6 +1,7 @@
 // Pas de serveur : la demande s'ouvre dans la messagerie du visiteur, déjà rédigée, adressée à Ilona.
 export function ouvrirMail(destinataire, sujet, lignes) {
-  const corps = lignes.filter(Boolean).join('\n');
+  // Retours à la ligne « \r\n » : certaines messageries (Outlook) ignorent un simple « \n » dans un lien mailto.
+  const corps = lignes.filter(Boolean).join('\r\n');
   location.href = `mailto:${destinataire}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`;
 }
 

@@ -7,12 +7,13 @@ import Coeur from '../components/Coeur.astro';
 import Instagram from '../components/Instagram.astro';
 import contenuContact from '../contenu/contact.json';
 import { Image } from 'astro:assets';
-import { contact, seances, concours, temoignages, prixMinSeance, prixMinConcours } from '../data';
-import { photo, cadrage, surligne, lignes, paragraphe } from '../lib/contenu';
+import { contact, seances, concours, temoignages, prixMinSeance, prixMinConcours, tauxSegur, commun } from '../data';
+import { photo, cadrage, surligne, lignes, paragraphe, gabarit } from '../lib/contenu';
 import t from '../contenu/pages/index.json';
 
-// {prix-seance} / {prix-concours} dans un texte = prix le plus bas, tiré des formules.
-const prix = (texte = '') => texte.replaceAll('{prix-seance}', `${prixMinSeance} €`).replaceAll('{prix-concours}', `${prixMinConcours} €`);
+// {prix-seance} / {prix-concours} dans un texte = prix le plus bas, tiré des formules ; {taux} = remise En Ségur.
+const prix = (texte = '') => texte.replaceAll('{prix-seance}', `${prixMinSeance}\u00a0€`).replaceAll('{prix-concours}', `${prixMinConcours}\u00a0€`).replaceAll('{taux}', String(tauxSegur));
+const { etiquettes, boutons, mots } = commun;
 // Cadrages d'origine des images (utilisés tant qu'aucun cadrage n'est choisi dans le back office).
 const posPortes = ['50% 30%', '52% 50%', '50% 35%'];
 const posUnivers = ['50% 30%', '52% 50%', '45% 40%', '50% 50%', '50% 50%'];
@@ -23,12 +24,12 @@ const favorisDefaut = false;
 const favoris = t.favoris.photos.map((f, i) => ({ id: f.image.split('/').pop()!.replace(/\.[^.]+$/, ''), src: photo(f.image), alt: f.alt ?? '', pos: cadrage(f, posFavoris[i]), on: favorisDefaut }));
 const univers = t.univers.liste.map((u, i) => ({ titre: u.titre, chip: u.etiquette, classe: u.couleur, href: u.lien, src: photo(u.photo.image), alt: u.photo.alt ?? '', pos: cadrage(u.photo, posUnivers[i]) }));
 ---
-<Base titre="Ilona Photographe · photographe équestre à Toulouse" description="Photographe et vidéaste équestre près de Toulouse : séances avec votre cheval, photos de concours, contenus pour les marques équestres." page="accueil">
+<Base titre={t.referencement.titre} description={t.referencement.description} page="accueil">
 
   <section class="wrap" style="padding-top: clamp(24px, 4vw, 64px)" data-reveal aria-labelledby="titre">
     <p class="lbl">{t.entete.surtitre}</p>
     <h1 id="titre" style="margin: 20px 0 0">
-      <span class="sr">Surligner l’instant.</span>
+      <span class="sr">{t.entete.titreCache}</span>
       <span class="pochoir" aria-hidden="true">
         <span class="pochoir-trait"></span>
         <video autoplay muted loop playsinline preload="auto" poster={t.entete.videoTitre.affiche || undefined} tabindex="-1">
@@ -40,19 +41,19 @@ const univers = t.univers.liste.map((u, i) => ({ titre: u.titre, chip: u.etiquet
     <div class="row entre bas g32" style="margin-top: 44px">
       <p class="chapo apparait" style="--d: .6s" set:html={paragraphe(t.entete.chapo)} />
       <div class="row g12 apparait" style="--d: .75s">
-        <a class="btn" href="/reservation">Réserver une séance
+        <a class="btn" href="/reservation">{boutons.reserver}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
-        <a class="btn contour" href="/trouver-ma-seance">Trouver ma séance en 30 s</a>
+        <a class="btn contour" href="/trouver-ma-seance">{boutons.trouverSeance}</a>
       </div>
     </div>
-    <ul class="reperes apparait" style="--d: .9s" aria-label="En bref">
+    <ul class="reperes apparait" style="--d: .9s" aria-label={t.entete.reperesLibelle}>
       {t.entete.reperes.map((r) => <li><strong>{prix(r.fort)}</strong> {prix(r.texte)}</li>)}
     </ul>
   </section>
 
   <div data-reveal style="margin-top: clamp(40px, 6vw, 88px)">
-    <Photo src={photo(t.grandePhoto.photo.image)} alt={t.grandePhoto.photo.alt ?? ''} ratio="2.05 / 1" pos={cadrage(t.grandePhoto.photo, '56% 50%')} prioritaire delai=".4s" tailles="100vw" style="max-height: 820px">
-      <figcaption class="chip" style="position: absolute; left: var(--marge); bottom: 24px; background: rgba(34,34,34,.78); color: var(--gres); text-transform: none; letter-spacing: 0; font-size: 13px; height: 36px; padding: 0 16px">{t.grandePhoto.legende}</figcaption>
+    <Photo src={photo(t.grandePhoto.photo.image)} alt={t.grandePhoto.photo.alt ?? ''} ratio="2.05 / 1" pos={cadrage(t.grandePhoto.photo, '56% 50%')} prioritaire delai=".4s" tailles="100vw" class="bandeau" style="max-height: 820px">
+      <figcaption class="chip legende-photo" style="position: absolute; left: var(--marge); bottom: 24px; background: rgba(34,34,34,.78); color: var(--gres); text-transform: none; letter-spacing: 0; font-size: 13px; height: 36px; padding: 0 16px">{t.grandePhoto.legende}</figcaption>
     </Photo>
   </div>
 
@@ -75,7 +76,7 @@ const univers = t.univers.liste.map((u, i) => ({ titre: u.titre, chip: u.etiquet
       <h2 id="moi" class="d h2" set:html={lignes(t.moi.titre, 0.1)} />
       <p class="texte" style="max-width: 560px" set:html={paragraphe(t.moi.texte)} />
       <ul class="liste li">{t.moi.liste.map((l) => <li>{l}</li>)}</ul>
-      <a class="btn contour" href="/seances" style="align-self: flex-start">Mon approche</a>
+      <a class="btn contour" href="/seances" style="align-self: flex-start">{t.moi.bouton}</a>
     </div>
   </section>
 
@@ -86,25 +87,25 @@ const univers = t.univers.liste.map((u, i) => ({ titre: u.titre, chip: u.etiquet
     </div>
     <div class="grille">
       <article class="carte stack g20" style="padding: 36px">
-        <span class="chip" style="align-self: flex-start">Photo</span>
+        <span class="chip" style="align-self: flex-start">{etiquettes.photo}</span>
         <h3 class="d h3">{t.offres.seances}</h3>
-        <p style="margin: 0; display: flex; align-items: baseline; gap: 10px"><span style="font-size: 14px">dès</span><span class="prix" style="font-size: 80px"><Prix valeur={prixMinSeance} /></span></p>
-        <ul class="tarifs" style="flex: 1">{seances.map((s) => <li>{s.nom}<span class="prix">{s.prix} €</span></li>)}</ul>
-        <a class="btn clair" href="/seances" style="align-self: flex-start">Voir les séances</a>
+        <p style="margin: 0; display: flex; align-items: baseline; gap: 10px"><span style="font-size: 14px">{mots.des}</span><span class="prix" style="font-size: 80px"><Prix valeur={prixMinSeance} /></span></p>
+        <ul class="tarifs" style="flex: 1">{seances.map((s) => <li>{s.nom}<span class="prix">{s.prix} €</span></li>)}</ul>
+        <a class="btn clair" href="/seances" style="align-self: flex-start">{boutons.voirSeances}</a>
       </article>
       <article class="carte stack g20" style="padding: 36px">
-        <div class="row g8"><span class="chip">Photo</span><span class="chip or">Vidéo</span></div>
+        <div class="row g8"><span class="chip">{etiquettes.photo}</span><span class="chip or">{etiquettes.video}</span></div>
         <h3 class="d h3">{t.offres.concours}</h3>
-        <p style="margin: 0; display: flex; align-items: baseline; gap: 10px"><span style="font-size: 14px">dès</span><span class="prix" style="font-size: 80px"><Prix valeur={prixMinConcours} /></span></p>
-        <ul class="tarifs" style="flex: 1">{concours.map((c) => <li>{c.nomCourt}<span class="prix">{c.prix} €</span></li>)}</ul>
-        <a class="btn clair" href="/concours" style="align-self: flex-start">Voir l’agenda</a>
+        <p style="margin: 0; display: flex; align-items: baseline; gap: 10px"><span style="font-size: 14px">{mots.des}</span><span class="prix" style="font-size: 80px"><Prix valeur={prixMinConcours} /></span></p>
+        <ul class="tarifs" style="flex: 1">{concours.map((c) => <li>{c.nomCourt}<span class="prix">{c.prix} €</span></li>)}</ul>
+        <a class="btn clair" href="/concours" style="align-self: flex-start">{t.offres.boutonAgenda}</a>
       </article>
       <article class="carte stack g20" style="padding: 36px">
-        <span class="chip pervenche" style="align-self: flex-start">Réseaux</span>
+        <span class="chip pervenche" style="align-self: flex-start">{etiquettes.reseaux}</span>
         <h3 class="d h3">{t.offres.marques.titre}</h3>
         <p class="prix" style="font-size: clamp(56px, 15vw, 80px); margin: 0; white-space: nowrap">{t.offres.marques.prix}</p>
         <ul class="tarifs" style="flex: 1">{t.offres.marques.liste.map((l) => <li>{l}</li>)}</ul>
-        <a class="btn clair" href="/marques" style="align-self: flex-start">Parler de votre projet</a>
+        <a class="btn clair" href="/marques" style="align-self: flex-start">{boutons.parlerProjet}</a>
       </article>
     </div>
   </section>
@@ -116,7 +117,7 @@ const univers = t.univers.liste.map((u, i) => ({ titre: u.titre, chip: u.etiquet
         <h2 id="quiz-titre" class="d" style="font-size: clamp(44px, 6vw, 88px); line-height: 1" set:html={surligne(t.quiz.titre, { plein: true })} />
         <p style="margin: 0; font-size: 17px; line-height: 1.6; max-width: 560px; opacity: .9" set:html={paragraphe(t.quiz.texte)} />
       </div>
-      <a class="btn clair grand" href="/trouver-ma-seance">Commencer le quiz →</a>
+      <a class="btn clair grand" href="/trouver-ma-seance">{t.quiz.bouton}</a>
     </div>
   </section>
 
@@ -150,15 +151,15 @@ const univers = t.univers.liste.map((u, i) => ({ titre: u.titre, chip: u.etiquet
       <p class="lbl">{t.favoris.surtitre}</p>
       <h2 id="favoris" class="d h2" set:html={surligne(t.favoris.titre)} />
       <p class="texte" style="max-width: 480px" set:html={paragraphe(t.favoris.texte)} />
-      <p style="margin: 0; display: flex; align-items: baseline; gap: 14px" aria-live="polite"><span class="d" style="font-size: 72px" data-compte>0</span><span data-libelle>coup de cœur</span></p>
-      <div class="row g12"><a class="btn" href="/reservation">Réserver avec mes coups de cœur</a><a class="btn contour" href="/galerie">Voir une galerie client</a></div>
+      <p style="margin: 0; display: flex; align-items: baseline; gap: 14px" aria-live="polite"><span class="d" style="font-size: 72px" data-compte>0</span><span data-libelle data-un={t.favoris.compteUn} data-plusieurs={t.favoris.comptePlusieurs}>{t.favoris.compteUn}</span></p>
+      <div class="row g12"><a class="btn" href="/reservation">{t.favoris.boutonReserver}</a><a class="btn contour" href="/galerie">{t.favoris.boutonGalerie}</a></div>
     </div>
     <ul class="mini-galerie" style="flex: 1 1 520px">
-      {favoris.map((f) => (
+      {favoris.map((f, i) => (
         <li class:list={['tuile', { choisie: f.on }]} data-curseur="choisir" data-id={f.id} data-alt={f.alt}>
           <Image src={f.src} alt={f.alt} widths={[400, 700]} sizes="(max-width: 760px) 50vw, 25vw" style={`object-position: ${f.pos}`} />
           <span class="flash" aria-hidden="true"></span><span class="cadre" aria-hidden="true"></span>
-          <Coeur choisie={f.on} nom={f.alt} />
+          <Coeur choisie={f.on} nom={f.alt || gabarit(commun.lecteurs.photoNumero, { n: i + 1 })} />
         </li>
       ))}
     </ul>
@@ -187,7 +188,7 @@ const univers = t.univers.liste.map((u, i) => ({ titre: u.titre, chip: u.etiquet
         <h2 id="segur" class="d" style="font-size: clamp(40px, 5vw, 72px)">{t.segur.titre}</h2>
         <p style="margin: 0; font-size: 15px; opacity: .85" set:html={paragraphe(t.segur.texte)} />
       </div>
-      <p class="d" style="font-size: clamp(46px, 7vw, 104px); line-height: 1.06; text-align: right; color: var(--encre)" set:html={surligne(t.segur.remise, { plein: true, delai: '.3s' })} />
+      <p class="d" style="font-size: clamp(46px, 7vw, 104px); line-height: 1.06; text-align: right; color: var(--encre)" set:html={surligne(prix(t.segur.remise), { plein: true, delai: '.3s' })} />
     </div>
   </section>
 
@@ -209,7 +210,7 @@ const univers = t.univers.liste.map((u, i) => ({ titre: u.titre, chip: u.etiquet
   </section>
 
   <section class="wrap section sans-haut stack g32" data-reveal aria-labelledby="fin">
-    <h2 id="fin" class="d deborde" style="font-size: clamp(64px, 14vw, 210px); line-height: 1.02" set:html={surligne(t.fin.titre)} />
+    <h2 id="fin" class="d deborde" style="font-size: clamp(44px, 14vw, 210px); line-height: 1.02" set:html={surligne(t.fin.titre)} />
     <div class="row entre bas g32">
       <div class="stack g8" style="font-size: 17px">
         <a href={contact.telephoneLien} style="color: var(--encre); text-decoration: none; font-weight: 500; padding: 6px 0">{contact.telephone}</a>
@@ -217,7 +218,7 @@ const univers = t.univers.liste.map((u, i) => ({ titre: u.titre, chip: u.etiquet
         <a href={contact.instagramLien} style="color: var(--encre); padding: 6px 0">{contact.instagram}</a>
         <p class="li" style="margin: 8px 0 0; font-size: 15px">{t.fin.mention}</p>
       </div>
-      <a class="btn grand" href="/reservation">Réserver une séance
+      <a class="btn grand" href="/reservation">{boutons.reserver}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
     </div>
   </section>
@@ -229,17 +230,27 @@ const univers = t.univers.liste.map((u, i) => ({ titre: u.titre, chip: u.etiquet
   .univers-it:hover :global(.ph img) { transform: scale(1.05); }
   .reperes { list-style: none; margin: 32px 0 0; padding: 18px 0 0; border-top: 1px solid rgba(34,34,34,.2); display: flex; flex-wrap: wrap; gap: 10px 36px; font-size: 15px; }
   .reperes strong { font-weight: 600; color: var(--rose-profond); }
-  .porte { display: flex; flex-direction: column; color: var(--encre); text-decoration: none; border-radius: 16px; overflow: hidden; box-shadow: inset 0 0 0 1.5px rgba(34,34,34,.2); transition: box-shadow .3s var(--lumiere); }
-  .porte:hover, .porte:focus-visible { box-shadow: inset 0 0 0 3px var(--encre); }
+  .porte { position: relative; display: flex; flex-direction: column; color: var(--encre); text-decoration: none; border-radius: 16px; overflow: hidden; }
+  /* Contour posé par-dessus la photo ; le contour renforcé apparaît en fondu (opacité seulement). */
+  .porte::before, .porte::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1; }
+  .porte::before { box-shadow: inset 0 0 0 1.5px rgba(34,34,34,.2); }
+  .porte::after { box-shadow: inset 0 0 0 3px var(--encre); opacity: 0; transition: opacity .3s var(--lumiere); }
+  .porte:hover::after, .porte:focus-visible::after { opacity: 1; }
   .porte-texte { display: flex; flex-direction: column; gap: 10px; padding: 22px 24px 26px; font-size: 15px; line-height: 1.55; flex: 1; }
   .porte-fleche { margin-top: auto; font-weight: 600; color: var(--rose-profond); }
   .porte :global(.ph img) { transition: transform .7s var(--lumiere); }
   .porte:hover :global(.ph img) { transform: scale(1.04); }
-  .mini-galerie { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  /* Aperçu de la galerie client : photos entières, jamais recadrées (colonnes, comme la galerie). */
+  .mini-galerie { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 14px; }
+  .mini-galerie :global(.tuile) { aspect-ratio: auto; break-inside: avoid; margin-bottom: 14px; }
+  .mini-galerie :global(.tuile img) { height: auto; object-fit: initial; }
   @media (max-width: 760px) {
     .grille.univers { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--marge); margin-inline: calc(-1 * var(--marge)); padding-inline: var(--marge); padding-bottom: 8px; }
     .grille.univers > * { flex: none; width: 72vw; scroll-snap-align: start; }
-    .mini-galerie { gap: 8px; }
+    .mini-galerie { column-gap: 8px; }
+    .mini-galerie :global(.tuile) { margin-bottom: 8px; }
+    :global(.bandeau) { aspect-ratio: 4 / 3 !important; }
+    .legende-photo { left: 20px !important; bottom: 14px !important; max-width: calc(100% - 40px); height: auto !important; min-height: 32px; padding-block: 6px !important; white-space: normal !important; }
   }
 </style>
 
@@ -247,14 +258,14 @@ const univers = t.univers.liste.map((u, i) => ({ titre: u.titre, chip: u.etiquet
   // Favoris de la mini-galerie : flash, cadre rose, compteur.
   const zone = document.querySelector('.mini-galerie');
   const compte = document.querySelector('[data-compte]');
-  const libelle = document.querySelector('[data-libelle]');
+  const libelle = document.querySelector<HTMLElement>('[data-libelle]');
   const CLE = 'ilona-coups-de-coeur';
   const lire = (): { id: string; alt: string; src: string }[] => { try { return JSON.parse(localStorage.getItem(CLE) || '[]'); } catch { return []; } };
   const ecrire = (v: unknown) => { try { localStorage.setItem(CLE, JSON.stringify(v)); } catch { /* stockage indisponible : on continue sans */ } };
   function compter() {
     const n = zone!.querySelectorAll('.coeur[aria-pressed="true"]').length;
     compte!.textContent = String(n);
-    libelle!.textContent = n > 1 ? 'coups de cœur' : 'coup de cœur';
+    libelle!.textContent = n > 1 ? libelle!.dataset.plusieurs! : libelle!.dataset.un!;
   }
   // Restaure les coups de cœur déjà choisis lors d'une visite précédente.
   const deja = new Set(lire().map((c) => c.id));

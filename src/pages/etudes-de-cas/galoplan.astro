@@ -2,26 +2,30 @@
 import Base from '../../layouts/Base.astro';
 import Photo from '../../components/Photo.astro';
 import Reel from '../../components/Reel.astro';
-import { galoplan } from '../../data';
+import { galoplan, commun } from '../../data';
 import { photo, cadrage, surligne, lignes, paragraphe } from '../../lib/contenu';
 import t from '../../contenu/pages/galoplan.json';
+
+const { etiquettes, boutons, menu } = commun;
+const L = t.libelles;
+const { titre, nomCourt, description } = t.referencement;
 const schemaCas = { '@type': 'CreativeWork', name: 'GaloPlan à l’écurie : deux réels verticaux', about: 'Contenu vidéo pour GaloPlan, l’application du cheval partagé', creator: { '@id': 'https://ilonagaigne.com/#ilona' }, inLanguage: 'fr-FR', genre: 'Étude de cas' };
 ---
-<Base titre="Étude de cas GaloPlan" description="Deux réels verticaux tournés à l’écurie pour GaloPlan, l’app du cheval partagé : un film de lancement et un vlog de séance." page="marques" fil={[{ nom: 'Marques & réseaux', href: '/marques' }, { nom: 'Étude de cas GaloPlan', href: '/etudes-de-cas/galoplan' }]} schema={[schemaCas]}>
+<Base titre={titre} description={description} page="marques" fil={[{ nom: menu.marques.libelle, href: '/marques' }, { nom: nomCourt || titre, href: '/etudes-de-cas/galoplan' }]} schema={[schemaCas]}>
   <article>
     <section class="wrap" style="padding-top: clamp(24px, 4vw, 56px)" data-reveal aria-labelledby="titre">
       <p class="lbl">{t.entete.surtitre}</p>
       <h1 id="titre" class="d h1 deborde" style="margin-top: 18px" set:html={lignes(t.entete.titre)} />
       <p class="apparait" style="max-width: 760px; margin: 32px 0 0; font-size: clamp(19px, 1.8vw, 26px); line-height: 1.45" set:html={paragraphe(t.entete.chapo)} />
       <dl class="faits apparait" style="--d: .5s">
-        <div><dt class="lbl">Client</dt><dd>{t.entete.client}</dd></div>
-        <div><dt class="lbl">Mission</dt><dd class="row g8"><span class="chip or">Vidéo</span><span class="chip pervenche">Réseaux</span></dd></div>
-        <div><dt class="lbl">Formats</dt><dd>{t.entete.formats}</dd></div>
-        <div><dt class="lbl">Durées</dt><dd>{t.entete.durees}</dd></div>
+        <div><dt class="lbl">{L.client}</dt><dd>{t.entete.client}</dd></div>
+        <div><dt class="lbl">{L.mission}</dt><dd class="row g8"><span class="chip or">{etiquettes.video}</span><span class="chip pervenche">{etiquettes.reseaux}</span></dd></div>
+        <div><dt class="lbl">{L.formats}</dt><dd>{t.entete.formats}</dd></div>
+        <div><dt class="lbl">{L.durees}</dt><dd>{t.entete.durees}</dd></div>
       </dl>
     </section>
 
-    <section class="sombre" style="margin-top: clamp(56px, 7vw, 96px)" aria-label="Les deux réels">
+    <section class="sombre" style="margin-top: clamp(56px, 7vw, 96px)" aria-label={L.reels}>
       <div class="wrap row" style="padding-block: clamp(56px, 7vw, 88px); justify-content: center; gap: 48px clamp(40px, 6vw, 96px)">
         <figure class="stack g12" style="margin: 0; flex: 0 1 360px">
           <Reel video={t.reels.lancement.video} or />
@@ -39,8 +43,8 @@ const schemaCas = { '@type': 'CreativeWork', name: 'GaloPlan à l’écurie : de
       <div class="bloc"><h2 class="d" style="font-size: 48px">{t.recit.realisation.titre}</h2><ul class="liste li">{t.recit.realisation.points.map((p) => <li>{p}</li>)}</ul></div>
     </section>
 
-    <section class="wrap section sans-haut grille" style="--min: 240px" data-reveal aria-label="Images extraites du vlog">
-      {t.images.map((im, i) => <Photo src={photo(im.image)} alt={im.alt ?? ''} pos={cadrage(im)} cache="#EAE2D4" delai={i ? `${(i + 2) / 10}s` : undefined} tailles="(max-width: 760px) 50vw, 25vw" class={i % 2 ? 'decale' : ''} />)}
+    <section class="wrap section sans-haut grille" style="--min: 240px" data-reveal aria-label={L.images}>
+      {t.images.map((im, i) => <Photo src={photo(im.image)} alt={im.alt ?? ''} pos={cadrage(im)} cache="#EAE2D4" delai={i ? `${(i + 2) / 10}s` : undefined} tailles="(max-width: 760px) 100vw, 25vw" class={i % 2 ? 'decale' : ''} />)}
     </section>
 
     {(galoplan.citation || galoplan.resultats.length > 0) && (
@@ -54,7 +58,7 @@ const schemaCas = { '@type': 'CreativeWork', name: 'GaloPlan à l’écurie : de
           )}
           {galoplan.resultats.length > 0 && (
             <div class="stack g24">
-              <h2 id="resultats" class="lbl">Résultats</h2>
+              <h2 id="resultats" class="lbl">{L.resultats}</h2>
               <div class="grille" style="--min: 220px">
                 {galoplan.resultats.map((r) => <div class="stat"><p class="prix">{r.valeur}</p><p>{r.libelle}</p></div>)}
               </div>
@@ -67,7 +71,7 @@ const schemaCas = { '@type': 'CreativeWork', name: 'GaloPlan à l’écurie : de
 
   <section class="wrap section row entre bas g32" data-reveal aria-labelledby="suite">
     <h2 id="suite" class="d" style="font-size: clamp(52px, 9vw, 140px); line-height: 1" set:html={surligne(t.fin.titre)} />
-    <a class="btn grand" href="/marques#contact">Parler de votre projet</a>
+    <a class="btn grand" href="/marques#contact">{boutons.parlerProjet}</a>
   </section>
 </Base>
 

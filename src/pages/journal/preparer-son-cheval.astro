@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import Photo from '../../components/Photo.astro';
 import { Image } from 'astro:assets';
 import { photo, cadrage, surligne, lignes, paragraphe } from '../../lib/contenu';
+import { commun } from '../../data';
 import t from '../../contenu/pages/journal-preparer.json';
 
 type Section = { titre: string; texte: string; liste?: string[]; photo?: { image: string; alt?: string; cadrage?: string }; legende?: string; citation?: string };
@@ -16,8 +17,9 @@ for (const x of t.sections as Section[]) {
 }
 blocs.forEach((b) => (b.citation = b.sections.at(-1)?.citation));
 const { titre, nomCourt, description } = t.referencement;
+const { menu } = commun;
 ---
-<Base titre={`${nomCourt || titre} · Journal`} description={description} page="journal" type="article" fil={[{ nom: 'Journal', href: '/journal/preparer-son-cheval' }, { nom: nomCourt || titre, href: '/journal/preparer-son-cheval' }]} schema={[{ '@type': 'Article', headline: titre, description, author: { '@id': 'https://ilonagaigne.com/#ilona' }, publisher: { '@id': 'https://ilonagaigne.com/#activite' }, inLanguage: 'fr-FR' }]}>
+<Base titre={`${nomCourt || titre} · Journal`} description={description} page="journal" type="article" fil={[{ nom: menu.journal.libelle, href: '/journal/preparer-son-cheval' }, { nom: nomCourt || titre, href: '/journal/preparer-son-cheval' }]} schema={[{ '@type': 'Article', headline: titre, description, author: { '@id': 'https://ilonagaigne.com/#ilona' }, publisher: { '@id': 'https://ilonagaigne.com/#activite' }, inLanguage: 'fr-FR' }]}>
   <article>
     <header class="wrap" style="padding-top: clamp(16px, 3vw, 48px)" data-reveal>
       <div class="colonne">
@@ -76,7 +78,7 @@ const { titre, nomCourt, description } = t.referencement;
   <section class="wrap section stack g32" data-reveal aria-labelledby="suite">
     <div class="row entre bas g24">
       <h2 id="suite" class="d h2" set:html={surligne(t.suite.titre)} />
-      <a class="btn" href="/reservation">Réserver ma séance</a>
+      <a class="btn" href="/reservation">{t.suite.bouton}</a>
     </div>
     <a class="suite" href="/academie/lire-la-lumiere-du-soir">
       <Photo src={photo(t.suite.photo.image)} alt={t.suite.photo.alt ?? ''} ratio="16 / 10" pos={cadrage(t.suite.photo, '50% 35%')} cache="#EAE2D4" tailles="(max-width: 760px) 100vw, 40vw" curseur={false} />

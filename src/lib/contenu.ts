@@ -39,3 +39,13 @@ export function lignes(texte = '', pas = 0.12) {
 
 // Paragraphe simple : les retours à la ligne deviennent des sauts de ligne, le reste est du texte brut.
 export const paragraphe = (texte = '') => echapper(texte.trim()).replace(/\r?\n/g, '<br>');
+
+// Remplace {mot} par sa valeur dans un texte saisi dans le back office (mot inconnu = vide).
+export const gabarit = (texte = '', valeurs: Record<string, string | number> = {}) => texte.replace(/\{([\w-]+)\}/g, (_, k) => String(valeurs[k] ?? ''));
+
+// Remplace {mot} par sa valeur dans tous les textes d'un contenu, en laissant les autres {mots} intacts.
+export function avecValeurs<T>(contenu: T, valeurs: Record<string, string | number>): T {
+  let s = JSON.stringify(contenu);
+  for (const [cle, valeur] of Object.entries(valeurs)) s = s.replaceAll(`{${cle}}`, String(valeur));
+  return JSON.parse(s);
+}

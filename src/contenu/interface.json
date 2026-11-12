@@ -1,0 +1,53 @@
+{
+  "etiquettes": {
+    "photo": "Photo",
+    "video": "Vidéo",
+    "reseaux": "Réseaux"
+  },
+  "boutons": {
+    "reserver": "Réserver une séance",
+    "trouverSeance": "Trouver ma séance en 30 s",
+    "voirSeances": "Voir les séances",
+    "parlerProjet": "Parler de votre projet"
+  },
+  "mots": {
+    "des": "dès"
+  },
+  "menu": {
+    "seances": {
+      "libelle": "Séances équestres",
+      "court": "Séances"
+    },
+    "concours": {
+      "libelle": "Concours",
+      "court": "Concours"
+    },
+    "marques": {
+      "libelle": "Marques & réseaux",
+      "court": "Marques"
+    },
+    "academie": {
+      "libelle": "Académie",
+      "court": "Académie"
+    },
+    "journal": {
+      "libelle": "Journal",
+      "court": "Journal"
+    },
+    "galerie": "Ma galerie",
+    "galerieMenu": "Accéder à ma galerie",
+    "reserverCourt": "Réserver",
+    "accueil": "Accueil",
+    "piedTarifs": "Tarifs",
+    "piedQuestions": "Questions fréquentes",
+    "piedContact": "Contact",
+    "piedInstagram": "Instagram",
+    "piedMention": "Ilona Photographe · photographe équestre près de Toulouse"
+  },
+  "lecteurs": {
+    "allerContenu": "Aller au contenu",
+    "ouvrirMenu": "Ouvrir le menu",
+    "filAriane": "Fil d’Ariane",
+    "photoNumero": "photo {n}"
+  }
+}

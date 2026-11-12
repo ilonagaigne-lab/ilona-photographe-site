@@ -2,10 +2,12 @@
 import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
 import Reel from '../components/Reel.astro';
-import { contact, concours, listeConcours } from '../data';
-import { photo, cadrage, surligne, lignes, paragraphe } from '../lib/contenu';
+import { contact, concours, listeConcours, commun } from '../data';
+import { photo, cadrage, surligne, lignes, paragraphe, gabarit } from '../lib/contenu';
 import t from '../contenu/pages/concours.json';
 import contenuAgenda from '../contenu/agenda.json';
+
+const { etiquettes } = commun;
 
 // Formule du réel souvenir (bouton de la section vidéo) : sinon la première formule avec vidéo.
 const reel = concours.find((c) => c.id === 'concours-reel') ?? concours.find((c) => c.video);
@@ -19,7 +21,7 @@ const agenda = ((contenuAgenda.concours ?? []) as { date: string; nom: string; l
   .sort((a, b) => String(a.date).localeCompare(String(b.date)))
   .map((c) => ({ iso: String(c.date).slice(0, 10), date: dateCourte.format(new Date(String(c.date).slice(0, 10))), nom: c.nom, lieu: c.lieu ?? '', discipline: c.discipline ?? '' }));
 ---
-<Base titre="Photographe de concours équestre" description={`Photographe de concours équestre près de Toulouse : ${listeConcours}. Réservez avant l’épreuve.`} page="concours">
+<Base titre={t.referencement.titre} description={gabarit(t.referencement.description, { 'liste-concours': listeConcours })} page="concours">
 
   <section class="wrap row bas" style="padding-top: clamp(24px, 4vw, 64px); gap: 40px clamp(40px, 6vw, 96px)" data-reveal aria-labelledby="titre">
     <div style="flex: 2 1 560px">
@@ -35,13 +37,13 @@ const agenda = ((contenuAgenda.concours ?? []) as { date: string; nom: string; l
     <div class="grille">
       {concours.map((c) => (
         <article class="carte stack g16" style={`padding: 36px${c.vedette ? '; box-shadow: 0 0 0 3px var(--or), var(--ombre)' : ''}`}>
-          {c.photo && c.video ? <div class="row g8"><span class="chip">Photo</span><span class="chip or">Vidéo</span></div>
-            : c.video ? <span class="chip or" style="align-self: flex-start">Vidéo</span>
-            : <span class="chip" style="align-self: flex-start">Photo</span>}
+          {c.photo && c.video ? <div class="row g8"><span class="chip">{etiquettes.photo}</span><span class="chip or">{etiquettes.video}</span></div>
+            : c.video ? <span class="chip or" style="align-self: flex-start">{etiquettes.video}</span>
+            : <span class="chip" style="align-self: flex-start">{etiquettes.photo}</span>}
           <h3 class="d h3">{c.nomCourt}</h3>
-          <p class="prix" style="font-size: 88px; margin: 0">{c.prix} €</p>
+          <p class="prix" style="font-size: 88px; margin: 0">{c.prix} €</p>
           <p style="margin: 0; font-size: 15px; line-height: 1.6; opacity: .9; flex: 1">{c.description}</p>
-          <a class="btn clair" href={`/reservation?formule=${c.id}`} style="align-self: flex-start">Choisir {c.nomCourt}</a>
+          <a class="btn clair" href={`/reservation?formule=${c.id}`} style="align-self: flex-start">{gabarit(t.formats.choisir, { nom: c.nomCourt })}</a>
         </article>
       ))}
     </div>
@@ -52,7 +54,7 @@ const agenda = ((contenuAgenda.concours ?? []) as { date: string; nom: string; l
       <span class="chip or" style="align-self: flex-start">{t.reel.etiquette}</span>
       <h2 id="reel" class="d h2" set:html={surligne(t.reel.titre)} />
       <p class="texte" style="max-width: 520px" set:html={paragraphe(t.reel.texte)} />
-      <a class="btn contour" href={reel ? `/reservation?formule=${reel.id}` : '/reservation'} style="align-self: flex-start">Réserver mon réel{reel && ` · ${reel.prix} €`}</a>
+      <a class="btn contour" href={reel ? `/reservation?formule=${reel.id}` : '/reservation'} style="align-self: flex-start">{t.reel.bouton}{reel && ` · ${reel.prix} €`}</a>
     </div>
     <Reel video={t.reel.video} or style="flex: 0 1 380px" />
   </section>
@@ -65,15 +67,15 @@ const agenda = ((contenuAgenda.concours ?? []) as { date: string; nom: string; l
     {agenda.length > 0 && (
       <ul class="agenda" data-agenda>
         {agenda.map((a) => (
-          <li data-date={a.iso}><p class="d" style="font-size: 40px">{a.date}</p><p style="font-weight: 600; font-size: 17px">{a.nom}</p>{(a.lieu || a.discipline) && <p class="li">{[a.lieu, a.discipline].filter(Boolean).join(" · ")}</p>}<a class="btn contour" href="/reservation?formule=concours-photo">Réserver ma photo</a></li>
+          <li data-date={a.iso}><p class="d" style="font-size: 40px">{a.date}</p><p style="font-weight: 600; font-size: 17px">{a.nom}</p>{(a.lieu || a.discipline) && <p class="li">{[a.lieu, a.discipline].filter(Boolean).join(" · ")}</p>}<a class="btn contour" href="/reservation?formule=concours-photo">{t.agenda.bouton}</a></li>
         ))}
       </ul>
     )}
     <div data-agenda-vide hidden={agenda.length > 0}>
       <div class="carte stack g16" style="padding: clamp(24px, 3vw, 40px); max-width: 760px">
-        <p class="lbl">Agenda</p>
+        <p class="lbl">{t.agenda.videTitre}</p>
         <p style="margin: 0; font-size: 18px; line-height: 1.6" set:html={paragraphe(t.agenda.vide)} />
-        <div class="row g12"><a class="btn clair" href={`mailto:${contact.email}?subject=${encodeURIComponent('Photo de concours')}`}>Écrire à Ilona</a><a class="btn clair" href={contact.instagramLien} style="background: var(--pervenche)">Voir Instagram</a></div>
+        <div class="row g12"><a class="btn clair" href={`mailto:${contact.email}?subject=${encodeURIComponent(t.agenda.objetMail)}`}>{t.agenda.ecrire}</a><a class="btn clair" href={contact.instagramLien} style="background: var(--pervenche)">{t.agenda.instagram}</a></div>
       </div>
     </div>
     {agenda.length > 0 && (
@@ -93,7 +95,7 @@ const agenda = ((contenuAgenda.concours ?? []) as { date: string; nom: string; l
   <section class="sombre" data-reveal aria-labelledby="cta">
     <div class="wrap row entre centre g32" style="padding-block: clamp(64px, 8vw, 96px)">
       <h2 id="cta" class="d" style="font-size: clamp(52px, 8vw, 120px)" set:html={surligne(t.fin.titre, { plein: true })} />
-      <a class="btn clair grand" href="/reservation?formule=concours-photo">Réserver mon concours</a>
+      <a class="btn clair grand" href="/reservation?formule=concours-photo">{t.fin.bouton}</a>
     </div>
   </section>
 </Base>
@@ -103,8 +105,10 @@ const agenda = ((contenuAgenda.concours ?? []) as { date: string; nom: string; l
   .agenda li { display: grid; grid-template-columns: 160px minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px 24px; align-items: center; padding: 22px 0; border-top: 1px solid rgba(34,34,34,.2); }
   .agenda li:last-child { border-bottom: 1px solid rgba(34,34,34,.2); }
   .agenda p { margin: 0; }
+  /* Sans lieu ni discipline, le bouton reste dans sa colonne. */
+  .agenda .btn { grid-column: 4; }
   @media (max-width: 760px) {
     .agenda li { grid-template-columns: 1fr; }
-    .agenda .btn { justify-self: start; }
+    .agenda .btn { grid-column: auto; justify-self: start; }
   }
 </style>

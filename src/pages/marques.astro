@@ -3,25 +3,32 @@ import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
 import Reel from '../components/Reel.astro';
 import { Image } from 'astro:assets';
-import { contact } from '../data';
+import { contact, commun } from '../data';
 import { photo, cadrage, surligne, paragraphe } from '../lib/contenu';
 import t from '../contenu/pages/marques.json';
+
+const { boutons } = commun;
+const F = t.formulaire;
+// Secours si l'envoi automatique échoue : e-mail et téléphone en liens cliquables (viennent de « Coordonnées »).
+const aide = paragraphe(F.secoursAide)
+  .replace('{email}', `<a href="mailto:${contact.email}">${contact.email}</a>`)
+  .replace('{telephone}', `<a href="${contact.telephoneLien}">${contact.telephone}</a>`);
 
 // Cadrage par défaut quand aucun n'est choisi dans le back office.
 const posDefaut: Record<string, string> = { '/src/assets/photos/evenement-champagne.jpg': '45% 50%' };
 const [ligne1, ligne2 = ''] = t.entete.titre.trim().split(/\r?\n/);
 ---
-<Base titre="Contenu de marque et réseaux sociaux" description="Photo, vidéo et community management pour les marques équestres : selleries, écuries, éleveurs, créateurs d’équipement. Sur devis." page="marques">
+<Base titre={t.referencement.titre} description={t.referencement.description} page="marques">
 
   <section class="wrap" style="padding-top: clamp(24px, 4vw, 64px)" data-reveal aria-labelledby="titre">
     <p class="lbl">{t.entete.surtitre}</p>
-    <h1 id="titre" class="d deborde" style="font-size: clamp(64px, 16vw, 236px); margin-top: 18px">
+    <h1 id="titre" class="d deborde titre-marques" style="margin-top: 18px">
       <span class="rv"><span set:html={surligne(ligne1, { delai: '.9s' })} /></span>
       <span class="rv" style="padding-left: clamp(0px, 10vw, 150px)"><span style="--d: .2s" set:html={surligne(ligne2, { delai: '.9s' })} /></span>
     </h1>
     <div class="row entre bas g24" style="margin-top: 40px">
       <p class="chapo apparait" set:html={paragraphe(t.entete.chapo)} />
-      <a class="btn apparait" href="#contact">Parler de votre projet</a>
+      <a class="btn apparait" href="#contact">{boutons.parlerProjet}</a>
     </div>
   </section>
 
@@ -70,9 +77,9 @@ const [ligne1, ligne2 = ''] = t.entete.titre.trim().split(/\r?\n/);
       <Photo src={photo(t.cas.photo.image)} alt={t.cas.photo.alt ?? ''} ratio="4 / 3" pos={cadrage(t.cas.photo, '50% 30%')} cache="var(--pervenche)" tailles="(max-width: 760px) 100vw, 45vw" style="flex: 1 1 360px; border-radius: 16px" />
       <div class="stack g20" style="flex: 1 1 420px">
         <p class="lbl" style="color: var(--encre)">{t.cas.surtitre}</p>
-        <h2 id="cas" class="d" style="font-size: clamp(40px, 5vw, 76px); line-height: 1" set:html={surligne(t.cas.titre)} />
+        <h2 id="cas" class="d" style="font-size: clamp(40px, 5vw, 76px); line-height: 1.06" set:html={surligne(t.cas.titre)} />
         <p class="texte" style="font-size: 17px" set:html={paragraphe(t.cas.texte)} />
-        <a class="btn" href="/etudes-de-cas/galoplan" style="align-self: flex-start">Lire l’étude de cas</a>
+        <a class="btn" href="/etudes-de-cas/galoplan" style="align-self: flex-start">{t.cas.bouton}</a>
       </div>
     </div>
   </section>
@@ -90,25 +97,34 @@ const [ligne1, ligne2 = ''] = t.entete.titre.trim().split(/\r?\n/);
       <p class="texte" set:html={paragraphe(t.contact.texte)} />
       <p style="margin: 0; font-size: 15px">{contact.email} · {contact.telephone}</p>
     </div>
-    <form id="form-marque" class="formulaire" style="flex: 1 1 520px" data-email={contact.email}>
-      <label class="champ">Votre nom<input class="saisie" name="nom" data-libelle="Nom" type="text" autocomplete="name" required></label>
-      <label class="champ">Votre marque<input class="saisie" name="marque" data-libelle="Marque" type="text" autocomplete="organization"></label>
-      <label class="champ plein">E-mail<input class="saisie" name="email" data-libelle="E-mail" type="email" autocomplete="email" required></label>
+    <form id="form-marque" class="formulaire" style="flex: 1 1 520px" data-email={contact.email} data-textes={JSON.stringify({ envoyer: F.envoyer, envoiEnCours: F.envoiEnCours, merci: F.merci, messagerie: F.messagerie, copieOk: F.copieOk, copieEchec: F.copieEchec, sujet: t.courriel.sujet })}>
+      <label class="champ">{F.nom}<input class="saisie" name="nom" data-libelle={t.courriel.nom} type="text" autocomplete="name" required></label>
+      <label class="champ">{F.marque}<input class="saisie" name="marque" data-libelle={t.courriel.marque} type="text" autocomplete="organization"></label>
+      <label class="champ plein">{F.email}<input class="saisie" name="email" data-libelle={t.courriel.email} type="email" autocomplete="email" required></label>
       <fieldset class="plein" style="border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 24px">
-        <legend style="font-size: 14px; font-weight: 500; padding: 0; margin-bottom: 8px">Ce dont vous avez besoin</legend>
-        <label class="case"><input type="checkbox" name="photo" data-libelle="Besoin photo">Photo</label>
-        <label class="case"><input type="checkbox" name="video" data-libelle="Besoin vidéo">Vidéo</label>
-        <label class="case"><input type="checkbox" name="reseaux" data-libelle="Besoin réseaux sociaux">Réseaux sociaux</label>
+        <legend style="font-size: 14px; font-weight: 500; padding: 0; margin-bottom: 8px">{F.besoin}</legend>
+        <label class="case"><input type="checkbox" name="photo" data-libelle={t.courriel.photo}>{F.photo}</label>
+        <label class="case"><input type="checkbox" name="video" data-libelle={t.courriel.video}>{F.video}</label>
+        <label class="case"><input type="checkbox" name="reseaux" data-libelle={t.courriel.reseaux}>{F.reseaux}</label>
       </fieldset>
-      <label class="champ plein">Votre projet en quelques mots<textarea class="saisie" name="message" data-libelle="Projet" maxlength="1200"></textarea></label>
-      <button class="btn plein" type="submit" style="justify-self: start">Envoyer ma demande</button>
+      <label class="champ plein">{F.projet}<textarea class="saisie" name="message" data-libelle={t.courriel.projet} maxlength="1200"></textarea></label>
+      <button class="btn plein" type="submit" style="justify-self: start">{F.envoyer}</button>
       <label class="piege" aria-hidden="true">Ne pas remplir<input name="site_web" type="text" tabindex="-1" autocomplete="off"></label>
       <p class="plein statut" data-statut-marque role="status" hidden></p>
+      <div class="plein carte stack g12 secours" data-secours hidden>
+        <p class="lbl">{F.secoursAideTitre}</p>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6" set:html={aide} />
+        <label class="champ">{F.copieLibelle}<textarea class="saisie" data-texte-demande readonly rows="8"></textarea></label>
+        <button type="button" class="btn clair" data-copier style="align-self: flex-start">{F.copierBouton}</button>
+        <p data-copie-ok role="status" style="margin: 0; font-size: 14px" hidden></p>
+      </div>
     </form>
   </section>
 </Base>
 
 <style>
+  .titre-marques { font-size: clamp(46px, 14.5vw, 100px); }
+  @media (min-width: 761px) { .titre-marques { font-size: clamp(64px, 16vw, 236px); } }
   .formats { display: grid; grid-template-columns: minmax(0, 1.1fr) repeat(3, minmax(0, 1fr)); gap: 40px; align-items: end; }
   .tel { margin: 0; display: flex; flex-direction: column; gap: 16px; font-size: 14px; }
   .tel.decale { margin-bottom: 48px; }
@@ -118,6 +134,8 @@ const [ligne1, ligne2 = ''] = t.entete.titre.trim().split(/\r?\n/);
   .etape strong { font-size: 19px; font-weight: 600; }
   .piege { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .statut { margin: 0; padding: 14px 18px; border-radius: 12px; background: rgba(231,156,194,.35); font-size: 15px; font-weight: 500; }
+  .secours { padding: 24px; }
+  .secours a { text-decoration: underline; text-underline-offset: 3px; }
   .formulaire { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
   .formulaire .plein { grid-column: 1 / -1; }
   @media (max-width: 900px) {
@@ -133,22 +151,35 @@ const [ligne1, ligne2 = ''] = t.entete.titre.trim().split(/\r?\n/);
   import { ouvrirMail, lignesDuFormulaire, envoyerDemande } from '../scripts/mail.js';
   const form = document.getElementById('form-marque') as HTMLFormElement;
   const statut = document.querySelector('[data-statut-marque]') as HTMLElement;
+  const T = JSON.parse(form.dataset.textes || '{}');
+  const secours = form.querySelector('[data-secours]') as HTMLElement;
+  const zone = secours.querySelector('[data-texte-demande]') as HTMLTextAreaElement;
+  const copieOk = secours.querySelector('[data-copie-ok]') as HTMLElement;
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!form.reportValidity()) return;
     const bouton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-    bouton.disabled = true; bouton.textContent = 'Envoi en cours…';
+    bouton.disabled = true; bouton.textContent = T.envoiEnCours;
     const champ = (n: string) => ((form.elements.namedItem(n) as HTMLInputElement)?.value || '').trim();
     const lignes = lignesDuFormulaire(form).filter((l) => !l.startsWith('site_web'));
     const ok = await envoyerDemande({ type: 'marque', nom: champ('nom'), email: champ('email'), lignes, site_web: champ('site_web') });
-    bouton.disabled = false; bouton.textContent = 'Envoyer ma demande';
+    bouton.disabled = false; bouton.textContent = T.envoyer;
     if (ok) {
       form.reset();
-      statut.textContent = 'Merci, votre demande est bien arrivée. Ilona revient vers vous très vite par e-mail.';
+      statut.textContent = T.merci;
     } else {
-      ouvrirMail(form.dataset.email!, 'Projet de marque', lignes);
-      statut.textContent = 'Votre messagerie s’est ouverte avec la demande rédigée : il ne reste qu’à l’envoyer.';
+      // Texte à copier si la messagerie ne s'ouvre pas (le formulaire reste rempli).
+      zone.value = lignes.join('\n');
+      copieOk.hidden = true;
+      ouvrirMail(form.dataset.email!, T.sujet, lignes);
+      statut.textContent = T.messagerie;
     }
+    secours.hidden = ok;
     statut.hidden = false;
   });
+  secours.querySelector('[data-copier]')!.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(zone.value); copieOk.textContent = T.copieOk; } catch { copieOk.textContent = T.copieEchec; }
+    copieOk.hidden = false;
+  });
+  zone.addEventListener('focus', () => zone.select());
 </script>

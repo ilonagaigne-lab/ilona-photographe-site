@@ -3,17 +3,27 @@ import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
 import Reel from '../components/Reel.astro';
 import { Image } from 'astro:assets';
-import { seances, seanceVedette, deplacement, depart, phraseDeplacement, prixMinSeance, faq, contact } from '../data';
-import { photo, cadrage, surligne, lignes, paragraphe } from '../lib/contenu';
-import t from '../contenu/pages/seances.json';
+import { seances, seanceVedette, deplacement, depart, phraseDeplacement, prixMinSeance, faq, contact, tauxSegur, commun } from '../data';
+import { photo, cadrage, surligne, lignes, paragraphe, gabarit, avecValeurs } from '../lib/contenu';
+import contenu from '../contenu/pages/seances.json';
+
+const t = avecValeurs(contenu, { taux: tauxSegur });
+const { etiquettes, boutons } = commun;
 
 // Valeurs affichées avant le calcul dans le navigateur : distance de départ 45 km, formule mise en avant.
 const kmDepart = 45;
 const depDepart = Math.round(Math.max(0, kmDepart - deplacement.gratuitJusqua) * deplacement.prixKm);
 const totalDepart = (seanceVedette?.prix ?? 0) + depDepart;
+const [ligneAvant, ligneApres = ''] = t.calcul.ligneSeance.split('{nom}');
+// Phrase de fin de FAQ : {telephone} et {email} deviennent des liens.
+const autreQuestion = paragraphe(t.faq.autreQuestion)
+  .replace('{telephone}', `<a href="${contact.telephoneLien}">${contact.telephone}</a>`)
+  .replace('{email}', `<a href="mailto:${contact.email}">${contact.email}</a>`);
+// Textes du script du calculateur (messages affichés sous le champ « commune »).
+const textesCalcul = { distanceManuelle: t.calcul.distanceManuelle, communeIntrouvable: t.calcul.communeIntrouvable, distanceNonCalculee: t.calcul.distanceNonCalculee, distanceCalculee: t.calcul.distanceCalculee };
 const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.r } })) };
 ---
-<Base titre="Séances photo équestres et tarifs" description={`Séances photo équestres près de Toulouse, dès ${prixMinSeance} €. Calculez votre prix, déplacement compris.`} page="seances" schema={[schemaFaq]}>
+<Base titre={t.referencement.titre} description={gabarit(t.referencement.description, { 'prix-seance': `${prixMinSeance} €` })} page="seances" schema={[schemaFaq]}>
 
   <section class="wrap row entre bas g32" style="padding-top: clamp(24px, 4vw, 64px)" data-reveal aria-labelledby="titre">
     <div>
@@ -32,19 +42,19 @@ const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': '
       <h2 id="formules" class="d h2" set:html={surligne(t.formules.titre)} />
       <p class="lbl">{t.formules.mention}</p>
     </div>
-    <p class="texte" style="font-size: 16px; margin-top: -24px">Vous hésitez entre deux formules ? <a href="/trouver-ma-seance" style="display: inline-block; padding: 10px 0; font-weight: 600">Trouvez la vôtre en 30 secondes →</a></p>
+    <p class="texte" style="font-size: 16px; margin-top: -24px">{t.formules.quizTexte} <a href="/trouver-ma-seance" style="display: inline-block; padding: 10px 0; font-weight: 600">{t.formules.quizLien}</a></p>
     <div class="grille" style="--min: 260px; gap: 20px">
       {seances.map((s) => (
         <article class:list={['carte', 'stack', 'g16', 'formule', { vedette: s.vedette }]}>
           <Image src={photo(s.photo.image)} alt={s.photo.alt ?? ''} widths={[400, 700]} sizes="(max-width: 760px) 100vw, 25vw" class="formule-img" style={`object-position: ${cadrage(s.photo)}`} />
           <div class="stack g16" style="padding: 0 30px 30px; flex: 1">
-            <div class="row g8"><span class="chip">Photo</span>{s.video && <span class="chip or">Vidéo</span>}</div>
+            <div class="row g8"><span class="chip">{etiquettes.photo}</span>{s.video && <span class="chip or">{etiquettes.video}</span>}</div>
             <h3 class="d h3">{s.nom}</h3>
-            <p class="prix" style="font-size: 72px; margin: 0">{s.prix} €</p>
+            <p class="prix" style="font-size: 72px; margin: 0">{s.prix} €</p>
             <p style="margin: 0; font-size: 15px; line-height: 1.55; opacity: .9">{s.accroche}</p>
             {s.details.length > 0 && <ul class="liste li" style="font-size: 16px">{s.details.map((d) => <li>{d}</li>)}</ul>}
             <span style="flex: 1"></span>
-            <a class="btn clair" href={`/reservation?formule=${s.id}`}>Choisir {s.nom.split(' ')[0]}</a>
+            <a class="btn clair" href={`/reservation?formule=${s.id}`}>{gabarit(t.formules.choisir, { nom: s.nom.split(' ')[0] })}</a>
           </div>
         </article>
       ))}
@@ -54,10 +64,10 @@ const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': '
   <section class="wrap section sans-haut row centre" style="gap: 40px clamp(40px, 6vw, 96px)" data-reveal aria-labelledby="reel">
     <Reel video={t.video.video} style="flex: 0 1 380px" />
     <div class="stack g20" style="flex: 1 1 420px">
-      <span class="chip or" style="align-self: flex-start">Vidéo</span>
+      <span class="chip or" style="align-self: flex-start">{etiquettes.video}</span>
       <h2 id="reel" class="d h2" set:html={surligne(t.video.titre)} />
       <p class="texte" style="max-width: 520px" set:html={paragraphe(t.video.texte)} />
-      <a class="btn contour" href="/reservation" style="align-self: flex-start">Ajouter la vidéo</a>
+      <a class="btn contour" href="/reservation" style="align-self: flex-start">{t.video.bouton}</a>
     </div>
   </section>
 
@@ -66,34 +76,34 @@ const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': '
       <h2 id="calcul" class="d h2" set:html={surligne(t.calcul.titre)} />
       <p class="texte" style="max-width: 380px; font-size: 15px">{phraseDeplacement}</p>
     </div>
-    <div class="row g24" style="align-items: stretch" id="calculateur" data-gratuit={deplacement.gratuitJusqua} data-km={deplacement.prixKm}>
+    <div class="row g24" style="align-items: stretch" id="calculateur" data-gratuit={deplacement.gratuitJusqua} data-km={deplacement.prixKm} data-taux={tauxSegur} data-textes={JSON.stringify(textesCalcul)}>
       <div class="stack g32" style="flex: 2 1 520px; border-radius: 16px; box-shadow: inset 0 0 0 1.5px rgba(34,34,34,.25); padding: clamp(22px, 3vw, 36px)">
         <fieldset style="border: 0; margin: 0; padding: 0">
-          <legend class="lbl" style="color: var(--encre); padding: 0; margin-bottom: 14px">1 · La formule</legend>
+          <legend class="lbl" style="color: var(--encre); padding: 0; margin-bottom: 14px">{t.calcul.formuleTitre}</legend>
           <div class="row g8">
-            {seances.map((s) => <button type="button" class="pastille" data-formule={s.id} data-nom={s.nom} data-prix={s.prix} aria-pressed={s.id === seanceVedette?.id ? 'true' : 'false'}>{s.nom} · {s.prix} €</button>)}
+            {seances.map((s) => <button type="button" class="pastille" data-formule={s.id} data-nom={s.nom} data-prix={s.prix} aria-pressed={s.id === seanceVedette?.id ? 'true' : 'false'}>{s.nom} · {s.prix} €</button>)}
           </div>
         </fieldset>
         <div class="stack g8">
-          <label for="commune" class="lbl" style="color: var(--encre)">2 · Votre commune</label>
-          <input id="commune" class="saisie" type="text" placeholder="Ex. Muret" style="max-width: 360px">
-          <p class="li" style="margin: 0; font-size: 14px" data-sortie="trajet" aria-live="polite">Tapez votre commune : je calcule la distance par la route. Ou réglez-la à la main.</p>
+          <label for="commune" class="lbl" style="color: var(--encre)">{t.calcul.communeTitre}</label>
+          <input id="commune" class="saisie" type="text" placeholder={t.calcul.communeExemple} style="max-width: 360px">
+          <p class="li" style="margin: 0; font-size: 14px" data-sortie="trajet" aria-live="polite">{t.calcul.communeAide}</p>
         </div>
         <div class="stack g8">
-          <label for="km" class="lbl" style="color: var(--encre)">Distance depuis {depart.ville} : <span style="color: var(--rose-profond)" data-sortie="km">{kmDepart} km</span></label>
+          <label for="km" class="lbl" style="color: var(--encre)">{gabarit(t.calcul.distance, { ville: depart.ville })} <span style="color: var(--rose-profond)" data-sortie="km">{kmDepart} km</span></label>
           <input id="km" type="range" min="0" max="150" step="1" value={kmDepart} style="width: 100%; accent-color: var(--rose-profond); height: 44px">
           <div class="row entre" style="font-size: 13px"><span>0 km</span><span>150 km</span></div>
         </div>
-        <label class="case"><input type="checkbox" id="segur">Je suis cavalier ou cavalière aux Écuries d’En Ségur (-10 %)</label>
+        <label class="case"><input type="checkbox" id="segur">{t.calcul.segur}</label>
       </div>
       <div class="carte stack g16" style="flex: 1 1 320px; padding: clamp(22px, 3vw, 36px)" aria-live="polite">
-        <p class="lbl">Estimation</p>
-        <div class="row entre" style="padding-bottom: 12px; border-bottom: 1px solid rgba(236,235,231,.18)"><span>Séance <span data-sortie="nom">{seanceVedette?.nom}</span></span><span><span data-sortie="prix">{seanceVedette?.prix}</span> €</span></div>
-        <div class="row entre" style="padding-bottom: 12px; border-bottom: 1px solid rgba(236,235,231,.18)"><span>Déplacement</span><span><span data-sortie="deplacement">{depDepart}</span> €</span></div>
-        <div class="row entre" data-ligne-remise hidden style="padding-bottom: 12px; border-bottom: 1px solid rgba(236,235,231,.18)"><span>Remise En Ségur</span><span>-<span data-sortie="remise">0</span> €</span></div>
-        <p style="margin: 8px 0 0; font-size: 14px">Total estimé</p>
+        <p class="lbl">{t.calcul.estimation}</p>
+        <div class="row entre" style="padding-bottom: 12px; border-bottom: 1px solid rgba(236,235,231,.18)"><span>{ligneAvant}<span data-sortie="nom">{seanceVedette?.nom}</span>{ligneApres}</span><span><span data-sortie="prix">{seanceVedette?.prix}</span> €</span></div>
+        <div class="row entre" style="padding-bottom: 12px; border-bottom: 1px solid rgba(236,235,231,.18)"><span>{t.calcul.ligneDeplacement}</span><span><span data-sortie="deplacement">{depDepart}</span> €</span></div>
+        <div class="row entre" data-ligne-remise hidden style="padding-bottom: 12px; border-bottom: 1px solid rgba(236,235,231,.18)"><span>{t.calcul.ligneRemise}</span><span>-<span data-sortie="remise">0</span> €</span></div>
+        <p style="margin: 8px 0 0; font-size: 14px">{t.calcul.total}</p>
         <p class="prix" style="font-size: clamp(64px, 7vw, 96px); margin: 0"><span data-sortie="total">{totalDepart}</span> €</p>
-        <a class="btn clair" href={`/reservation?formule=${seanceVedette?.id}`} data-sortie-lien style="align-self: flex-start; margin-top: auto">Réserver cette séance</a>
+        <a class="btn clair" href={`/reservation?formule=${seanceVedette?.id}`} data-sortie-lien style="align-self: flex-start; margin-top: auto">{t.calcul.reserver}</a>
       </div>
     </div>
   </section>
@@ -110,13 +120,13 @@ const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': '
     <div class="faq">
       {faq.map((f) => <details><summary>{f.q}</summary><p>{f.r}</p></details>)}
     </div>
-    <p class="texte" style="font-size: 15px">Une autre question ? Appelez Ilona au <a href={contact.telephoneLien}>{contact.telephone}</a> ou écrivez à <a href={`mailto:${contact.email}`}>{contact.email}</a>.</p>
+    <p class="texte" style="font-size: 15px" set:html={autreQuestion} />
   </section>
 
   <section class="sombre" data-reveal aria-labelledby="cta">
     <div class="wrap row entre centre g32" style="padding-block: clamp(64px, 8vw, 96px)">
       <h2 id="cta" class="d" style="font-size: clamp(52px, 8vw, 120px)" set:html={surligne(t.fin.titre, { plein: true })} />
-      <a class="btn clair grand" href="/reservation">Réserver une séance</a>
+      <a class="btn clair grand" href="/reservation">{boutons.reserver}</a>
     </div>
   </section>
 </Base>
@@ -136,6 +146,9 @@ const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': '
   const zone = document.getElementById('calculateur')!;
   const gratuit = Number(zone.dataset.gratuit);
   const prixKm = Number(zone.dataset.km);
+  const taux = Number(zone.dataset.taux);
+  const T = JSON.parse(zone.dataset.textes || '{}');
+  const gabarit = (texte: string, valeurs: Record<string, string | number> = {}) => texte.replace(/\{([\w-]+)\}/g, (_, k) => String(valeurs[k] ?? ''));
   const km = zone.querySelector<HTMLInputElement>('#km')!;
   const segur = zone.querySelector<HTMLInputElement>('#segur')!;
   const sortie = (n: string) => zone.querySelector(`[data-sortie="${n}"]`)!;
@@ -145,7 +158,7 @@ const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': '
     if (!formule) return;
     const prix = Number(formule.dataset.prix);
     const dep = Math.round(Math.max(0, Number(km.value) - gratuit) * prixKm);
-    const remise = segur.checked ? Math.round((prix + dep) * 0.1) : 0; // même arrondi que la réservation
+    const remise = segur.checked ? Math.round(((prix + dep) * taux) / 100) : 0; // même arrondi que la réservation
     sortie('km').textContent = `${km.value} km`;
     sortie('nom').textContent = formule.dataset.nom!;
     sortie('prix').textContent = String(prix);
@@ -162,13 +175,13 @@ const schemaFaq = { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': '
     formule = b; b.setAttribute('aria-pressed', 'true');
     calcule();
   });
-  km.addEventListener('input', () => { sortie('trajet').textContent = 'Distance réglée à la main.'; calcule(); });
+  km.addEventListener('input', () => { sortie('trajet').textContent = T.distanceManuelle; calcule(); });
   brancherCommune(zone.querySelector<HTMLInputElement>('#commune')!, (r: { nom: string; km: number | null } | null) => {
-    if (!r) { sortie('trajet').textContent = 'Commune introuvable : réglez la distance à la main.'; return; }
-    if (r.km === null) { sortie('trajet').textContent = `${r.nom} : distance non calculée, Ilona la calculera. Vous pouvez aussi la régler à la main.`; return; }
+    if (!r) { sortie('trajet').textContent = T.communeIntrouvable; return; }
+    if (r.km === null) { sortie('trajet').textContent = gabarit(T.distanceNonCalculee, { commune: r.nom }); return; }
     if (r.km > Number(km.max)) km.max = String(r.km);
     km.value = String(r.km);
-    sortie('trajet').textContent = `${r.nom} : ${r.km} km par la route.`;
+    sortie('trajet').textContent = gabarit(T.distanceCalculee, { commune: r.nom, km: r.km });
     calcule();
   });
   segur.addEventListener('change', calcule);

@@ -3,10 +3,10 @@
 // à Instagram et renvoie les posts en JSON, avec des images déjà allégées. Le flux est chargé quand la
 // section approche de l'écran, pour ne pas ralentir le haut de la page. Sans flux réglé, rien ne s'affiche.
 import { contact } from '../data';
-import { surligne, paragraphe } from '../lib/contenu';
+import { surligne, paragraphe, gabarit } from '../lib/contenu';
 
 interface Props {
-  textes: { surtitre: string; titre: string; texte: string; nombre?: number };
+  textes: { surtitre: string; titre: string; texte: string; nombre?: number; etiquette: string; suivre: string; secours: string; voirPublication: string };
   flux: string;
 }
 const { textes } = Astro.props;
@@ -15,14 +15,14 @@ const flux = String(Astro.props.flux ?? '').trim();
 const nombre = Math.min(Math.max(Number(textes.nombre) || 6, 3), 12);
 ---
 {flux && (
-  <section class="wrap section sans-haut stack g32 insta" data-reveal aria-labelledby="instagram" data-flux={flux} data-nombre={nombre}>
+  <section class="wrap section sans-haut stack g32 insta" data-reveal aria-labelledby="instagram" data-flux={flux} data-nombre={nombre} data-secours={textes.secours} data-lien-texte={textes.etiquette} data-voir={textes.voirPublication}>
     <div class="row entre bas g20">
       <div class="stack g12">
-        <p class="lbl"><span class="chip pervenche">Instagram</span> {textes.surtitre}</p>
+        <p class="lbl"><span class="chip pervenche">{textes.etiquette}</span> {textes.surtitre}</p>
         <h2 id="instagram" class="d h2" set:html={surligne(textes.titre)} />
         {textes.texte && <p class="texte" style="max-width: 520px; margin: 0" set:html={paragraphe(textes.texte)} />}
       </div>
-      <a class="btn contour" href={contact.instagramLien} rel="noopener" target="_blank">Suivre {contact.instagram}</a>
+      <a class="btn contour" href={contact.instagramLien} rel="noopener" target="_blank">{gabarit(textes.suivre, { compte: contact.instagram })}</a>
     </div>
     <ul class="insta-grille" data-grille aria-busy="true">
       {Array.from({ length: nombre }, () => <li class="insta-case" aria-hidden="true"></li>)}
@@ -34,11 +34,14 @@ const nombre = Math.min(Math.max(Number(textes.nombre) || 6, 3), 12);
   /* Global : les cases sont créées par le script, hors de la portée des styles de composant. */
   .insta .lbl { display: flex; align-items: center; gap: 10px; }
   .insta .insta-grille { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
-  .insta .insta-case { position: relative; aspect-ratio: 4 / 5; border-radius: 8px; overflow: hidden; background: linear-gradient(110deg, #e4e0d6 30%, #efebe3 50%, #e4e0d6 70%) 0 0 / 200% 100%; }
-  .insta .insta-grille[aria-busy="true"] .insta-case { animation: attente 1.4s linear infinite; }
-  @keyframes attente { to { background-position: -200% 0; } }
-  .insta .insta-case a { position: absolute; inset: 0; display: block; color: #fff; }
+  .insta .insta-case { position: relative; aspect-ratio: 4 / 5; border-radius: 8px; overflow: hidden; background: #e4e0d6; }
+  /* Cases d'attente : pulsation en opacité seulement (jamais de propriété coûteuse animée). */
+  .insta .insta-grille[aria-busy="true"] .insta-case { animation: attente 1.2s ease-in-out infinite alternate; }
+  @keyframes attente { from { opacity: .45; } to { opacity: 1; } }
+  .insta .insta-case a { position: absolute; inset: 0; display: block; color: var(--gres); }
   .insta .insta-case img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--lumiere, ease); }
+  /* Le contour de focus reste dans la case (la case coupe ce qui dépasse) : double filet clair et sombre. */
+  .insta .insta-case a:focus-visible { outline: 3px solid var(--gres); outline-offset: -3px; box-shadow: inset 0 0 0 6px var(--encre); }
   .insta .insta-case a:hover img, .insta .insta-case a:focus-visible img { transform: scale(1.05); }
   .insta .insta-case .insta-legende {
     position: absolute; inset: auto 0 0; padding: 28px 12px 12px; font-size: 13px; line-height: 1.4;
@@ -65,7 +68,14 @@ const nombre = Math.min(Math.max(Number(textes.nombre) || 6, 3), 12);
         : '';
     const echec = () => {
       grille.removeAttribute('aria-busy');
-      grille.outerHTML = `<p class="texte" style="margin: 0">Retrouvez mes dernières séances sur <a href="${section.querySelector<HTMLAnchorElement>('.btn')!.href}" target="_blank" rel="noopener">Instagram</a>.</p>`;
+      // Texte saisi dans le back office : {instagram} devient le lien vers le compte.
+      const [avant, apres = ''] = (section.dataset.secours ?? '').split('{instagram}');
+      const lien = document.createElement('a');
+      lien.href = section.querySelector<HTMLAnchorElement>('.btn')!.href; lien.target = '_blank'; lien.rel = 'noopener'; lien.textContent = section.dataset.lienTexte ?? '';
+      const phrase = document.createElement('p');
+      phrase.className = 'texte'; phrase.style.margin = '0';
+      phrase.append(avant, lien, apres);
+      grille.replaceWith(phrase);
     };
     async function charger() {
       // Délai maximal : sans réponse de Behold au bout de 8 s, on affiche le lien vers Instagram.
@@ -86,7 +96,7 @@ const nombre = Math.min(Math.max(Number(textes.nombre) || 6, 3), 12);
           const t = p.sizes ?? {};
           const a = document.createElement('a');
           a.href = p.permalink; a.target = '_blank'; a.rel = 'noopener';
-          a.setAttribute('aria-label', `Voir la publication sur Instagram${court ? ` : ${court}` : ''}`);
+          a.setAttribute('aria-label', `${section!.dataset.voir ?? ''}${court ? ` : ${court}` : ''}`);
           const img = document.createElement('img');
           img.src = t.medium?.mediaUrl || p.thumbnailUrl || p.mediaUrl;
           if (t.small && t.medium && t.large) img.srcset = `${t.small.mediaUrl} ${t.small.width}w, ${t.medium.mediaUrl} ${t.medium.width}w, ${t.large.mediaUrl} ${t.large.width}w`;

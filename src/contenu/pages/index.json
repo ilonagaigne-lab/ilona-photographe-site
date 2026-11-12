@@ -1,7 +1,11 @@
 {
+  "referencement": {
+    "titre": "Ilona Photographe · photographe équestre à Toulouse",
+    "description": "Photographe et vidéaste équestre près de Toulouse : séances avec votre cheval, photos de concours, contenus pour les marques équestres."
+  },
   "univers": {
     "titre": "Six *univers*,\nun seul regard",
-    "texte": "Du pré à la vitrine : les chevaux, les concours, les événements, les produits et les réseaux de ceux qui les aiment.",
+    "texte": "Du pré à la vitrine : les chevaux, les concours, les événements, les produits et les réseaux de ceux qui les aiment.",
     "liste": [
       {
         "titre": "Cheval",
@@ -65,7 +69,7 @@
       "video": {
         "fichier": "/videos/video-seance-platinium.mp4",
         "affiche": "/videos/video-seance-platinium-poster.jpg",
-        "titre": "Réel : séance avec Platinium d’en Fer"
+        "titre": "Réel : séance avec Platinium d’en Fer"
       }
     }
   },
@@ -82,12 +86,13 @@
       "image": "/src/assets/photos/portrait-ilona.jpg",
       "alt": "Portrait d’Ilona souriante, lunettes et cheveux longs, contre son cheval alezan au coucher du soleil",
       "cadrage": ""
-    }
+    },
+    "bouton": "Mon approche"
   },
   "favoris": {
     "surtitre": "Votre galerie privée",
     "titre": "Choisissez\nvos *favoris*",
-    "texte": "Touchez le cœur des images qui vous parlent : vos coups de cœur vous suivent jusqu’à la réservation, pour qu’Ilona sache tout de suite ce que vous aimez. Après la séance, c’est le même geste dans votre galerie privée.",
+    "texte": "Touchez le cœur des images qui vous parlent : vos coups de cœur vous suivent jusqu’à la réservation, pour qu’Ilona sache tout de suite ce que vous aimez. Après la séance, c’est le même geste dans votre galerie privée.",
     "photos": [
       {
         "image": "/src/assets/photos/cheval-cowgirl-isabelle.jpg",
@@ -109,20 +114,26 @@
         "alt": "Jeune cavalière souriante sur son poney",
         "cadrage": ""
       }
-    ]
+    ],
+    "compteUn": "coup de cœur",
+    "comptePlusieurs": "coups de cœur",
+    "boutonReserver": "Réserver avec mes coups de cœur",
+    "boutonGalerie": "Voir une galerie client"
   },
   "fin": {
-    "titre": "On se retrouve\nau *pré* ?",
+    "titre": "On se retrouve\nau *pré* ?",
     "mention": "Basée près de Toulouse · frais de déplacement calculés à la réservation"
   },
   "entete": {
     "surtitre": "Photographe & vidéaste équestre · près de Toulouse",
+    "titreCache": "Surligner l’instant.",
+    "reperesLibelle": "En bref",
     "videoTitre": {
       "fichier": "/videos/titre-video.mp4",
       "fichierMobile": "/videos/titre-video-mobile.mp4",
       "affiche": "/videos/titre-video-poster.jpg"
     },
-    "chapo": "Je photographie et filme les chevaux et leurs cavaliers, du pré au paddock, et je crée du contenu pour les marques équestres. Une séance, un concours, un lancement : je garde ce qui compte.",
+    "chapo": "Je photographie et filme les chevaux et leurs cavaliers, du pré au paddock, et je crée du contenu pour les marques équestres. Une séance, un concours, un lancement : je garde ce qui compte.",
     "reperes": [
       {
         "fort": "Dès {prix-seance}",
@@ -137,7 +148,7 @@
         "texte": "au même rendez-vous"
       },
       {
-        "fort": "-10 %",
+        "fort": "-{taux} %",
         "texte": "Écuries d’En Ségur"
       }
     ]
@@ -193,18 +204,20 @@
         "Réels et formats courts",
         "Community management"
       ]
-    }
+    },
+    "boutonAgenda": "Voir l’agenda"
   },
   "segur": {
     "surtitre": "Pour les cavaliers des",
     "titre": "Écuries d’En Ségur",
     "texte": "Remise appliquée à la réservation, sur simple mention de votre écurie.",
-    "remise": "*-10 % sur toutes*\n*mes prestations*"
+    "remise": "*-{taux} % sur toutes*\n*mes prestations*"
   },
   "quiz": {
-    "surtitre": "Vous hésitez entre deux formules ?",
+    "surtitre": "Vous hésitez entre deux formules ?",
     "titre": "Trouvez *votre séance*\nen 30 secondes",
-    "texte": "Trois questions sur vous et votre cheval : je vous conseille la formule, le prix et les prochains soirs de lumière dorée."
+    "texte": "Trois questions sur vous et votre cheval : je vous conseille la formule, son prix et les heures de lumière dorée à Toulouse.",
+    "bouton": "Commencer le quiz →"
   },
   "grandePhoto": {
     "photo": {
@@ -232,7 +245,7 @@
       {
         "etiquette": "Journal",
         "titre": "Préparer son cheval pour sa séance",
-        "texte": "Pansage, crins, tenue du cavalier : la liste simple à relire la veille.",
+        "texte": "Pansage, crins, tenue du cavalier : la liste simple à relire la veille.",
         "lien": "/journal/preparer-son-cheval",
         "photo": {
           "image": "/src/assets/photos/cheval-selle-ecurie.jpg",
@@ -249,6 +262,10 @@
     "surtitre": "Mes derniers posts",
     "titre": "En ce *moment*",
     "texte": "Les dernières séances, tout juste sorties du pré.",
-    "nombre": 6
+    "nombre": 6,
+    "etiquette": "Instagram",
+    "suivre": "Suivre {compte}",
+    "secours": "Retrouvez mes dernières séances sur {instagram}.",
+    "voirPublication": "Voir la publication sur Instagram"
   }
 }

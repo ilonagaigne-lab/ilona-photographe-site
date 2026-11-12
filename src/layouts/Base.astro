@@ -8,7 +8,7 @@ import '../styles/global.css';
 import { Image } from 'astro:assets';
 import logo from '../assets/logo-ink.webp';
 import logoBlanc from '../assets/logo-white.webp';
-import { contact, site, seances, concours, depart, fourchettePrix } from '../data';
+import { contact, site, seances, concours, depart, fourchettePrix, commun } from '../data';
 import anton from '@fontsource/anton/files/anton-latin-400-normal.woff2?url';
 import poppins from '@fontsource/poppins/files/poppins-latin-400-normal.woff2?url';
 
@@ -22,15 +22,18 @@ interface Props {
   fil?: Etape[];
   schema?: Record<string, unknown>[];
   image?: string;
+  imageAlt?: string;
   type?: 'website' | 'article';
 }
-const { titre, description, page = 'autre', indexer = true, entete = 'complet', fil, schema = [], image = '/og-image.jpg', type = 'website' } = Astro.props;
+const { titre, description, page = 'autre', indexer = true, entete = 'complet', fil, schema = [], image = '/og-image.jpg', imageAlt = 'Cavalière contre l’encolure de son cheval, dans un pré, en lumière dorée', type = 'website' } = Astro.props;
+// Textes du menu, du pied de page et du bouton Réserver : saisis dans « Boutons et mots communs ».
+const { menu, boutons, lecteurs } = commun;
 const nav = [
-  { cle: 'seances', libelle: 'Séances équestres', court: 'Séances', href: '/seances' },
-  { cle: 'concours', libelle: 'Concours', court: 'Concours', href: '/concours' },
-  { cle: 'marques', libelle: 'Marques & réseaux', court: 'Marques', href: '/marques' },
-  { cle: 'academie', libelle: 'Académie', court: 'Académie', href: '/academie/lire-la-lumiere-du-soir' },
-  { cle: 'journal', libelle: 'Journal', court: 'Journal', href: '/journal/preparer-son-cheval' },
+  { cle: 'seances', ...menu.seances, href: '/seances' },
+  { cle: 'concours', ...menu.concours, href: '/concours' },
+  { cle: 'marques', ...menu.marques, href: '/marques' },
+  { cle: 'academie', ...menu.academie, href: '/academie/lire-la-lumiere-du-soir' },
+  { cle: 'journal', ...menu.journal, href: '/journal/preparer-son-cheval' },
 ];
 const courant = (cle: string) => (cle === page ? 'page' : undefined);
 const titreComplet = page === 'accueil' ? titre : `${titre} · Ilona Photographe`;
@@ -38,15 +41,20 @@ const titreComplet = page === 'accueil' ? titre : `${titre} · Ilona Photographe
 const chemin = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '').replace(/\/$/, '') || '/';
 const canonique = new URL(chemin, site.url).href;
 const imageAbsolue = new URL(image, site.url).href;
+// Taille connue uniquement pour l'image de partage par défaut (1200 × 630).
+const partageParDefaut = image === '/og-image.jpg';
 
 // Fiche de l'activité, reprise sur chaque page (Google, IA conversationnelles).
+const offre = (o: { nom: string; prix: number; url: string }) => ({
+  '@type': 'Offer', price: o.prix, priceCurrency: 'EUR', url: new URL(o.url, site.url).href, itemOffered: { '@type': 'Service', name: o.nom },
+});
 const activite = {
   '@type': ['ProfessionalService', 'LocalBusiness'],
   '@id': `${site.url}/#activite`,
   name: site.nom,
   description: site.description,
   url: site.url,
-  image: imageAbsolue,
+  image: new URL('/og-image.jpg', site.url).href,
   logo: new URL('/favicon.svg', site.url).href,
   telephone: contact.telephoneInternational,
   email: contact.email,
@@ -59,19 +67,20 @@ const activite = {
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
     name: 'Prestations',
-    itemListElement: [...seances.map((s) => ({ nom: `Séance photo équestre ${s.nom}`, prix: s.prix })), ...concours.map((c) => ({ nom: `Concours : ${c.nomCourt || c.nom}`, prix: c.prix }))].map((o) => ({
-      '@type': 'Offer', price: o.prix, priceCurrency: 'EUR', itemOffered: { '@type': 'Service', name: o.nom },
-    })),
+    itemListElement: [
+      ...seances.map((s) => offre({ nom: `Séance photo équestre ${s.nom}`, prix: s.prix, url: '/seances' })),
+      ...concours.map((c) => offre({ nom: `Concours : ${c.nomCourt || c.nom}`, prix: c.prix, url: '/concours' })),
+    ],
   },
 };
 const personne = {
   '@type': 'Person', '@id': `${site.url}/#ilona`, name: 'Ilona', jobTitle: 'Photographe et vidéaste équestre',
-  worksFor: { '@id': `${site.url}/#activite` }, sameAs: [contact.instagramLien],
+  url: site.url, worksFor: { '@id': `${site.url}/#activite` }, sameAs: [contact.instagramLien],
 };
 const siteWeb = { '@type': 'WebSite', '@id': `${site.url}/#site`, url: site.url, name: site.nom, inLanguage: 'fr-FR', publisher: { '@id': `${site.url}/#activite` } };
 const ariane = fil && {
   '@type': 'BreadcrumbList',
-  itemListElement: [{ nom: 'Accueil', href: '/' }, ...fil].map((e, i) => ({ '@type': 'ListItem', position: i + 1, name: e.nom, item: new URL(e.href, site.url).href })),
+  itemListElement: [{ nom: menu.accueil, href: '/' }, ...fil].map((e, i) => ({ '@type': 'ListItem', position: i + 1, name: e.nom, item: new URL(e.href, site.url).href })),
 };
 const graphe = { '@context': 'https://schema.org', '@graph': [siteWeb, activite, personne, ...(ariane ? [ariane] : []), ...schema] };
 const ctaFlottant = !['reservation', 'galerie'].includes(page);
@@ -83,8 +92,8 @@ const ctaFlottant = !['reservation', 'galerie'].includes(page);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{titreComplet}</title>
   <meta name="description" content={description}>
-  <link rel="canonical" href={canonique}>
-  <meta name="robots" content={indexer ? 'index, follow, max-image-preview:large' : 'noindex, nofollow'}>
+  {indexer && <link rel="canonical" href={canonique}>}
+  <meta name="robots" content={indexer ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' : 'noindex, nofollow'}>
   <meta name="theme-color" content="#ECEBE7">
   <meta name="author" content="Ilona Photographe">
   <meta name="google-site-verification" content="0AVaVS8vqTxvRNq1nkBNypnzLCyyhNIHV2EIdV_ePy0">
@@ -92,15 +101,16 @@ const ctaFlottant = !['reservation', 'galerie'].includes(page);
   <meta property="og:title" content={titreComplet}>
   <meta property="og:description" content={description}>
   <meta property="og:type" content={type}>
-  <meta property="og:url" content={canonique}>
+  {indexer && <meta property="og:url" content={canonique}>}
   <meta property="og:image" content={imageAbsolue}>
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Cavalière et son cheval alezan dans un pré au coucher du soleil">
+  {partageParDefaut && <meta property="og:image:width" content="1200">}
+  {partageParDefaut && <meta property="og:image:height" content="630">}
+  <meta property="og:image:alt" content={imageAlt}>
   <meta property="og:locale" content="fr_FR">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image:alt" content={imageAlt}>
   <meta name="geo.region" content="FR-31">
-  <meta name="geo.placename" content="Toulouse">
+  <meta name="geo.placename" content={depart.ville}>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="sitemap" href="/sitemap.xml">
   <link rel="preload" href={anton} as="font" type="font/woff2" crossorigin>
@@ -113,7 +123,7 @@ const ctaFlottant = !['reservation', 'galerie'].includes(page);
   <slot name="head" />
 </head>
 <body>
-  <a class="skip" href="#contenu">Aller au contenu</a>
+  <a class="skip" href="#contenu">{lecteurs.allerContenu}</a>
 
   <header class="entete">
     <div class="wrap">
@@ -126,10 +136,10 @@ const ctaFlottant = !['reservation', 'galerie'].includes(page);
         </nav>
       )}
       <div class="entete-actions">
-        {entete === 'complet' && <a class="nl" href="/galerie" aria-current={courant('galerie')}>Ma galerie</a>}
-        <slot name="entete-action"><a class="btn" href="/reservation">Réserver</a></slot>
+        {entete === 'complet' && <a class="nl" href="/galerie" aria-current={courant('galerie')}>{menu.galerie}</a>}
+        <slot name="entete-action"><a class="btn" href="/reservation">{menu.reserverCourt}</a></slot>
         {entete === 'complet' && (
-          <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+          <button class="burger" type="button" aria-label={lecteurs.ouvrirMenu} aria-expanded="false" aria-controls="menu">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9h16M4 15h16" /></svg>
           </button>
         )}
@@ -149,8 +159,8 @@ const ctaFlottant = !['reservation', 'galerie'].includes(page);
         <ul class="d">{nav.map((n) => <li><a href={n.href} aria-current={courant(n.cle)}>{n.court}</a></li>)}</ul>
       </nav>
       <div class="menu-bas">
-        <a href="/galerie">Accéder à ma galerie</a>
-        <a class="btn grand" href="/reservation">Réserver une séance</a>
+        <a href="/galerie">{menu.galerieMenu}</a>
+        <a class="btn grand" href="/reservation">{boutons.reserver}</a>
         <a href={contact.telephoneLien}>{contact.telephone}</a>
         <a href={`mailto:${contact.email}`}>{contact.email}</a>
         <a href={contact.instagramLien} style="color: var(--pervenche)">{contact.instagram}</a>
@@ -160,9 +170,9 @@ const ctaFlottant = !['reservation', 'galerie'].includes(page);
 
   <main id="contenu" tabindex="-1">
     {fil && (
-      <nav class="fil wrap" aria-label="Fil d’Ariane">
+      <nav class="fil wrap" aria-label={lecteurs.filAriane}>
         <ol>
-          <li><a href="/">Accueil</a></li>
+          <li><a href="/">{menu.accueil}</a></li>
           {fil.map((e, i) => <li>{i === fil.length - 1 ? <span aria-current="page">{e.nom}</span> : <a href={e.href}>{e.nom}</a>}</li>)}
         </ol>
       </nav>
@@ -175,18 +185,18 @@ const ctaFlottant = !['reservation', 'galerie'].includes(page);
       <a href="/" class="logo" aria-label="Ilona Photographe, accueil" style="width: 116px"><Image src={logo} alt="" width={232} /></a>
       <nav aria-label="Pied de page">
         <ul>
-          <li><a class="nl" href="/seances" style="font-size: 14px">Tarifs</a></li>
-          <li><a class="nl" href="/seances#faq" style="font-size: 14px">Questions fréquentes</a></li>
-          <li><a class="nl" href="/reservation" style="font-size: 14px">Réserver</a></li>
-          <li><a class="nl" href={`mailto:${contact.email}`} style="font-size: 14px">Contact</a></li>
-          <li><a class="nl" href={contact.instagramLien} style="font-size: 14px">Instagram</a></li>
+          <li><a class="nl" href="/seances" style="font-size: 14px">{menu.piedTarifs}</a></li>
+          <li><a class="nl" href="/seances#faq" style="font-size: 14px">{menu.piedQuestions}</a></li>
+          <li><a class="nl" href="/reservation" style="font-size: 14px">{menu.reserverCourt}</a></li>
+          <li><a class="nl" href={`mailto:${contact.email}`} style="font-size: 14px">{menu.piedContact}</a></li>
+          <li><a class="nl" href={contact.instagramLien} style="font-size: 14px">{menu.piedInstagram}</a></li>
         </ul>
       </nav>
-      <p>© {new Date().getFullYear()} Ilona Photographe · photographe équestre près de Toulouse</p>
+      <p>© {new Date().getFullYear()} {menu.piedMention}</p>
     </div>
   </footer>
 
-  {ctaFlottant && <a class="cta-flottant btn" href="/reservation">Réserver une séance</a>}
+  {ctaFlottant && <a class="cta-flottant btn" href="/reservation">{boutons.reserver}</a>}
   <div class="obturateur" aria-hidden="true"><i></i><i></i></div>
   <div class="curseur" aria-hidden="true"></div>
   <script>import '../scripts/site.js';</script>

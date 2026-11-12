@@ -64,6 +64,8 @@ if (menu && ouvrir) {
     (etat ? fermer : ouvrir).focus();
   };
   menu.inert = true;
+  // Fenêtre élargie (rotation de la tablette, redimensionnement) : le menu se ferme et la page redevient défilable.
+  matchMedia('(min-width: 1081px)').addEventListener('change', (e) => { if (e.matches && menu.classList.contains('ouvert')) basculer(false); });
   ouvrir.addEventListener('click', () => basculer(true));
   fermer.addEventListener('click', () => basculer(false));
   addEventListener('keydown', (e) => {
@@ -83,4 +85,14 @@ if (cta) {
   const majCta = () => cta.classList.toggle('visible', scrollY > innerHeight * 0.8);
   addEventListener('scroll', majCta, { passive: true });
   majCta();
+  // Le bouton s'efface tant qu'un formulaire, le calculateur ou un autre bouton « Réserver » est à l'écran : il ne recouvre jamais un message ni un total.
+  const cibles = document.querySelectorAll('main form, main #calculateur, main a[href^="/reservation"]');
+  if ('IntersectionObserver' in window && cibles.length) {
+    const visibles = new Set();
+    const vue = new IntersectionObserver((entrees) => {
+      for (const e of entrees) e.isIntersecting ? visibles.add(e.target) : visibles.delete(e.target);
+      cta.classList.toggle('masque', visibles.size > 0);
+    });
+    cibles.forEach((c) => vue.observe(c));
+  }
 }

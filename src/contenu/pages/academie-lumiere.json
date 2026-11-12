@@ -1,20 +1,22 @@
 {
   "referencement": {
     "titre": "Lire la lumière du soir",
-    "description": "Leçon de l’Académie : où placer votre cheval quand le soleil descend, contre-jour et lumière dorée, avec votre téléphone."
+    "description": "Leçon de l’Académie : où placer votre cheval quand le soleil descend, contre-jour et lumière dorée, avec votre téléphone."
   },
   "sommaire": {
     "surtitre": "Module · La lumière",
+    "libelle": "Leçons du module",
+    "bientot": "bientôt",
     "lecons": [
       "Comprendre la lumière naturelle",
-      "Midi : s’en sortir quand même",
+      "Midi : s’en sortir quand même",
       "Lire la lumière du soir",
       "Ciel gris, belles photos",
       "L’exercice du module"
     ]
   },
   "entete": {
-    "surtitre": "Académie · Leçon 03 · lecture 6 min",
+    "surtitre": "Académie · Leçon 03 · lecture 6 min",
     "titre": "Lire la\n*lumière* du soir",
     "chapo": "Où placer votre cheval quand le soleil descend, et pourquoi la dernière heure vaut toute la journée. Avec votre téléphone, c’est suffisant."
   },
@@ -22,7 +24,7 @@
   "sections": [
     {
       "titre": "Pourquoi la fin de journée",
-      "texte": "Quand le soleil est bas, sa lumière traverse plus d’atmosphère : elle devient plus chaude, plus douce, et elle arrive presque à l’horizontale. Les ombres s’allongent au lieu de tomber sous les yeux, et la robe du cheval prend du relief.\n\nVisez l’heure qui précède le coucher du soleil. Arrivez plus tôt : le cheval doit être prêt quand la lumière l’est."
+      "texte": "Quand le soleil est bas, sa lumière traverse plus d’atmosphère : elle devient plus chaude, plus douce, et elle arrive presque à l’horizontale. Les ombres s’allongent au lieu de tomber sous les yeux, et la robe du cheval prend du relief.\n\nVisez l’heure qui précède le coucher du soleil. Arrivez plus tôt : le cheval doit être prêt quand la lumière l’est."
     },
     {
       "titre": "Le contre-jour, pas à pas",
@@ -30,7 +32,7 @@
     },
     {
       "titre": "Le soleil dans votre dos",
-      "texte": "Pour des couleurs riches et un regard qui brille, tournez-vous : le soleil derrière vous, un peu de côté pour garder du volume. C’est la lumière la plus simple pour un portrait du cavalier avec son cheval."
+      "texte": "Pour des couleurs riches et un regard qui brille, tournez-vous : le soleil derrière vous, un peu de côté pour garder du volume. C’est la lumière la plus simple pour un portrait du cavalier avec son cheval."
     }
   ],
   "exercice": {
@@ -42,5 +44,8 @@
       "Une dernière quand le soleil touche l’horizon."
     ],
     "partage": "Partagez-les en identifiant"
+  },
+  "fin": {
+    "lireAussi": "Lire aussi : préparer son cheval"
   }
 }

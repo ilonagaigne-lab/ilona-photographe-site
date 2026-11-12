@@ -1,24 +1,28 @@
 {
+  "referencement": {
+    "titre": "Contenu de marque et réseaux sociaux",
+    "description": "Photo, vidéo et community management pour les marques équestres : selleries, écuries, éleveurs, créateurs d’équipement. Sur devis."
+  },
   "entete": {
     "surtitre": "Contenu de marque · réseaux sociaux",
     "titre": "Votre marque,\nau *galop*",
-    "chapo": "Selleries, écuries, éleveurs, créateurs d’équipement : je produis les photos et les vidéos qui parlent à vos cavaliers, et je peux tenir vos réseaux au quotidien."
+    "chapo": "Selleries, écuries, éleveurs, créateurs d’équipement : je produis les photos et les vidéos qui parlent à vos cavaliers, et je peux tenir vos réseaux au quotidien."
   },
   "formats": {
     "titre": "Pensé pour le *pouce*",
-    "texte": "Chaque tournage livre des formats prêts à publier : verticaux, carrés, paysage.",
+    "texte": "Chaque tournage livre des formats prêts à publier : verticaux, carrés, paysage.",
     "reel": {
       "video": { "fichier": "/videos/video-marque-chocolatier.mp4", "affiche": "/videos/video-marque-chocolatier-poster.jpg", "titre": "Réel pour un chocolatier" },
       "etiquette": "Réel",
       "legende": "Chocolatier"
     },
     "carrousel": {
-      "photo": { "image": "/src/assets/photos/marque-banane-rose.jpg", "alt": "Exemple de carrousel : jeune femme portant une banane pailletée rose", "cadrage": "" },
+      "photo": { "image": "/src/assets/photos/marque-banane-rose.jpg", "alt": "Exemple de carrousel : jeune femme portant une banane pailletée rose", "cadrage": "" },
       "etiquette": "Carrousel",
       "legende": "Série photo"
     },
     "story": {
-      "photo": { "image": "/src/assets/photos/marque-pochette-telephone.jpg", "alt": "Exemple de story : pochette léopard portée en bandoulière, devant une façade de briques", "cadrage": "" },
+      "photo": { "image": "/src/assets/photos/marque-pochette-telephone.jpg", "alt": "Exemple de story : pochette léopard portée en bandoulière, devant une façade de briques", "cadrage": "" },
       "etiquette": "Story",
       "legende": "Coulisses"
     }
@@ -37,20 +41,21 @@
       { "photo": { "image": "/src/assets/photos/packshot-sac-rose.jpg", "alt": "Sac pailleté rose à fermoir argenté, posé devant un ballon cœur", "cadrage": "" }, "etiquette": "Packshot", "couleur": "", "legende": "Maroquinerie" },
       { "photo": { "image": "/src/assets/photos/packshot-bijou-licol.jpg", "alt": "Bijou de licol en forme de tête de cheval pailletée, accroché au licol", "cadrage": "" }, "etiquette": "Packshot", "couleur": "", "legende": "Équipement équestre" },
       { "photo": { "image": "/src/assets/photos/evenement-champagne.jpg", "alt": "Invitée souriante, coupe de champagne à la main, lors d’une fête en plein air", "cadrage": "" }, "etiquette": "Événementiel", "couleur": "pervenche", "legende": "Réception" },
-      { "photo": { "image": "/src/assets/photos/evenement-patisseries.jpg", "alt": "Buffet de mignardises : red velvet, choux et cannelés", "cadrage": "" }, "etiquette": "Événementiel", "couleur": "pervenche", "legende": "Buffet" }
+      { "photo": { "image": "/src/assets/photos/evenement-patisseries.jpg", "alt": "Buffet de mignardises : red velvet, choux et cannelés", "cadrage": "" }, "etiquette": "Événementiel", "couleur": "pervenche", "legende": "Buffet" }
     ]
   },
   "cas": {
     "photo": { "image": "/src/assets/photos/galoplan-still-43.jpg", "alt": "Cavalière casquée qui embrasse son cheval gris, tournage GaloPlan", "cadrage": "" },
     "surtitre": "Étude de cas",
     "titre": "GaloPlan, l’app du cheval partagé racontée depuis l’écurie",
-    "texte": "Deux réels verticaux pour l’app du cheval partagé : un film de lancement et un vlog de séance, tournés à l’écurie."
+    "texte": "Deux réels verticaux pour l’app du cheval partagé : un film de lancement et un vlog de séance, tournés à l’écurie.",
+    "bouton": "Lire l’étude de cas"
   },
   "temps": {
     "titre": "Quatre *temps*",
     "etapes": [
       { "titre": "Le brief", "texte": "Votre cible, vos produits, le ton juste." },
-      { "titre": "Le tournage", "texte": "Une journée, photo et vidéo ensemble." },
+      { "titre": "Le tournage", "texte": "Photo et vidéo ensemble, au même rendez-vous." },
       { "titre": "Le montage", "texte": "Retouche et montage, avec vos retours." },
       { "titre": "La publication", "texte": "Vous publiez, ou je m’en charge." }
     ]
@@ -58,5 +63,35 @@
   "contact": {
     "titre": "Parlons de votre *projet*",
     "texte": "Chaque projet est sur devis. Dites-m’en un peu, je reviens vers vous avec une proposition."
+  },
+  "formulaire": {
+    "nom": "Votre nom",
+    "marque": "Votre marque",
+    "email": "E-mail",
+    "besoin": "Ce dont vous avez besoin",
+    "photo": "Photo",
+    "video": "Vidéo",
+    "reseaux": "Réseaux sociaux",
+    "projet": "Votre projet en quelques mots",
+    "envoyer": "Envoyer ma demande",
+    "envoiEnCours": "Envoi en cours…",
+    "merci": "Merci, votre demande est bien arrivée. Ilona revient vers vous très vite par e-mail.",
+    "messagerie": "Votre messagerie s’est ouverte avec la demande rédigée : il ne reste qu’à l’envoyer.",
+    "secoursAideTitre": "Rien ne s’est ouvert ?",
+    "secoursAide": "Copiez votre demande et collez-la dans un e-mail à {email}, ou appelez le {telephone}.",
+    "copieLibelle": "Votre demande, à copier",
+    "copierBouton": "Copier ma demande",
+    "copieOk": "Demande copiée.",
+    "copieEchec": "Copie impossible : sélectionnez le texte de la demande ci-dessus."
+  },
+  "courriel": {
+    "sujet": "Projet de marque",
+    "nom": "Nom",
+    "marque": "Marque",
+    "email": "E-mail",
+    "photo": "Besoin photo",
+    "video": "Besoin vidéo",
+    "reseaux": "Besoin réseaux sociaux",
+    "projet": "Projet"
   }
 }

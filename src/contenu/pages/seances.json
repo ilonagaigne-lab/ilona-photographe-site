@@ -1,26 +1,55 @@
 {
+  "referencement": {
+    "titre": "Séances photo équestres et tarifs",
+    "description": "Séances photo équestres près de Toulouse, dès {prix-seance}. Calculez votre prix, déplacement compris."
+  },
   "entete": {
     "surtitre": "Séances & tarifs · près de Toulouse",
     "titre": "Séances\n*équestres*",
     "chapo": "Quatre formules, du portrait sportif à la collection complète. Je viens à votre écurie ou au pré, et on avance au rythme de votre cheval."
   },
   "bandeau": { "image": "/src/assets/photos/cheval-deux-chevaux.jpg", "alt": "Deux chevaux alezans dans la lumière de fin d’été", "cadrage": "" },
-  "formules": { "titre": "Quatre *formules*", "mention": "Prix TTC · déplacement en sus" },
+  "formules": {
+    "titre": "Quatre *formules*",
+    "mention": "Prix TTC · déplacement en sus",
+    "quizTexte": "Vous hésitez entre deux formules ?",
+    "quizLien": "Trouvez la vôtre en 30 secondes →",
+    "choisir": "Choisir {nom}"
+  },
   "video": {
     "titre": "La séance, *en mouvement*",
-    "texte": "Platinium d’en Fer, à la tombée du jour. Ajoutez la vidéo à votre séance : un réel vertical, monté pour être partagé.",
-    "video": { "fichier": "/videos/video-seance-platinium.mp4", "affiche": "/videos/video-seance-platinium-poster.jpg", "titre": "Réel : séance avec Platinium d’en Fer" }
+    "texte": "Platinium d’en Fer, à la tombée du jour. Ajoutez la vidéo à votre séance : un réel vertical, monté pour être partagé.",
+    "bouton": "Ajouter la vidéo",
+    "video": { "fichier": "/videos/video-seance-platinium.mp4", "affiche": "/videos/video-seance-platinium-poster.jpg", "titre": "Réel : séance avec Platinium d’en Fer" }
   },
-  "calcul": { "titre": "Votre prix,\n*déplacement* compris" },
+  "calcul": {
+    "titre": "Votre prix,\n*déplacement* compris",
+    "formuleTitre": "1 · La formule",
+    "communeTitre": "2 · Votre commune",
+    "communeExemple": "Ex. Muret",
+    "communeAide": "Tapez votre commune : je calcule la distance par la route. Ou réglez-la à la main.",
+    "distance": "Distance depuis {ville} :",
+    "segur": "Je suis cavalier ou cavalière aux Écuries d’En Ségur (-{taux} %)",
+    "estimation": "Estimation",
+    "ligneSeance": "Séance {nom}",
+    "ligneDeplacement": "Déplacement",
+    "ligneRemise": "Remise En Ségur",
+    "total": "Total estimé",
+    "reserver": "Réserver cette séance",
+    "distanceManuelle": "Distance réglée à la main.",
+    "communeIntrouvable": "Commune introuvable : réglez la distance à la main.",
+    "distanceNonCalculee": "{commune} : distance non calculée, Ilona la calculera. Vous pouvez aussi la régler à la main.",
+    "distanceCalculee": "{commune} : {km} km par la route."
+  },
   "deroule": {
     "titre": "Comment ça se *passe*",
     "etapes": [
-      { "titre": "Vous réservez", "texte": "Formule, lieu et date en quatre étapes. Je confirme sous quelques jours." },
-      { "titre": "On prépare", "texte": "Tenue, lieu, heure de lumière : je vous envoie mes conseils pour arriver serein." },
-      { "titre": "La séance", "texte": "Pas de pose forcée. Le cheval donne le rythme, je guette l’instant." },
+      { "titre": "Vous réservez", "texte": "Formule, lieu et moment souhaité en quatre étapes. Je confirme la date, l’heure et le prix final." },
+      { "titre": "On prépare", "texte": "Tenue, lieu, lumière : je vous envoie mes conseils pour arriver l’esprit tranquille." },
+      { "titre": "La séance", "texte": "Le cheval donne le rythme et je guette l’instant, sans pose forcée." },
       { "titre": "Votre galerie", "texte": "Une galerie privée où vous choisissez vos favoris, et ajoutez des photos si le cœur vous en dit." }
     ]
   },
-  "faq": { "titre": "Vos *questions*" },
-  "fin": { "titre": "Une date *en tête* ?" }
+  "faq": { "titre": "Vos *questions*", "autreQuestion": "Une autre question ? Appelez Ilona au {telephone} ou écrivez à {email}." },
+  "fin": { "titre": "Une date *en tête* ?" }
 }

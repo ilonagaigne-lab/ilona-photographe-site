@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Photo from '../../components/Photo.astro';
-import { contact } from '../../data';
+import { contact, commun } from '../../data';
 import { photo, cadrage, lignes, paragraphe } from '../../lib/contenu';
 import t from '../../contenu/pages/academie-lumiere.json';
 
@@ -9,17 +9,10 @@ const lecons = t.sommaire.lecons;
 // Une ligne vide dans le texte = un nouveau paragraphe.
 const paragraphes = (texte = '') => texte.split(/\r?\n\s*\r?\n/).filter((x) => x.trim());
 const { titre, description } = t.referencement;
+const { boutons, menu } = commun;
 ---
-<Base titre={`${titre} · Académie`} description={description} page="academie" type="article" fil={[{ nom: 'Académie', href: '/academie/lire-la-lumiere-du-soir' }, { nom: titre, href: '/academie/lire-la-lumiere-du-soir' }]} schema={[{ '@type': ['Article', 'LearningResource'], headline: titre, description, author: { '@id': 'https://ilonagaigne.com/#ilona' }, publisher: { '@id': 'https://ilonagaigne.com/#activite' }, inLanguage: 'fr-FR', learningResourceType: 'Leçon', educationalLevel: 'Débutant', timeRequired: 'PT6M' }]}>
+<Base titre={`${titre} · Académie`} description={description} page="academie" type="article" fil={[{ nom: menu.academie.libelle, href: '/academie/lire-la-lumiere-du-soir' }, { nom: titre, href: '/academie/lire-la-lumiere-du-soir' }]} schema={[{ '@type': ['Article', 'LearningResource'], headline: titre, description, author: { '@id': 'https://ilonagaigne.com/#ilona' }, publisher: { '@id': 'https://ilonagaigne.com/#activite' }, inLanguage: 'fr-FR', learningResourceType: 'Leçon', educationalLevel: 'Débutant', timeRequired: 'PT6M' }]}>
   <div class="wrap section row" style="padding-top: clamp(16px, 3vw, 40px); gap: 48px clamp(40px, 6vw, 96px); align-items: flex-start">
-    <aside class="sommaire" aria-label="Leçons du module">
-      <p class="lbl">{t.sommaire.surtitre}</p>
-      <ol>
-        {lecons.map((l, i) => (
-          <li aria-current={i === 2 ? 'page' : undefined}><span class="d">{String(i + 1).padStart(2, '0')}</span><span class="t">{l}</span>{i !== 2 && <span class="bientot">bientôt</span>}</li>
-        ))}
-      </ol>
-    </aside>
 
     <article style="flex: 3 1 560px; min-width: 0; max-width: 820px" data-reveal>
       <p class="lbl">{t.entete.surtitre}</p>
@@ -47,10 +40,18 @@ const { titre, description } = t.referencement;
       </section>
 
       <nav class="row entre g16" style="margin-top: 56px" aria-label="Suite">
-        <a class="btn contour" href="/journal/preparer-son-cheval">Lire aussi : préparer son cheval</a>
-        <a class="btn" href="/reservation">Réserver une séance</a>
+        <a class="btn contour" href="/journal/preparer-son-cheval">{t.fin.lireAussi}</a>
+        <a class="btn" href="/reservation">{boutons.reserver}</a>
       </nav>
     </article>
+    <aside class="sommaire" aria-label={t.sommaire.libelle}>
+      <p class="lbl">{t.sommaire.surtitre}</p>
+      <ol>
+        {lecons.map((l, i) => (
+          <li aria-current={i === 2 ? 'page' : undefined}><span class="d">{String(i + 1).padStart(2, '0')}</span><span class="t">{l}</span>{i !== 2 && <span class="bientot">{t.sommaire.bientot}</span>}</li>
+        ))}
+      </ol>
+    </aside>
   </div>
 </Base>
 
@@ -70,5 +71,7 @@ const { titre, description } = t.referencement;
   .exercice .case { border-top: 1px solid rgba(236,235,231,.18); padding: 10px 0; }
   .exercice .case input { accent-color: var(--rose); }
   .exercice a { color: var(--rose); }
-  @media (max-width: 900px) { .sommaire { position: static; max-width: none; order: 2; } }
+  /* Le sommaire suit le texte dans le code (ordre de lecture et de tabulation) ; il passe à gauche sur grand écran. */
+  @media (min-width: 901px) { .sommaire { order: -1; } }
+  @media (max-width: 900px) { .sommaire { position: static; max-width: none; } }
 </style>

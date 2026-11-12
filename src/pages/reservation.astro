@@ -1,99 +1,120 @@
 ---
 import Base from '../layouts/Base.astro';
-import { seances, concours, contact, seanceVedette, deplacement, depart } from '../data';
-const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
+import { seances, concours, contact, seanceVedette, deplacement, depart, tauxSegur } from '../data';
+import { surligne, paragraphe, avecValeurs } from '../lib/contenu';
+import contenu from '../contenu/pages/reservation.json';
+
+// {taux} = remise En Ségur, saisie une seule fois dans « Formules et tarifs ».
+const t = avecValeurs(contenu, { taux: tauxSegur });
+
+// Remplace {mot} par sa valeur (mêmes gabarits côté page et côté script).
+const gabarit = (texte: string, valeurs: Record<string, string | number> = {}) => texte.replace(/\{(\w+)\}/g, (_, k) => String(valeurs[k] ?? ''));
+const etapes = [t.etapes.prestation, t.etapes.lieu, t.etapes.coordonnees, t.etapes.recapitulatif];
+const prefixe = (n: number) => `${gabarit(t.etapes.numero, { n, total: etapes.length })} : `;
+const aide = paragraphe(t.confirmation.secoursAide)
+  .replace('{email}', `<a href="mailto:${contact.email}">${contact.email}</a>`)
+  .replace('{telephone}', `<a href="${contact.telephoneLien}">${contact.telephone}</a>`);
+const deplacementInitial = gabarit(t.resume.deplacementInitial, { gratuit: deplacement.gratuitJusqua, ville: depart.ville });
+// Textes utilisés par le script de la page (messages, récapitulatif, texte de la demande).
+const textes = {
+  etapes: t.etapes, lieu: t.lieu, trajet: t.trajet, recapitulatif: t.recapitulatif, resume: t.resume,
+  navigation: t.navigation, erreurs: t.erreurs, confirmation: t.confirmation, demande: t.demande, moments: t.moments,
+  deplacementInitial,
+};
 ---
-<Base titre="Réserver une séance" description="Réservez votre séance photo équestre, votre photo de concours ou votre réel en quatre étapes." page="reservation" entete="simple">
-  <a slot="entete-action" class="nl" href="/seances" style="font-size: 14px">Quitter la réservation</a>
+<Base titre={t.page.titreOnglet} description={t.page.description} page="reservation" entete="simple">
+  <a slot="entete-action" class="nl garde" href="/seances" style="font-size: 14px">{t.page.lienQuitter}</a>
 
   <section class="wrap" style="padding-top: 16px; padding-bottom: clamp(64px, 8vw, 120px)" data-reveal>
-    <h1 class="d" style="font-size: clamp(52px, 7vw, 104px)">Réserver <span class="hl">votre séance</span></h1>
-    <ol class="etapes" aria-label="Étapes">
-      {etapes.map((e, i) => <li data-etape={i + 1} aria-current={i === 0 ? 'step' : undefined}><span class="n">{i + 1}</span><span class="t">{e}</span></li>)}
+    <h1 class="d" style="font-size: clamp(52px, 7vw, 104px)" set:html={surligne(t.page.titre)} />
+    <ol class="etapes" aria-label={t.etapes.libelle}>
+      {etapes.map((e, i) => <li data-etape={i + 1} aria-current={i === 0 ? 'step' : undefined}><span class="n" aria-hidden="true">{i + 1}</span><span class="t">{e}</span><span class="sr" data-etat></span></li>)}
     </ol>
 
-    <form id="resa" class="row" data-gratuit={deplacement.gratuitJusqua} data-km={deplacement.prixKm} style="gap: 40px; align-items: flex-start" novalidate>
+    <form id="resa" class="row" data-gratuit={deplacement.gratuitJusqua} data-km={deplacement.prixKm} data-taux={tauxSegur} data-email={contact.email} data-textes={JSON.stringify(textes)} style="gap: 40px; align-items: flex-start" novalidate>
       <div style="flex: 2 1 560px; min-width: 0">
         <fieldset class="pane" data-pane="1">
-          <legend class="d" style="font-size: 44px">Quelle prestation ?</legend>
-          <p class="lbl" style="color: var(--encre)">Séances équestres</p>
-          <div class="choix">{seances.map((s) => <button type="button" class="option" data-formule={s.id} data-nom={s.nom} data-prix={s.prix} aria-pressed={s.id === seanceVedette?.id ? 'true' : 'false'}><strong>{s.nom}</strong><span class="d" style="font-size: 32px; color: var(--rose-profond)">{s.prix} €</span></button>)}</div>
-          <p class="lbl" style="color: var(--encre)">Concours</p>
-          <div class="choix">{concours.map((c) => <button type="button" class="option" data-formule={c.id} data-nom={c.nom} data-prix={c.prix} aria-pressed="false"><strong>{c.nom}</strong><span class="d" style="font-size: 32px; color: var(--rose-profond)">{c.prix} €</span></button>)}</div>
+          <legend class="d" style="font-size: 44px"><span class="sr">{prefixe(1)}</span>{t.prestation.titre}</legend>
+          <p class="lbl" id="groupe-seances" style="color: var(--encre)">{t.prestation.titreSeances}</p>
+          <div class="choix" role="group" aria-labelledby="groupe-seances">{seances.map((s) => <button type="button" class="option" data-formule={s.id} data-nom={s.nom} data-prix={s.prix} aria-pressed={s.id === seanceVedette?.id ? 'true' : 'false'}><strong>{s.nom}</strong><span class="d" style="font-size: 32px; color: var(--rose-profond)">{s.prix} €</span></button>)}</div>
+          <p class="lbl" id="groupe-concours" style="color: var(--encre)">{t.prestation.titreConcours}</p>
+          <div class="choix" role="group" aria-labelledby="groupe-concours">{concours.map((c) => <button type="button" class="option" data-formule={c.id} data-nom={c.nom} data-prix={c.prix} aria-pressed="false"><strong>{c.nom}</strong><span class="d" style="font-size: 32px; color: var(--rose-profond)">{c.prix} €</span></button>)}</div>
         </fieldset>
 
         <fieldset class="pane" data-pane="2" hidden>
-          <legend class="d" style="font-size: 44px">Où et quand ?</legend>
-          <label class="champ">Commune de la séance<input class="saisie" id="lieu" name="lieu" data-libelle="Lieu" type="text" placeholder="Ex. Muret" required></label>
-          <p class="li" data-trajet aria-live="polite" style="margin: -8px 0 0; font-size: 14px">Choisissez votre commune dans la liste : je calcule le déplacement.</p>
-          <label class="champ">Nom de l’écurie (facultatif)<input class="saisie" name="ecurie" data-libelle="Écurie" type="text"></label>
-          <label class="champ" style="max-width: 320px">Date souhaitée (facultatif)<input class="saisie" name="date" data-libelle="Date souhaitée" type="date" aria-describedby="soleil" data-decrit="soleil"></label>
-          <p id="soleil" class="soleil" aria-live="polite">Choisissez une date : je vous indique l’heure de la lumière dorée à Toulouse.</p>
+          <legend class="d" style="font-size: 44px"><span class="sr">{prefixe(2)}</span>{t.lieu.titre}</legend>
+          <label class="champ">{t.lieu.communeLibelle}<input class="saisie" id="lieu" name="lieu" data-libelle="Lieu" type="text" placeholder={t.lieu.communeExemple} aria-describedby="trajet" required></label>
+          <p class="li" id="trajet" data-trajet aria-live="polite" style="margin: -8px 0 0; font-size: 14px">{t.lieu.communeAide}</p>
+          <label class="champ">{t.lieu.ecurieLibelle}<input class="saisie" name="ecurie" data-libelle="Écurie" type="text"></label>
+          <label class="champ" style="max-width: 320px">{t.lieu.dateLibelle}<input class="saisie" name="date" data-libelle="Date souhaitée" type="date" aria-describedby="soleil" data-decrit="soleil"></label>
+          <p id="soleil" class="soleil" aria-live="polite">{t.lieu.dateAideVide}</p>
           <div class="stack g12">
-            <p style="margin: 0; font-size: 14px; font-weight: 500">Moment de la journée</p>
-            <div class="choix">
-              <button type="button" class="option" data-moment="Le matin" aria-pressed="false"><strong>Le matin</strong><span class="li">Lumière douce, chevaux reposés</span></button>
-              <button type="button" class="option" data-moment="En fin de journée" aria-pressed="true"><strong>En fin de journée</strong><span class="li" data-note-soir>Lumière dorée</span></button>
+            <p id="groupe-moment" style="margin: 0; font-size: 14px; font-weight: 500">{t.lieu.momentTitre}</p>
+            <div class="choix moments" role="group" aria-labelledby="groupe-moment">
+              <button type="button" class="option" data-moment={t.moments.peuImporte.libelle} aria-pressed="true"><strong>{t.moments.peuImporte.libelle}</strong><span class="li">{t.moments.peuImporte.note}</span></button>
+              <button type="button" class="option" data-moment={t.moments.matin.libelle} aria-pressed="false"><strong>{t.moments.matin.libelle}</strong><span class="li">{t.moments.matin.note}</span></button>
+              <button type="button" class="option" data-moment={t.moments.apresMidi.libelle} aria-pressed="false"><strong>{t.moments.apresMidi.libelle}</strong><span class="li">{t.moments.apresMidi.note}</span></button>
+              <button type="button" class="option" data-moment={t.moments.finDeJournee.libelle} aria-pressed="false"><strong>{t.moments.finDeJournee.libelle}</strong><span class="li" data-note-soir>{t.moments.finDeJournee.note}</span></button>
             </div>
           </div>
         </fieldset>
 
         <fieldset class="pane" data-pane="3" hidden>
-          <legend class="d" style="font-size: 44px">Vos coordonnées</legend>
+          <legend class="d" style="font-size: 44px"><span class="sr">{prefixe(3)}</span>{t.coordonnees.titre}</legend>
           <div class="grille" style="--min: 240px; gap: 18px">
-            <label class="champ">Prénom<input class="saisie" name="prenom" data-libelle="Prénom" type="text" autocomplete="given-name" required></label>
-            <label class="champ">Nom<input class="saisie" name="nom" data-libelle="Nom" type="text" autocomplete="family-name" required></label>
-            <label class="champ">E-mail<input class="saisie" name="email" data-libelle="E-mail" type="email" autocomplete="email" required></label>
-            <label class="champ">Téléphone<input class="saisie" name="telephone" data-libelle="Téléphone" type="tel" autocomplete="tel"></label>
-            <label class="champ">Nom de votre cheval<input class="saisie" name="cheval" data-libelle="Cheval" type="text"></label>
+            <label class="champ">{t.coordonnees.prenom}<input class="saisie" name="prenom" data-libelle="Prénom" type="text" autocomplete="given-name" required></label>
+            <label class="champ">{t.coordonnees.nom}<input class="saisie" name="nom" data-libelle="Nom" type="text" autocomplete="family-name" required></label>
+            <label class="champ">{t.coordonnees.email}<input class="saisie" name="email" data-libelle="E-mail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" required></label>
+            <label class="champ">{t.coordonnees.telephone}<input class="saisie" name="telephone" data-libelle="Téléphone" type="tel" inputmode="tel" autocomplete="tel"></label>
+            <label class="champ">{t.coordonnees.cheval}<input class="saisie" name="cheval" data-libelle="Cheval" type="text"></label>
           </div>
-          <label class="case"><input type="checkbox" name="segur" data-libelle="Cavalier des Écuries d’En Ségur (-10 %)">Je monte aux Écuries d’En Ségur (-10 %)</label>
-          <label class="champ">Un mot pour Ilona (facultatif)<textarea class="saisie" name="message" data-libelle="Message" maxlength="1200"></textarea></label>
+          <label class="case"><input type="checkbox" name="segur">{t.coordonnees.segur}</label>
+          <label class="champ">{t.coordonnees.message}<textarea class="saisie" name="message" data-libelle="Message" maxlength="1200"></textarea></label>
           <label class="piege" aria-hidden="true">Ne pas remplir<input name="site_web" type="text" tabindex="-1" autocomplete="off"></label>
         </fieldset>
 
         <fieldset class="pane" data-pane="4" hidden>
-          <legend class="d" style="font-size: 44px">On vérifie ensemble</legend>
+          <legend class="d" style="font-size: 44px"><span class="sr">{prefixe(4)}</span>{t.recapitulatif.titre}</legend>
           <dl class="recap" data-recap></dl>
-          <p class="texte" style="font-size: 15px">Rien n’est réglé maintenant : votre demande part directement chez Ilona, qui vous confirme la date et le prix final, déplacement compris.</p>
+          <p class="texte" style="font-size: 15px">{t.recapitulatif.note}</p>
         </fieldset>
 
         <div class="pane" data-pane="5" hidden>
           <div data-ok hidden class="stack g16">
-            <h2 class="d" style="font-size: clamp(52px, 7vw, 104px)">Demande <span class="hl">reçue</span></h2>
-            <p class="texte">Merci ! Votre demande est bien arrivée chez Ilona. Elle vous répond par e-mail pour confirmer la date et le prix final, déplacement compris.</p>
+            <h2 class="d" style="font-size: clamp(52px, 7vw, 104px)" set:html={surligne(t.confirmation.envoyeeTitre)} />
+            <p class="texte">{t.confirmation.envoyeeTexte}</p>
           </div>
           <div data-secours hidden class="stack g16">
-          <h2 class="d" style="font-size: clamp(52px, 7vw, 104px)">Demande <span class="hl">prête</span></h2>
-          <p class="texte">Votre messagerie s’est ouverte avec la demande déjà rédigée : il ne reste qu’à l’envoyer. Ilona vous répond par e-mail pour confirmer la date.</p>
-          <div class="carte stack g12" style="padding: 24px">
-            <p class="lbl">Rien ne s’est ouvert ?</p>
-            <p style="margin: 0; font-size: 15px; line-height: 1.6">Copiez votre demande et collez-la dans un e-mail à <a href={`mailto:${contact.email}`}>{contact.email}</a>, ou appelez le <a href={contact.telephoneLien}>{contact.telephone}</a>.</p>
-            <label class="champ">Votre demande, à copier<textarea class="saisie" data-texte-demande readonly rows="8"></textarea></label>
-            <button type="button" class="btn clair" data-copier style="align-self: flex-start">Copier ma demande</button>
-            <p data-copie-ok role="status" style="margin: 0; font-size: 14px" hidden>Demande copiée.</p>
+            <h2 class="d" style="font-size: clamp(52px, 7vw, 104px)" set:html={surligne(t.confirmation.secoursTitre)} />
+            <p class="texte">{t.confirmation.secoursTexte}</p>
+            <div class="carte stack g12" style="padding: 24px">
+              <p class="lbl">{t.confirmation.secoursAideTitre}</p>
+              <p style="margin: 0; font-size: 15px; line-height: 1.6" set:html={aide} />
+              <label class="champ">{t.confirmation.copieLibelle}<textarea class="saisie" data-texte-demande readonly rows="8"></textarea></label>
+              <button type="button" class="btn clair" data-copier style="align-self: flex-start">{t.confirmation.copierBouton}</button>
+              <p data-copie-ok role="status" style="margin: 0; font-size: 14px" hidden></p>
+            </div>
           </div>
-          </div>
-          <a class="btn contour" href="/journal/preparer-son-cheval" style="align-self: flex-start">Préparer mon cheval</a>
+          <a class="btn contour" href="/journal/preparer-son-cheval" style="align-self: flex-start">{t.confirmation.boutonSuite}</a>
         </div>
 
         <p class="erreur" id="erreur-resa" data-erreur role="alert" hidden></p>
         <div class="navigation" data-navigation>
-          <button type="button" class="btn contour" data-retour hidden>Retour</button>
-          <button type="submit" class="btn" data-suivant>Continuer</button>
+          <button type="button" class="btn contour" data-retour hidden>{t.navigation.retour}</button>
+          <button type="submit" class="btn" data-suivant>{t.navigation.continuer}</button>
         </div>
       </div>
 
-      <aside class="carte stack g12 resume" aria-label="Votre réservation">
-        <p class="lbl">Votre réservation</p>
+      <aside class="carte stack g12 resume" aria-label={t.resume.titre}>
+        <p class="lbl">{t.resume.titre}</p>
         <p style="margin: 0; font-size: 18px; font-weight: 600" data-r-nom>{seanceVedette?.nom}</p>
         <p class="prix" style="font-size: 72px; margin: 0"><span data-r-total>{seanceVedette?.prix}</span> €</p>
-        <p style="margin: 0; font-size: 14px; line-height: 1.55; opacity: .9"><span data-r-remise hidden>Remise En Ségur de 10 % incluse. </span><span data-r-deplacement>Déplacement calculé selon votre commune, offert jusqu’à {deplacement.gratuitJusqua} km de {depart.ville}.</span></p>
+        <p style="margin: 0; font-size: 14px; line-height: 1.55; opacity: .9"><span data-r-remise hidden>{t.resume.remise} </span><span data-r-deplacement>{deplacementInitial}</span></p>
         <div class="coups" data-coups hidden>
-          <p style="margin: 0; font-size: 14px; font-weight: 500">Vos coups de cœur</p>
+          <p style="margin: 0; font-size: 14px; font-weight: 500">{t.resume.coupsDeCoeur}</p>
           <ul data-coups-liste></ul>
         </div>
-        <p style="margin: 0; font-size: 14px; padding-top: 12px; border-top: 1px solid rgba(236,235,231,.18)">Une question ? {contact.telephone}</p>
+        <p style="margin: 0; font-size: 14px; padding-top: 12px; border-top: 1px solid rgba(236,235,231,.18)">{t.resume.question} {contact.telephone}</p>
       </aside>
     </form>
   </section>
@@ -112,6 +133,8 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
   .pane legend { padding: 0; margin-bottom: 22px; float: left; width: 100%; }
   .pane legend + * { clear: both; }
   .choix { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .moments { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 480px) { .moments { grid-template-columns: 1fr; } }
   .recap { margin: 0; display: grid; grid-template-columns: minmax(120px, 200px) minmax(0, 1fr); font-size: 16px; }
   .recap dt, .recap dd { margin: 0; padding: 14px 0; border-top: 1px solid rgba(34,34,34,.2); }
   .recap dt { font-weight: 500; }
@@ -120,6 +143,7 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
   .navigation .btn[data-suivant] { margin-left: auto; }
   .piege { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .erreur { margin: 16px 0 0; color: var(--rose-profond); font-weight: 500; }
+  .saisie[aria-invalid="true"] { border-color: var(--rose-profond); box-shadow: 0 0 0 1.5px var(--rose-profond); }
   .recap :global(dd) { overflow-wrap: anywhere; }
   .recap :global(.modifier) { margin-left: 8px; border: 0; background: none; padding: 10px 4px; color: var(--rose-profond); text-decoration: underline; font: 500 14px 'Poppins', sans-serif; cursor: pointer; }
   .resume { flex: 1 1 300px; padding: 32px; position: sticky; top: 24px; }
@@ -132,20 +156,24 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
 </style>
 
 <script>
-  import { ouvrirMail, lignesDuFormulaire, envoyerDemande } from '../scripts/mail.js';
+  import { ouvrirMail, envoyerDemande } from '../scripts/mail.js';
   import { lumiereDuSoir, heure, jour } from '../scripts/soleil.js';
   import { brancherCommune, prixDeplacement } from '../scripts/distance.js';
   const form = document.getElementById('resa') as HTMLFormElement;
   const $ = <T extends HTMLElement>(s: string) => form.querySelector<T>(s)!;
+  const T = JSON.parse(form.dataset.textes || '{}');
+  const gabarit = (texte: string, valeurs: Record<string, string | number> = {}) => texte.replace(/\{(\w+)\}/g, (_, k) => String(valeurs[k] ?? ''));
+  const parametres = new URLSearchParams(location.search);
   let etape = 1;
   let texteDemande = '';
+  let envoiEnCours = false;
   // Pas de date passée : « aujourd'hui » dans le fuseau du visiteur, pas en UTC.
   const aujourdhui = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
   $<HTMLInputElement>('[name="date"]').min = aujourdhui();
   const defilement = () => window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 
   // Préselection depuis ?formule=…
-  const demande = new URLSearchParams(location.search).get('formule');
+  const demande = parametres.get('formule');
   const depart = demande && $<HTMLButtonElement>(`[data-formule="${CSS.escape(demande)}"]`);
   if (depart) { form.querySelectorAll('[data-formule]').forEach((b) => b.setAttribute('aria-pressed', 'false')); depart.setAttribute('aria-pressed', 'true'); }
 
@@ -154,11 +182,13 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
   const formule = () => form.querySelector<HTMLButtonElement>('[data-formule][aria-pressed="true"]');
   const moment = () => $<HTMLButtonElement>('[data-moment][aria-pressed="true"]');
   const segur = () => $<HTMLInputElement>('[name="segur"]').checked;
+  const v = (n: string) => ($<HTMLInputElement>(`[name="${n}"]`).value || '').trim();
 
   // Déplacement estimé une fois la commune reconnue (null tant qu'elle ne l'est pas).
   let trajet: { nom: string; km: number; prix: number } | null = null;
-  const texteDeplacementInitial = form.querySelector('[data-r-deplacement]')!.textContent ?? '';
-  const texteTrajet = () => trajet ? (trajet.prix ? `${trajet.prix} € (${trajet.km} km par la route)` : `offert (${trajet.km} km par la route)`) : 'calculé par Ilona';
+  const texteTrajet = () => trajet ? gabarit(trajet.prix ? T.recapitulatif.deplacementPayant : T.recapitulatif.deplacementOffert, { prix: trajet.prix, km: trajet.km }) : T.recapitulatif.deplacementACalculer;
+  // Sans déplacement calculé, le total ne l'inclut pas : on le dit.
+  const texteTotal = () => { const total = $('[data-r-total]').textContent!; return trajet ? `${total} €` : gabarit(T.recapitulatif.totalHorsDeplacement, { total }); };
 
   function resume() {
     const f = formule();
@@ -166,20 +196,42 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
     const total = Number(f.dataset.prix) + (trajet?.prix ?? 0);
     $('[data-r-nom]').textContent = f.dataset.nom!;
     // Même arrondi que le calculateur de /seances : total moins la remise arrondie.
-    $('[data-r-total]').textContent = String(segur() ? total - Math.round(total * 0.1) : total);
+    $('[data-r-total]').textContent = String(segur() ? total - Math.round((total * Number(form.dataset.taux)) / 100) : total);
     $('[data-r-remise]').hidden = !segur();
-    $('[data-r-deplacement]').textContent = trajet ? `Déplacement ${trajet.prix ? `de ${trajet.prix} € inclus` : 'offert'} (${trajet.km} km).` : texteDeplacementInitial;
+    $('[data-r-deplacement]').textContent = trajet ? gabarit(trajet.prix ? T.resume.deplacementPayant : T.resume.deplacementOffert, { prix: trajet.prix, km: trajet.km }) : T.deplacementInitial;
   }
   if (!formule()) $<HTMLButtonElement>('[data-suivant]').disabled = true; // rien à réserver : les prestations sont vides
 
-  brancherCommune($<HTMLInputElement>('#lieu'), (r: { nom: string; km: number | null } | null) => {
-    const sortie = $('[data-trajet]');
-    if (!r) { trajet = null; sortie.textContent = 'Commune non reconnue : Ilona calculera le déplacement.'; resume(); return; }
-    if (r.km === null) { trajet = null; sortie.textContent = 'Distance non calculée : Ilona la calculera.'; resume(); return; }
+  const sortieTrajet = $('[data-trajet]');
+  const commune = brancherCommune($<HTMLInputElement>('#lieu'), (r: { nom: string; km: number | null } | null) => {
+    if (!r) { trajet = null; sortieTrajet.textContent = T.trajet.communeInconnue; resume(); return; }
+    if (r.km === null) { trajet = null; sortieTrajet.textContent = T.trajet.nonCalcule; resume(); return; }
     trajet = { ...r, prix: prixDeplacement(r.km, Number(form.dataset.gratuit), Number(form.dataset.km)) };
-    sortie.textContent = `${r.nom} : ${r.km} km par la route, déplacement ${trajet.prix ? `estimé à ${trajet.prix} €` : 'offert'}.`;
+    sortieTrajet.textContent = gabarit(trajet.prix ? T.trajet.reconnuPayant : T.trajet.reconnuOffert, { commune: r.nom, km: r.km, prix: trajet.prix });
     resume();
+  }, {
+    auChangement: () => { trajet = null; sortieTrajet.textContent = T.lieu.communeAide; resume(); },
+    auCalcul: () => { trajet = null; sortieTrajet.textContent = T.trajet.calcul; resume(); },
   });
+
+  const erreur = $('[data-erreur]');
+  const ancreErreur = $('[data-navigation]');
+  const decritParDefaut = (c: HTMLElement) => { if (c.dataset.decrit) c.setAttribute('aria-describedby', c.dataset.decrit); else if (c.id === 'lieu') c.setAttribute('aria-describedby', 'trajet'); else c.removeAttribute('aria-describedby'); };
+  function effacerErreur() {
+    form.querySelectorAll<HTMLElement>('[aria-invalid]').forEach((c) => { c.removeAttribute('aria-invalid'); decritParDefaut(c); });
+    erreur.hidden = true;
+    ancreErreur.before(erreur);
+  }
+  // Le message s'affiche juste sous le champ (ou sous son groupe de champs) pour rester dans l'écran sur mobile.
+  function signaler(c: HTMLInputElement, message: string, avecFocus: boolean) {
+    effacerErreur();
+    erreur.textContent = message;
+    (c.closest('.grille') ?? c.closest('label') ?? c).after(erreur);
+    erreur.hidden = false;
+    c.setAttribute('aria-invalid', 'true');
+    c.setAttribute('aria-describedby', 'erreur-resa');
+    if (avecFocus) c.focus();
+  }
 
   function afficher(n: number) {
     etape = n;
@@ -189,11 +241,12 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
       li.classList.toggle('faite', k < n);
       if (k === n) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
       li.querySelector('.n')!.textContent = k < n ? '✓' : String(k);
+      li.querySelector('[data-etat]')!.textContent = k < n ? T.etapes.terminee : '';
     });
     $('[data-retour]').hidden = n === 1 || n === 5;
     $('[data-navigation]').hidden = n === 5;
-    $('[data-suivant]').textContent = n === 4 ? 'Envoyer ma demande' : 'Continuer';
-    $('[data-erreur]').hidden = true;
+    $('[data-suivant]').textContent = n === 4 ? T.navigation.envoyer : T.navigation.continuer;
+    effacerErreur();
     if (n === 4) recap();
     // Écran 5 : le titre du bloc affiché (envoyé ou à envoyer soi-même), pas celui du bloc masqué.
     const titre = form.querySelector<HTMLElement>(`[data-pane="${n}"] legend, [data-pane="${n}"] > div:not([hidden]) h2`);
@@ -202,28 +255,32 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
     defilement();
   }
 
+  const dateLisible = () => (v('date') ? v('date').split('-').reverse().join('/') : T.recapitulatif.dateAConvenir);
+
   function recap() {
-    const v = (n: string) => ($<HTMLInputElement>(`[name="${n}"]`).value || '').trim();
-    const date = v('date') ? v('date').split('-').reverse().join('/') : 'à convenir';
-    const lignes: [string, string][] = [
-      ['Prestation', `${formule().dataset.nom} · ${formule().dataset.prix} €`],
-      ['Lieu', [v('lieu'), v('ecurie')].filter(Boolean).join(' · ')],
-      ['Déplacement', texteTrajet()],
-      ['Date', `${date} · ${moment().dataset.moment}`],
-      ['Contact', `${v('prenom')} ${v('nom')} · ${v('email')}`],
-      ['Remise', segur() ? 'Écuries d’En Ségur, -10 %' : 'Aucune'],
-      ['Total estimé', `${$('[data-r-total]').textContent} €`],
+    const R = T.recapitulatif;
+    // [rubrique, valeur, étape où la modifier]
+    const lignes: [string, string, number][] = [
+      [R.prestation, `${formule()!.dataset.nom} · ${formule()!.dataset.prix} €`, 1],
+      [R.lieu, [v('lieu'), v('ecurie')].filter(Boolean).join(' · '), 2],
+      [R.deplacement, texteTrajet(), 2],
+      [R.date, dateLisible(), 2],
+      [R.moment, moment().dataset.moment!, 2],
+      [R.contact, `${v('prenom')} ${v('nom')} · ${v('email')}`, 3],
+      ...(v('telephone') ? [[R.telephone, v('telephone'), 3] as [string, string, number]] : []),
+      ...(v('cheval') ? [[R.cheval, v('cheval'), 3] as [string, string, number]] : []),
+      ...(v('message') ? [[R.message, v('message'), 3] as [string, string, number]] : []),
+      [R.remise, segur() ? R.remiseOui : R.remiseNon, 3],
+      [R.total, texteTotal(), 0],
     ];
-    const dl = $('[data-recap]');
-    const etapeDe: Record<string, number> = { Prestation: 1, Lieu: 2, Déplacement: 2, Date: 2, Contact: 3, Remise: 3 };
-    dl.replaceChildren(...lignes.flatMap(([a, b]) => {
+    $('[data-recap]').replaceChildren(...lignes.flatMap(([a, b, k]) => {
       const dt = document.createElement('dt'); dt.textContent = a;
       const dd = document.createElement('dd'); dd.textContent = b + ' ';
-      if (etapeDe[a]) {
+      if (k) {
         const modif = document.createElement('button');
-        modif.type = 'button'; modif.className = 'modifier'; modif.textContent = 'Modifier';
-        modif.setAttribute('aria-label', `Modifier : ${a}`);
-        modif.addEventListener('click', () => afficher(etapeDe[a]));
+        modif.type = 'button'; modif.className = 'modifier'; modif.textContent = R.modifier;
+        modif.setAttribute('aria-label', gabarit(R.modifierRubrique, { rubrique: a }));
+        modif.addEventListener('click', () => afficher(k));
         dd.append(modif);
       }
       return [dt, dd];
@@ -234,42 +291,49 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
   const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   // Une phrase qui dit quoi faire, ou '' si le champ est bon.
   function probleme(c: HTMLInputElement): string {
-    const v = c.value.trim();
-    if (c.name === 'lieu' && !v) return 'Indiquez la commune de la séance.';
-    if (c.name === 'prenom' && !v) return 'Indiquez votre prénom.';
-    if (c.name === 'nom' && !v) return 'Indiquez votre nom.';
+    const E = T.erreurs;
+    const val = c.value.trim();
+    if (c.name === 'lieu' && !val) return E.commune;
+    if (c.name === 'prenom' && !val) return E.prenom;
+    if (c.name === 'nom' && !val) return E.nom;
     if (c.name === 'email') {
-      if (!v) return 'Indiquez votre adresse e-mail.';
-      if (v.length > 254 || !EMAIL.test(v)) return 'Indiquez une adresse e-mail valide, par exemple nom@exemple.fr.';
+      if (!val) return E.emailVide;
+      if (val.length > 254 || !EMAIL.test(val)) return E.emailInvalide;
+    }
+    if (c.name === 'telephone' && val) {
+      const chiffres = val.replace(/\D/g, '').length;
+      if (!/^[+()\d\s.\-]+$/.test(val) || chiffres < 8 || chiffres > 15) return E.telephone;
     }
     if (c.name === 'date') {
-      if (c.validity.badInput) return 'Cette date n’est pas valide : choisissez-la dans le calendrier.';
-      if (c.value && c.value < aujourdhui()) return 'Choisissez une date à partir d’aujourd’hui.';
+      if (c.validity.badInput) return E.dateInvalide;
+      if (c.value && c.value < aujourdhui()) return E.datePassee;
     }
     return '';
   }
 
   function valide(n: number) {
     const champs = [...form.querySelectorAll<HTMLInputElement>(`[data-pane="${n}"] input:not([type="checkbox"]):not([name="site_web"])`)];
-    champs.forEach((c) => { c.removeAttribute('aria-invalid'); (c.dataset.decrit ? c.setAttribute('aria-describedby', c.dataset.decrit) : c.removeAttribute('aria-describedby')); });
+    effacerErreur();
     for (const c of champs) {
       const message = probleme(c);
       if (!message) continue;
-      const err = $('[data-erreur]');
-      err.textContent = message;
-      err.hidden = false;
-      c.setAttribute('aria-invalid', 'true');
-      c.setAttribute('aria-describedby', 'erreur-resa');
-      c.focus();
+      signaler(c, message, true);
       return false;
     }
-    $('[data-erreur]').hidden = true;
     return true;
   }
   // Une saisie corrigée retire son signalement.
   form.addEventListener('input', (e) => {
     const c = e.target as HTMLElement;
-    if (c.getAttribute('aria-invalid')) { c.removeAttribute('aria-invalid'); (c.dataset.decrit ? c.setAttribute('aria-describedby', c.dataset.decrit) : c.removeAttribute('aria-describedby')); $('[data-erreur]').hidden = true; }
+    if (c.getAttribute('aria-invalid')) effacerErreur();
+  });
+  // Contrôle en ligne une fois le champ quitté (e-mail, téléphone, date), sans voler le focus.
+  form.addEventListener('focusout', (e) => {
+    const c = e.target as HTMLInputElement;
+    if (!['email', 'telephone', 'date'].includes(c.name)) return;
+    if (!c.value.trim() && !c.validity?.badInput) return;
+    const message = probleme(c);
+    if (message) signaler(c, message, false);
   });
 
   form.addEventListener('click', (e) => {
@@ -281,21 +345,24 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
   });
   $('[name="segur"]').addEventListener('change', resume);
 
-  // Heure dorée pour la date choisie.
+  // Heure dorée pour la date choisie : une information, jamais une condition.
   $<HTMLInputElement>('[name="date"]').addEventListener('change', (e) => {
-    const v = (e.target as HTMLInputElement).value;
+    const val = (e.target as HTMLInputElement).value;
     const sortie = document.getElementById('soleil')!;
-    if (!v) { sortie.textContent = 'Choisissez une date : je vous indique l’heure de la lumière dorée à Toulouse.'; return; }
-    const d = new Date(`${v}T12:00:00`);
+    const note = $('[data-note-soir]');
+    if (!val) { sortie.textContent = T.lieu.dateAideVide; note.textContent = T.moments.finDeJournee.note; return; }
+    const d = new Date(`${val}T12:00:00`);
+    if (isNaN(d.getTime())) { sortie.textContent = T.lieu.dateAideVide; note.textContent = T.moments.finDeJournee.note; return; }
     const { doree, coucher } = lumiereDuSoir(d);
-    sortie.textContent = `Le ${jour(d)}, lumière dorée de ${heure(doree)} à ${heure(coucher)} (coucher du soleil).`;
-    $('[data-note-soir]').textContent = `Lumière dorée dès ${heure(doree)}`;
+    sortie.textContent = gabarit(T.lieu.dateAideChoisie, { jour: jour(d), debut: heure(doree), fin: heure(coucher) });
+    note.textContent = gabarit(T.moments.finDeJournee.noteAvecHeure, { heure: heure(doree) });
   });
 
-  // Coups de cœur choisis sur l'accueil.
+  // Coups de cœur choisis sur l'accueil (on ne garde que des photos du site).
   let coups: { alt: string; src: string }[] = [];
   try { coups = JSON.parse(localStorage.getItem('ilona-coups-de-coeur') || '[]'); } catch { coups = []; }
   if (!Array.isArray(coups)) coups = [];
+  coups = coups.filter((c) => c && typeof c.src === 'string' && c.src.startsWith('/') && !c.src.startsWith('//') && typeof c.alt === 'string').slice(0, 12);
   if (coups.length) {
     const bloc = $('[data-coups]');
     const liste = $('[data-coups-liste]');
@@ -308,27 +375,61 @@ const etapes = ['Prestation', 'Lieu & date', 'Coordonnées', 'Récapitulatif'];
     }));
   }
   $('[data-retour]').addEventListener('click', () => afficher(etape - 1));
+
+  // Le texte de la demande : celui de l'e-mail à Ilona et celui du repli par la messagerie.
+  function lignesDemande() {
+    const D = T.demande;
+    const valeur = (cle: string, x: string) => gabarit(D[cle], { valeur: x });
+    return [
+      gabarit(D.prestation, { nom: formule()!.dataset.nom!, prix: formule()!.dataset.prix! }),
+      valeur('lieu', v('lieu')),
+      v('ecurie') && valeur('ecurie', v('ecurie')),
+      valeur('deplacement', texteTrajet()),
+      valeur('date', dateLisible()),
+      valeur('moment', moment().dataset.moment!),
+      valeur('total', texteTotal()),
+      valeur('prenom', v('prenom')),
+      valeur('nom', v('nom')),
+      valeur('email', v('email')),
+      v('telephone') && valeur('telephone', v('telephone')),
+      v('cheval') && valeur('cheval', v('cheval')),
+      segur() && D.remise,
+      v('message') && valeur('message', v('message')),
+      coups.length && valeur('coups', coups.map((c) => c.alt).join(' ; ')),
+      parametres.get('source') === 'quiz' && D.quiz,
+    ].filter(Boolean) as string[];
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (envoiEnCours) return;
     if (!valide(etape)) return;
+    if (etape === 2) {
+      // Laisse finir le calcul du déplacement avant de passer à la suite.
+      const bouton = $<HTMLButtonElement>('[data-suivant]');
+      bouton.disabled = true;
+      await commune.attendre();
+      bouton.disabled = false;
+    }
     if (etape < 4) return afficher(etape + 1);
-    const lignes = [`Prestation : ${formule().dataset.nom} (${formule().dataset.prix} €)`, `Déplacement : ${texteTrajet()}`, `Total estimé : ${$('[data-r-total]').textContent} €`, `Moment : ${moment().dataset.moment}`, ...lignesDuFormulaire(form),
-      coups.length ? `Coups de cœur sur le site : ${coups.map((c) => c.alt).join(' ; ')}` : '',
-      new URLSearchParams(location.search).get('source') === 'quiz' ? 'Formule conseillée par le quiz du site' : ''];
-    texteDemande = lignes.filter(Boolean).join('\n');
+    envoiEnCours = true;
+    const lignes = lignesDemande();
+    texteDemande = lignes.join('\n');
     $<HTMLTextAreaElement>('[data-texte-demande]').value = texteDemande;
     const bouton = $<HTMLButtonElement>('[data-suivant]');
-    bouton.disabled = true; bouton.textContent = 'Envoi en cours…';
-    const v = (n: string) => ($<HTMLInputElement>(`[name="${n}"]`).value || '').trim();
-    const ok = await envoyerDemande({ type: 'reservation', nom: `${v('prenom')} ${v('nom')}`.trim(), email: v('email'), lignes: lignes.filter(Boolean), site_web: v('site_web') });
+    bouton.disabled = true; bouton.textContent = T.navigation.envoiEnCours;
+    const ok = await envoyerDemande({ type: 'reservation', nom: `${v('prenom')} ${v('nom')}`.trim(), email: v('email'), lignes, site_web: v('site_web'), ecoule: Math.round(performance.now()) });
     bouton.disabled = false;
-    if (!ok) ouvrirMail(form.closest('main')!.querySelector<HTMLAnchorElement>('a[href^="mailto:"]')!.href.replace('mailto:', ''), `Réservation · ${formule().dataset.nom}`, lignes);
+    envoiEnCours = false;
+    if (!ok) ouvrirMail(form.dataset.email!, gabarit(T.demande.sujet, { formule: formule()!.dataset.nom! }), lignes);
     $('[data-ok]').hidden = !ok;
     $('[data-secours]').hidden = ok;
     afficher(5);
   });
   $('[data-copier]').addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(texteDemande); $('[data-copie-ok]').textContent = 'Demande copiée.'; $('[data-copie-ok]').hidden = false; } catch { $('[data-copie-ok]').textContent = 'Copie impossible : sélectionnez le texte de la demande ci-dessus.'; $('[data-copie-ok]').hidden = false; }
+    const sortie = $('[data-copie-ok]');
+    try { await navigator.clipboard.writeText(texteDemande); sortie.textContent = T.confirmation.copieOk; } catch { sortie.textContent = T.confirmation.copieEchec; }
+    sortie.hidden = false;
   });
   $<HTMLTextAreaElement>('[data-texte-demande]').addEventListener('focus', (e) => (e.target as HTMLTextAreaElement).select());
   resume();
