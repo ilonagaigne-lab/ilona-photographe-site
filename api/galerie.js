@@ -1,7 +1,7 @@
 // Renvoie à la page client (/photos/<id>) le contenu de SA galerie, et rien d'autre.
 // Public : le secret, c'est l'identifiant de 22 caractères dans le lien. On ne liste jamais les autres galeries,
 // et le message que le client écrit à Ilona (selection.message) ne repart jamais vers le navigateur.
-import { ID_VALIDE, lireGalerie } from './_lib/galeries.js';
+import { ID_VALIDE, lireGalerie, trierPhotos } from './_lib/galeries.js';
 
 const MODES = ['telechargement', 'selection'];
 
@@ -12,7 +12,7 @@ function adresseSure(u) {
 const entier = (n) => (Number.isFinite(n) && n >= 0 ? Math.round(n) : 0);
 
 function publique(g) {
-  const photos = (Array.isArray(g.photos) ? g.photos : [])
+  const photos = trierPhotos(g.photos, g.tri) // ordre choisi par Ilona (date de prise de vue ou nom)
     .map((p) => ({
       nom: String(p?.nom ?? '').slice(0, 200),
       largeur: entier(p?.largeur),

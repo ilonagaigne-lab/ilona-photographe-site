@@ -6,6 +6,9 @@
 import { randomBytes, createHash, createHmac } from 'node:crypto';
 import { put, get, list, del, setTtl } from '@vercel/blob';
 
+import { trierProjets } from './tri.js';
+export { trierPhotos, trierProjets, dateDuProjet, TRIS, priseValide } from './tri.js';
+
 export const ID_VALIDE = /^[A-Za-z0-9_-]{22}$/;
 export const DEPOT_GITHUB = 'ilonagaigne-lab/ilona-photographe-site';
 export const DOSSIERS_PHOTOS = ['originaux', 'vues', 'miniatures'];
@@ -106,7 +109,7 @@ export async function listerGaleries() {
     const lot = await Promise.all(fiches.slice(i, i + 6).map((c) => lireFiche(c).catch(() => null)));
     galeries.push(...lot.filter(Boolean));
   }
-  return galeries.sort((a, b) => String(b.creeLe).localeCompare(String(a.creeLe)));
+  return trierProjets(galeries);
 }
 
 // Supprime les photos puis, en dernier, la fiche (si un envoi échoue, on peut réessayer).

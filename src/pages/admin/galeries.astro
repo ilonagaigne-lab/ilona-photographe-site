@@ -1,5 +1,5 @@
 ---
-// Page d'Ilona pour créer et gérer les galeries privées de ses clients (hors Decap).
+// Page d'Ilona pour créer et gérer les projets (galeries privées) de ses clients (hors Decap).
 // Connexion : celle du back office (jeton GitHub gardé par Decap). Photos : envoyées directement au magasin Blob.
 import { seances, concours, galerieDemo } from '../../data';
 
@@ -15,7 +15,7 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>Galeries clients · Ilona Photographe</title>
+  <title>Projets clients · Ilona Photographe</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body data-reglages={reglages}>
@@ -28,7 +28,7 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
     <p class="gal-info" id="chargement">Chargement…</p>
 
     <section id="vue-connexion" hidden>
-      <h1>Galeries clients</h1>
+      <h1>Projets clients</h1>
       <div class="gal-carte gal-centre">
         <p id="texte-connexion">Connectez-vous d’abord au back office, puis revenez sur cette page.</p>
         <a class="gal-bouton" href="/admin">Aller au back office</a>
@@ -39,26 +39,26 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
       <div class="gal-entete">
         <div>
           <p class="gal-sur">Vos clients</p>
-          <h1>Galeries clients</h1>
-          <p class="gal-intro">Une galerie privée par client. Vous envoyez les photos, vous copiez le lien, et votre client les retrouve sur son téléphone ou son ordinateur.</p>
+          <h1>Projets clients</h1>
+          <p class="gal-intro">Un projet par client : c’est un dossier qui réunit ses photos. Vous envoyez les photos, vous copiez le lien, et votre client les retrouve sur son téléphone ou son ordinateur.</p>
         </div>
-        <button type="button" class="gal-bouton" id="nouvelle">Nouvelle galerie</button>
+        <button type="button" class="gal-bouton" id="nouvelle">Nouveau projet</button>
       </div>
       <p class="gal-erreur" id="erreur-liste" role="alert" hidden></p>
       <ul class="gal-liste" id="liste"></ul>
-      <p class="gal-info" id="liste-vide" hidden>Aucune galerie pour l’instant. Cliquez sur « Nouvelle galerie » pour commencer.</p>
+      <p class="gal-info" id="liste-vide" hidden>Aucun projet pour l’instant. Cliquez sur « Nouveau projet » pour commencer.</p>
     </section>
 
     <section id="vue-editeur" hidden>
-      <button type="button" class="gal-lien" id="retour-liste">← Toutes les galeries</button>
-      <h1 id="titre-editeur">Nouvelle galerie</h1>
+      <button type="button" class="gal-lien" id="retour-liste">← Tous les projets</button>
+      <h1 id="titre-editeur">Nouveau projet</h1>
 
       <form id="formulaire" class="gal-carte" novalidate>
         <h2>1. Informations</h2>
         <div class="gal-champ">
-          <label for="f-titre">Nom de la galerie</label>
+          <label for="f-titre">Nom du projet</label>
           <input id="f-titre" name="titre" type="text" maxlength="120" required autocomplete="off">
-          <p class="gal-aide">Votre client le voit en haut de sa galerie. Ex. : Léa et Caramel</p>
+          <p class="gal-aide">Votre client le voit en haut de sa galerie. Vous pouvez le changer quand vous voulez. Ex. : Léa et Caramel</p>
         </div>
         <div class="gal-champ">
           <label for="f-seance">Séance</label>
@@ -71,11 +71,11 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
         <div class="gal-champ">
           <label for="f-date">Date de la séance</label>
           <input id="f-date" name="date" type="date">
-          <p class="gal-aide">Facultatif. Ex. : 14 novembre 2026</p>
+          <p class="gal-aide">Facultative. Si vous la laissez vide, elle se remplit toute seule avec la date de prise de vue de la photo la plus ancienne. Ex. : 14 novembre 2026</p>
         </div>
 
         <fieldset class="gal-champ">
-          <legend>Que fait votre client avec ses photos ?</legend>
+          <legend>Que fait votre client avec ses photos ?</legend>
           <div class="gal-modes">
             <label class="gal-mode">
               <input type="radio" name="mode" value="telechargement" checked>
@@ -97,29 +97,29 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
           <div class="gal-champ">
             <label for="f-prix">Prix d’une photo en plus (€)</label>
             <input id="f-prix" name="prixPhoto" type="number" min="0" max="10000" step="1" inputmode="numeric">
-            <p class="gal-aide">Ces deux valeurs viennent de « Formules et coordonnées ». Changez-les ici seulement pour cette galerie. Ex. : 10</p>
+            <p class="gal-aide">Ces deux valeurs viennent de « Formules et coordonnées ». Changez-les ici seulement pour ce projet. Ex. : 10</p>
           </div>
         </div>
 
         <div class="gal-champ">
           <label for="f-expire">Disponible jusqu’au</label>
           <input id="f-expire" name="expireLe" type="date" required>
-          <p class="gal-aide">Après cette date, la galerie et ses photos disparaissent toutes seules. Par défaut : 3 mois. Ex. : 14 février 2027</p>
+          <p class="gal-aide">Après cette date, le projet et ses photos disparaissent tous seuls. Par défaut : 3 mois. Ex. : 14 février 2027</p>
         </div>
 
         <p class="gal-erreur" id="erreur-formulaire" role="alert" hidden></p>
         <div class="gal-actions">
-          <button type="submit" class="gal-bouton" id="enregistrer">Créer la galerie</button>
+          <button type="submit" class="gal-bouton" id="enregistrer">Créer le projet</button>
         </div>
       </form>
 
       <section id="bloc-photos" class="gal-carte" hidden>
-        <h2>2. Photos</h2>
+        <h2>2. Contenu du projet</h2>
         <div class="gal-depot" id="depot">
           <p><strong>Glissez vos photos ici</strong>, ou</p>
           <label class="gal-bouton gal-bouton-clair" for="f-fichiers">Choisir des photos</label>
           <input id="f-fichiers" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple class="gal-cache">
-          <p class="gal-aide">Photos en JPG de préférence, 60 Mo au maximum chacune. Vous pouvez en envoyer plusieurs centaines : elles partent trois par trois. Votre client téléchargera les fichiers tels que vous les envoyez.</p>
+          <p class="gal-aide">Photos en JPG de préférence, 60 Mo au maximum chacune. Vous pouvez en envoyer plusieurs centaines : elles partent trois par trois. Votre client téléchargera les fichiers tels que vous les envoyez.</p>
         </div>
 
         <div id="envoi" hidden>
@@ -132,23 +132,40 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
           </div>
         </div>
 
+        <fieldset class="gal-champ gal-ordre">
+          <legend>Ordre des photos</legend>
+          <div class="gal-modes">
+            <label class="gal-mode">
+              <input type="radio" name="tri" value="date" checked>
+              <span><strong>Par date de prise de vue</strong>Dans l’ordre où elles ont été prises. Celles sans date passent à la fin.</span>
+            </label>
+            <label class="gal-mode">
+              <input type="radio" name="tri" value="nom">
+              <span><strong>Par nom de fichier</strong>Dans l’ordre des noms. Ex. : IMG_2 avant IMG_10</span>
+            </label>
+          </div>
+          <p class="gal-aide">Votre client voit ses photos dans cet ordre. Le changement est enregistré tout de suite.</p>
+        </fieldset>
+
         <div class="gal-barre-photos">
-          <p id="compte-photos" class="gal-info"></p>
+          <p id="compte-photos" class="gal-info" tabindex="-1"></p>
           <div class="gal-actions">
-            <button type="button" class="gal-bouton gal-bouton-clair" id="trier">Trier par nom de fichier</button>
-            <button type="button" class="gal-bouton" id="sauver-photos" disabled>Enregistrer les photos</button>
+            <button type="button" class="gal-bouton gal-bouton-clair" id="tout-cocher">Tout sélectionner</button>
+            <button type="button" class="gal-bouton gal-bouton-danger" id="retirer-selection" disabled>Retirer la sélection</button>
+            <button type="button" class="gal-bouton" id="sauver-photos" hidden>Enregistrer les photos</button>
           </div>
         </div>
+        <p class="gal-info gal-statut" id="statut-photos" role="status"></p>
         <ul class="gal-photos" id="photos"></ul>
       </section>
 
       <section id="bloc-lien" class="gal-carte" hidden>
         <h2>3. Lien à envoyer au client</h2>
-        <p class="gal-aide">Envoyez ce lien par message ou par e-mail. Il est impossible à deviner : seules les personnes qui le reçoivent voient la galerie.</p>
+        <p class="gal-aide">Envoyez ce lien par message ou par e-mail. Il est impossible à deviner : seules les personnes qui le reçoivent voient les photos.</p>
         <div class="gal-lien-ligne">
-          <input id="lien" type="text" readonly aria-label="Lien de la galerie">
+          <input id="lien" type="text" readonly aria-label="Lien du projet à envoyer au client">
           <button type="button" class="gal-bouton" id="copier">Copier le lien</button>
-          <a class="gal-bouton gal-bouton-clair" id="voir" href="/" target="_blank" rel="noopener">Voir la galerie</a>
+          <a class="gal-bouton gal-bouton-clair" id="voir" href="/" target="_blank" rel="noopener">Voir comme le client</a>
         </div>
         <p class="gal-info" id="copie-ok" role="status"></p>
       </section>
@@ -169,16 +186,21 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
 
 <script>
   import { upload } from '@vercel/blob/client';
+  import { lirePrise, formaterPrise, trierPhotos } from '../../scripts/projets-photos.js';
 
   const $ = (id) => document.getElementById(id);
   const NBSP = ' ';
   const reglages = JSON.parse(document.body.dataset.reglages || '{}');
   let galerie = null; // galerie ouverte (avec son id une fois créée)
-  let photos = []; // photos enregistrées ou en attente d'enregistrement
+  let photos = []; // photos enregistrées ou en attente d'enregistrement, dans l'ordre choisi
+  let tri = 'date'; // ordre choisi : « date » (prise de vue) ou « nom »
+  const cochees = new Set(); // photos cochées (adresse de l'original) pour un retrait groupé
   let sale = false; // des changements de photos ne sont pas encore enregistrés
   let enCours = 0; // photos en cours d'envoi
   let echecs = []; // fichiers à renvoyer
   let occupe = false; // un lot de photos est en cours d'envoi
+  let enregistre = false; // un enregistrement des photos est en cours
+  const bloque = () => occupe || enregistre;
 
   // ---------- Connexion : le jeton que Decap garde après la connexion GitHub ----------
   function jeton() {
@@ -211,6 +233,13 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
     if (message) $('texte-connexion').textContent = message;
     montrer('vue-connexion');
   }
+  // Message lié aux photos : dans le flux de la page (sous la barre d'actions), jamais par-dessus une photo.
+  function statut(texte) {
+    const s = $('statut-photos');
+    s.textContent = texte;
+    clearTimeout(statut.minuteur);
+    statut.minuteur = setTimeout(() => { s.textContent = ''; }, 6000);
+  }
   function toast(texte) {
     const t = $('toast');
     t.textContent = texte;
@@ -224,7 +253,14 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
     e.hidden = !texte;
   }
   const poids = (o) => (o >= 1e9 ? `${(o / 1e9).toFixed(1).replace('.', ',')}${NBSP}Go` : `${Math.max(1, Math.round(o / 1e6))}${NBSP}Mo`);
-  const jour = (iso) => (iso ? new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '');
+  // « 1er février 2026 » (ou « 1er févr. 2026 » en court) : le premier du mois s'écrit « 1er »
+  const jour = (iso, mois = 'long') => {
+    if (!iso) return '';
+    const d = new Date(`${iso.slice(0, 10)}T12:00:00`);
+    if (Number.isNaN(d.getTime())) return '';
+    const reste = d.toLocaleDateString('fr-FR', { day: 'numeric', month: mois, year: 'numeric' });
+    return d.getDate() === 1 ? reste.replace(/^1(?=\s)/, '1er') : reste;
+  };
   const lienVoir = (g) => (/^(localhost|127\.|\[::1\])/.test(location.hostname) ? `/galerie-privee?id=${g.id}` : `/photos/${g.id}`);
   const pluriel = (n, un, plusieurs) => `${n}${NBSP}${n > 1 ? plusieurs : un}`;
 
@@ -264,21 +300,41 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
 
   function carteGalerie(g) {
     const li = document.createElement('li');
-    li.className = 'gal-carte gal-ligne';
+    li.className = 'gal-carte gal-ligne gal-dossier';
+    const vignette = document.createElement('div');
+    vignette.className = 'gal-vignette';
+    if (g.vignette) {
+      const img = document.createElement('img');
+      img.src = g.vignette;
+      img.alt = '';
+      img.width = 120;
+      img.height = 90;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      vignette.append(img);
+    } else {
+      vignette.classList.add('vide');
+      vignette.textContent = 'Aucune photo';
+    }
     const infos = document.createElement('div');
+    infos.className = 'gal-dossier-infos';
+    const quand = document.createElement('p');
+    quand.className = 'gal-quand';
+    quand.textContent = jour(g.dateProjet || g.date || g.creeLe, 'short');
     const titre = document.createElement('h2');
     titre.textContent = g.titre;
     const meta = document.createElement('p');
     meta.className = 'gal-aide';
-    meta.textContent = [g.seance, g.date && jour(g.date)].filter(Boolean).join(' · ') || 'Séance non précisée';
+    meta.textContent = g.seance || 'Séance non précisée';
     const etat = document.createElement('p');
     etat.className = 'gal-pastilles';
     const pastille = (t, classe = '') => { const s = document.createElement('span'); s.className = `gal-pastille ${classe}`; s.textContent = t; etat.append(s); };
     pastille(g.mode === 'selection' ? 'Sélection' : 'Téléchargement');
     pastille(`${pluriel(g.nbPhotos, 'photo', 'photos')} · ${poids(g.poids)}`);
+    pastille(g.tri === 'nom' ? 'Par nom de fichier' : 'Par date de prise de vue');
     pastille(g.expiree ? `Expirée le ${jour(g.expireLe)}` : `Expire le ${jour(g.expireLe)}`, g.expiree ? 'alerte' : '');
     if (g.selectionRecue) pastille('Sélection reçue', 'bonne');
-    infos.append(titre, meta, etat);
+    infos.append(quand, titre, meta, etat);
 
     const actions = document.createElement('div');
     actions.className = 'gal-actions';
@@ -289,9 +345,10 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
       b.textContent = texte;
       b.addEventListener('click', () => fn(b));
       actions.append(b);
+      return b;
     };
-    bouton('Ouvrir', () => ouvrir(g.id), '');
-    bouton('Copier le lien', async () => toast((await copier(g.lien)) ? 'Lien copié.' : 'Copie impossible : ouvrez la galerie pour copier le lien à la main.'));
+    bouton('Ouvrir', () => ouvrir(g.id), '').setAttribute('aria-label', `Ouvrir le projet ${g.titre}`);
+    bouton('Copier le lien', async () => toast((await copier(g.lien)) ? 'Lien copié.' : 'Copie impossible : ouvrez le projet pour copier le lien à la main.'));
     const voir = document.createElement('a');
     voir.className = 'gal-bouton gal-bouton-clair';
     voir.href = lienVoir(g);
@@ -300,17 +357,17 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
     voir.textContent = 'Voir comme le client';
     actions.append(voir);
     bouton('Supprimer', async () => {
-      if (!confirm(`Supprimer la galerie « ${g.titre} » et toutes ses photos ?${'\n\n'}Cette action est définitive : le lien ne fonctionnera plus.`)) return;
+      if (!confirm(`Supprimer le projet « ${g.titre} » et toutes ses photos ?${'\n\n'}Cette action est définitive : le lien ne fonctionnera plus.`)) return;
       try {
         await appel(`/api/galeries?id=${g.id}`, { method: 'DELETE' });
-        toast('Galerie supprimée.');
+        toast('Projet supprimé.');
         afficherListe();
       } catch (e) {
         if (e instanceof Deconnecte) return deconnecte('Votre connexion au back office a expiré. Reconnectez-vous, puis revenez sur cette page.');
         erreur('erreur-liste', e.message);
       }
     }, 'gal-bouton-danger');
-    li.append(infos, actions);
+    li.append(vignette, infos, actions);
     return li;
   }
 
@@ -328,7 +385,9 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
 
   function remplir(g) {
     galerie = g;
-    photos = g?.photos ? [...g.photos] : [];
+    tri = g?.tri === 'nom' ? 'nom' : 'date';
+    photos = trierPhotos(g?.photos, tri);
+    cochees.clear();
     sale = false;
     enCours = 0;
     echecs = [];
@@ -342,8 +401,9 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
     f.expireLe.value = g?.expireLe || dansTroisMois();
     majMode();
     erreur('erreur-formulaire', '');
-    $('titre-editeur').textContent = g ? g.titre : 'Nouvelle galerie';
-    $('enregistrer').textContent = g ? 'Enregistrer les informations' : 'Créer la galerie';
+    $('titre-editeur').textContent = g ? g.titre : 'Nouveau projet';
+    for (const r of document.querySelectorAll('input[name="tri"]')) r.checked = r.value === tri;
+    $('enregistrer').textContent = g ? 'Enregistrer les informations' : 'Créer le projet';
     $('bloc-photos').hidden = !g;
     $('bloc-lien').hidden = !g;
     $('envoi').hidden = true;
@@ -381,8 +441,8 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
     e.preventDefault();
     erreur('erreur-formulaire', '');
     const champs = champsFormulaire();
-    if (!champs.titre) return erreur('erreur-formulaire', 'Donnez un nom à la galerie. Ex. : Léa et Caramel');
-    if (!champs.expireLe) return erreur('erreur-formulaire', 'Indiquez la date jusqu’à laquelle la galerie reste disponible.');
+    if (!champs.titre) return erreur('erreur-formulaire', 'Donnez un nom au projet. Ex. : Léa et Caramel');
+    if (!champs.expireLe) return erreur('erreur-formulaire', 'Indiquez la date jusqu’à laquelle le projet reste disponible.');
     if (!Number.isInteger(champs.quota) || !Number.isInteger(champs.prixPhoto)) return erreur('erreur-formulaire', 'Le nombre de photos incluses et le prix d’une photo doivent être des nombres entiers.');
     const bouton = $('enregistrer');
     bouton.disabled = true;
@@ -392,7 +452,7 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
       const premiere = !galerie;
       remplir({ ...r.galerie, photos: premiere ? [] : photos });
       $('lien').value = r.lien;
-      toast(premiere ? 'Galerie créée. Ajoutez maintenant vos photos.' : 'Informations enregistrées.');
+      toast(premiere ? 'Projet créé. Ajoutez maintenant vos photos.' : 'Informations enregistrées.');
       if (premiere) $('bloc-photos').scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
       if (err instanceof Deconnecte) return deconnecte('Votre connexion au back office a expiré. Reconnectez-vous, puis revenez sur cette page.');
@@ -404,7 +464,7 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
 
   // ---------- Lien ----------
   $('copier').addEventListener('click', async () => {
-    $('copie-ok').textContent = (await copier($('lien').value)) ? 'Lien copié. Collez-le dans votre message.' : 'Copie impossible : sélectionnez le lien et copiez-le à la main.';
+    $('copie-ok').textContent = (await copier($('lien').value)) ? 'Lien copié. Collez-le dans votre message.' : 'Copie impossible : sélectionnez le lien et copiez-le à la main.';
   });
 
   // ---------- Sélection reçue ----------
@@ -418,9 +478,10 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
     m.textContent = s.message ? `« ${s.message} »` : '';
     const ol = $('reception-liste');
     ol.replaceChildren();
+    const vues = trierPhotos(g.photos, g.tri); // l'ordre que le client voyait
     const noms = [];
     for (const n of [...s.photos].sort((a, b) => a - b)) {
-      const p = g.photos[n];
+      const p = vues[n];
       if (!p) continue;
       noms.push(p.nom);
       const li = document.createElement('li');
@@ -430,10 +491,16 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
     $('copier-selection').onclick = async () => toast((await copier(noms.join('\n'))) ? 'Liste copiée.' : 'Copie impossible.');
   }
 
-  // ---------- Photos : liste ----------
+  // ---------- Contenu du projet : grille des photos ----------
+  const cases = new Map(); // case à cocher de chaque photo (adresse de l'original)
+  const boutonsRetirer = new Map(); // bouton « Retirer » de chaque photo (pour y remettre le focus)
   function dessinerPhotos() {
     const ul = $('photos');
     ul.replaceChildren();
+    cases.clear();
+    boutonsRetirer.clear();
+    const presentes = new Set(photos.map((p) => p.original));
+    for (const k of [...cochees]) if (!presentes.has(k)) cochees.delete(k);
     photos.forEach((p, i) => {
       const li = document.createElement('li');
       li.className = 'gal-photo';
@@ -446,53 +513,119 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
       const nom = document.createElement('p');
       nom.className = 'gal-nom';
       nom.textContent = `${String(i + 1).padStart(2, '0')} · ${p.nom}`;
+      const date = document.createElement('p');
+      date.className = 'gal-prise';
+      date.textContent = formaterPrise(p.prise);
       const barre = document.createElement('div');
       barre.className = 'gal-mini-actions';
-      const b = (texte, label, fn, off) => {
-        const x = document.createElement('button');
-        x.type = 'button';
-        x.textContent = texte;
-        x.setAttribute('aria-label', `${label} : ${p.nom}`);
-        x.disabled = Boolean(off) || occupe;
-        x.addEventListener('click', fn);
-        barre.append(x);
-      };
-      b('←', 'Avancer la photo', () => deplacer(i, -1), i === 0);
-      b('→', 'Reculer la photo', () => deplacer(i, 1), i === photos.length - 1);
-      b('Retirer', 'Retirer la photo', () => { photos.splice(i, 1); changer(); });
-      li.append(img, nom, barre);
+      const coche = document.createElement('label');
+      coche.className = 'gal-coche';
+      const case_ = document.createElement('input');
+      case_.type = 'checkbox';
+      case_.checked = cochees.has(p.original);
+      cases.set(p.original, case_);
+      case_.disabled = occupe;
+      case_.setAttribute('aria-label', `Choisir la photo ${p.nom}`);
+      case_.addEventListener('change', () => {
+        if (case_.checked) cochees.add(p.original); else cochees.delete(p.original);
+        majSelection();
+      });
+      coche.append(case_, document.createTextNode(' Choisir'));
+      const retirer = document.createElement('button');
+      retirer.type = 'button';
+      retirer.textContent = 'Retirer';
+      retirer.disabled = bloque();
+      boutonsRetirer.set(p.original, retirer);
+      retirer.setAttribute('aria-label', `Retirer la photo ${p.nom}`);
+      retirer.addEventListener('click', () => retirerPhotos([p], `la photo «${NBSP}${p.nom}${NBSP}»`));
+      barre.append(coche, retirer);
+      li.append(img, nom, date, barre);
       ul.append(li);
     });
     $('compte-photos').textContent = photos.length ? `${pluriel(photos.length, 'photo', 'photos')} · ${poids(photos.reduce((t, p) => t + (p.poids || 0), 0))}` : 'Aucune photo pour l’instant.';
-    $('trier').disabled = photos.length < 2 || occupe;
-    $('sauver-photos').disabled = !sale || occupe;
-    $('f-fichiers').disabled = occupe;
-    $('depot').classList.toggle('occupe', occupe);
+    $('sauver-photos').hidden = !sale || occupe; // visible seulement si un enregistrement a échoué
+    $('f-fichiers').disabled = bloque();
+    $('enregistrer').disabled = bloque();
+    $('depot').classList.toggle('occupe', bloque());
+    for (const r of document.querySelectorAll('input[name="tri"]')) { r.checked = r.value === tri; r.disabled = bloque(); }
+    majSelection();
+  }
+  function majSelection() {
+    const n = cochees.size;
+    const retirer = $('retirer-selection');
+    retirer.textContent = n ? `Retirer la sélection (${n})` : 'Retirer la sélection';
+    retirer.disabled = !n || bloque();
+    const tout = $('tout-cocher');
+    tout.textContent = photos.length && n === photos.length ? 'Tout désélectionner' : 'Tout sélectionner';
+    tout.disabled = !photos.length || occupe;
+    for (const [adresse, c] of cases) c.checked = cochees.has(adresse);
   }
   function changer() { sale = true; dessinerPhotos(); }
-  function deplacer(i, sens) {
-    const j = i + sens;
-    if (j < 0 || j >= photos.length) return;
-    [photos[i], photos[j]] = [photos[j], photos[i]];
+
+  $('tout-cocher').addEventListener('click', () => {
+    if (cochees.size === photos.length) cochees.clear(); else for (const p of photos) cochees.add(p.original);
+    majSelection();
+  });
+
+  // Retirer une ou plusieurs photos : confirmation, puis enregistrement tout de suite (les fichiers sont supprimés).
+  async function retirerPhotos(aRetirer, quoi) {
+    if (bloque() || !aRetirer.length) return;
+    const n = aRetirer.length;
+    const place = Math.min(...aRetirer.map((p) => photos.indexOf(p)));
+    if (!confirm(`Retirer ${quoi} du projet ?${'\n\n'}${n > 1 ? 'Elles seront supprimées' : 'Elle sera supprimée'} définitivement, y compris chez votre client.`)) return;
+    const adresses = new Set(aRetirer.map((p) => p.original));
+    photos = photos.filter((p) => !adresses.has(p.original));
+    for (const a of adresses) cochees.delete(a);
     changer();
+    if (await sauverPhotos(true)) statut(n > 1 ? `${n} photos retirées.` : 'Photo retirée.');
+    // Le focus ne doit pas tomber sur la page : photo suivante, sinon précédente, sinon le compteur.
+    const suivante = photos[Math.min(place, photos.length - 1)];
+    (suivante && boutonsRetirer.get(suivante.original) || $('compte-photos')).focus();
   }
-  $('trier').addEventListener('click', () => {
-    photos.sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { numeric: true, sensitivity: 'base' }));
-    changer();
+  $('retirer-selection').addEventListener('click', () => {
+    const choisies = photos.filter((p) => cochees.has(p.original));
+    retirerPhotos(choisies, choisies.length > 1 ? `ces ${choisies.length}${NBSP}photos` : 'cette photo');
+  });
+
+  // Ordre des photos : la grille change aussitôt, puis le choix est enregistré.
+  for (const r of document.querySelectorAll('input[name="tri"]')) {
+    r.addEventListener('change', async () => {
+      if (bloque()) return dessinerPhotos();
+      tri = r.value;
+      photos = trierPhotos(photos, tri);
+      changer();
+      const ok = await sauverPhotos(true);
+      if (ok) statut('Ordre enregistré.');
+      r.focus();
+    });
+  }
+
+  // Les informations déjà enregistrées du projet : un enregistrement de photos n'embarque pas une modification de nom non validée.
+  const champsEnregistres = () => ({
+    titre: galerie.titre, seance: galerie.seance || '', date: galerie.date || '', mode: galerie.mode,
+    quota: galerie.quota, prixPhoto: galerie.prixPhoto, expireLe: galerie.expireLe,
   });
 
   async function sauverPhotos(silencieux) {
-    if (!galerie) return;
+    if (!galerie) return false;
+    enregistre = true;
+    dessinerPhotos();
     try {
-      const r = await appel('/api/galeries', { method: 'POST', body: JSON.stringify({ ...champsFormulaire(), id: galerie.id, photos }) });
+      const r = await appel('/api/galeries', { method: 'POST', body: JSON.stringify({ ...champsEnregistres(), id: galerie.id, tri, photos }) });
       galerie = r.galerie;
-      photos = [...r.galerie.photos];
+      tri = r.galerie.tri === 'nom' ? 'nom' : 'date';
+      photos = trierPhotos(r.galerie.photos, tri);
       sale = false;
+      enregistre = false;
       dessinerPhotos();
-      if (!silencieux) toast('Photos enregistrées.');
+      if (!silencieux) statut('Photos enregistrées.');
+      return true;
     } catch (err) {
-      if (err instanceof Deconnecte) return deconnecte('Votre connexion au back office a expiré. Reconnectez-vous, puis revenez sur cette page.');
-      toast(err.message);
+      enregistre = false;
+      dessinerPhotos();
+      if (err instanceof Deconnecte) { deconnecte('Votre connexion au back office a expiré. Reconnectez-vous, puis revenez sur cette page.'); return false; }
+      statut(err.message);
+      return false;
     }
   }
   $('sauver-photos').addEventListener('click', () => sauverPhotos(false));
@@ -525,6 +658,7 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
     const id = galerie.id;
     const base = nomSur(fichier.name);
     const sansExt = base.replace(/\.[^.]*$/, '') || 'photo';
+    const prise = await lirePrise(fichier); // date de prise de vue, lue dans le début du fichier
     let bitmap;
     try {
       bitmap = await createImageBitmap(fichier);
@@ -552,7 +686,7 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
         console.error('Envoi de photo', fichier.name, e);
         throw new Error(e instanceof Deconnecte || /401|auth/i.test(String(e?.message)) ? 'connexion au back office expirée, reconnectez-vous' : 'l’envoi a été interrompu, vérifiez votre connexion');
       }
-      return { nom: base, largeur: bitmap.width, hauteur: bitmap.height, poids: fichier.size, original: o.url, vue: v.url, miniature: m.url };
+      return { nom: base, largeur: bitmap.width, hauteur: bitmap.height, poids: fichier.size, prise, original: o.url, vue: v.url, miniature: m.url };
     } finally {
       bitmap.close?.();
     }
@@ -567,13 +701,12 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
     let faits = 0;
     echecs = [];
     const file = [...fichiers];
-    const depart = photos.length;
     $('envoi').hidden = false;
     $('echecs').hidden = true;
     $('progression').max = total;
     const maj = () => {
       $('progression').value = faits + echecs.length;
-      $('progression-texte').textContent = `Envoi en cours : ${faits}${NBSP}/${NBSP}${total} photos envoyées.`;
+      $('progression-texte').textContent = `Envoi en cours : ${faits}${NBSP}/${NBSP}${total} photos envoyées.`;
     };
     maj();
     const ouvriere = async () => {
@@ -592,11 +725,15 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
     };
     dessinerPhotos();
     await Promise.all([ouvriere(), ouvriere(), ouvriere()]);
-    // Les photos arrivent dans l'ordre d'envoi des fichiers : on remet l'ordre du lot par nom.
-    const lot = photos.splice(depart).sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { numeric: true, sensitivity: 'base' }));
-    photos.push(...lot);
+    // Les photos arrivent dans l'ordre d'envoi des fichiers : on remet l'ordre choisi.
+    photos = trierPhotos(photos, tri);
     sale = true;
     dessinerPhotos();
+    if (faits && galerie && !galerie.date && !formulaire.elements.date.value) {
+      // Date de la séance vide : on prend la plus ancienne date de prise de vue (elle reste modifiable).
+      const dates = photos.map((p) => p.prise).filter(Boolean).sort();
+      if (dates.length) { galerie.date = dates[0].slice(0, 10); formulaire.elements.date.value = galerie.date; }
+    }
     if (faits) await sauverPhotos(true);
     occupe = false;
     dessinerPhotos();
@@ -605,7 +742,7 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
       $('echecs-texte').textContent = `${pluriel(echecs.length, 'photo n’a pas pu être envoyée', 'photos n’ont pas pu être envoyées')}.`;
       const ul = $('echecs-liste');
       ul.replaceChildren();
-      for (const x of echecs) { const li = document.createElement('li'); li.textContent = `${x.fichier.name} : ${x.raison}`; ul.append(li); }
+      for (const x of echecs) { const li = document.createElement('li'); li.textContent = `${x.fichier.name} : ${x.raison}`; ul.append(li); }
       $('echecs').hidden = false;
     }
   }
@@ -616,7 +753,7 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
   const depot = $('depot');
   depot.addEventListener('dragover', (e) => { e.preventDefault(); depot.classList.add('survol'); });
   depot.addEventListener('dragleave', () => depot.classList.remove('survol'));
-  depot.addEventListener('drop', (e) => { e.preventDefault(); depot.classList.remove('survol'); if (occupe) return toast('Un envoi est déjà en cours. Attendez qu’il soit terminé.'); envoyer(choisis(e.dataTransfer.files)); });
+  depot.addEventListener('drop', (e) => { e.preventDefault(); depot.classList.remove('survol'); if (bloque()) return toast('Un envoi est déjà en cours. Attendez qu’il soit terminé.'); envoyer(choisis(e.dataTransfer.files)); });
 
   window.addEventListener('beforeunload', (e) => {
     if (occupe || sale) { e.preventDefault(); e.returnValue = ''; }
@@ -625,7 +762,7 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
   // ---------- Navigation ----------
   $('nouvelle').addEventListener('click', () => remplir(null));
   $('retour-liste').addEventListener('click', () => {
-    if ((occupe || sale) && !confirm('Des photos ne sont pas encore enregistrées. Quitter quand même ?')) return;
+    if ((occupe || sale) && !confirm('Des photos ne sont pas encore enregistrées. Quitter quand même ?')) return;
     afficherListe();
   });
 
@@ -692,7 +829,20 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
   .gal-photo { background: var(--fond); border: 1px solid var(--bord); border-radius: 14px; padding: 8px; }
   .gal-photo img { display: block; width: 100%; height: auto; max-height: 180px; object-fit: contain; border-radius: 8px; background: var(--surface); }
   .gal-nom { margin: 8px 2px; font-size: 12px; word-break: break-all; }
-  .gal-mini-actions { display: flex; gap: 4px; }
+  .gal-prise { margin: -4px 2px 8px; font-size: 12px; color: var(--doux); }
+  .gal-mini-actions { display: flex; gap: 4px; align-items: center; }
+  .gal-coche { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 4px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .gal-coche input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
+  .gal-ordre .gal-modes { margin-bottom: 8px; }
+  .gal-dossier { position: relative; padding-left: 20px; gap: 20px; }
+  .gal-dossier::before { content: ''; position: absolute; left: 24px; top: -8px; width: 72px; height: 10px; background: var(--accent-pale); border: 1px solid var(--bord); border-bottom: 0; border-radius: 8px 8px 0 0; }
+  .gal-vignette { flex: none; width: 120px; height: 90px; border-radius: 10px; overflow: hidden; background: var(--fond); border: 1px solid var(--bord); box-shadow: 4px 4px 0 var(--accent-pale); }
+  .gal-vignette img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .gal-vignette.vide { display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; color: var(--doux); padding: 8px; }
+  .gal-dossier-infos { flex: 1 1 240px; min-width: 0; }
+  .gal-quand { margin: 0; font-size: 13px; font-weight: 700; color: var(--accent); }
+  .gal-statut { min-height: 1.5em; margin: 0 0 12px; font-weight: 600; }
+  .gal-dossier h2 { overflow-wrap: anywhere; }
   .gal-mini-actions button { min-height: 36px; min-width: 36px; padding: 0 8px; border: 1px solid var(--bord-fort); border-radius: 8px; background: var(--surface); font: 600 12px Inter, system-ui, sans-serif; cursor: pointer; }
   .gal-mini-actions button:last-child { margin-left: auto; color: var(--danger); }
   .gal-mini-actions button:disabled { opacity: .4; cursor: default; }

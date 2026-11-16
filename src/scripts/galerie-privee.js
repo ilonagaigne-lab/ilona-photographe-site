@@ -167,12 +167,22 @@ function restaurer() {
   envoye = null;
   let stock = null;
   try { stock = JSON.parse(localStorage.getItem(cleStockage) || 'null'); } catch { /* stockage indisponible */ }
-  const source = stock && Array.isArray(stock.photos) ? stock : galerie.selection;
-  if (source && Array.isArray(source.photos)) source.photos.forEach((i) => { if (Number.isInteger(i) && i >= 0 && i < photos.length) favoris.add(i); });
+  // Les favoris du navigateur sont gardés par adresse de photo (« original »), jamais par place : si Ilona change l'ordre
+  // de la galerie, ce sont toujours les mêmes photos qui ont leur cœur. L'ancien format (numéros de place) est ignoré,
+  // car on ne peut pas savoir à quel ordre il se rapportait : on repart alors de la sélection connue du serveur.
+  if (stock && Array.isArray(stock.originaux)) {
+    const place = new Map(photos.map((p, i) => [p.original, i]));
+    stock.originaux.forEach((u) => { if (place.has(u)) favoris.add(place.get(u)); });
+  } else if (galerie.selection && Array.isArray(galerie.selection.photos)) {
+    galerie.selection.photos.forEach((i) => { if (Number.isInteger(i) && i >= 0 && i < photos.length) favoris.add(i); });
+  }
   envoye = (stock && stock.envoye) || (galerie.selection && galerie.selection.envoyeeLe) || null;
 }
 function sauver() {
-  try { localStorage.setItem(cleStockage, JSON.stringify({ photos: [...favoris].sort((a, b) => a - b), envoye })); } catch { /* ignoré */ }
+  try {
+    const originaux = [...favoris].sort((a, b) => a - b).map((i) => photos[i].original);
+    localStorage.setItem(cleStockage, JSON.stringify({ originaux, envoye }));
+  } catch { /* ignoré */ }
 }
 
 function basculer(i, on) {
@@ -416,7 +426,9 @@ function majBarreTelechargement() {
 const retirerAccents = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '');
 const nomZip = () => {
   const base = retirerAccents(galerie.titre || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  return `${base ? `${base}-` : ''}${T.telechargement.suffixeFichier}.zip`;
+  // La date de la séance en premier (2026-11-12-…) : les fichiers se classent seuls par date chez le client.
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(galerie.date || '') ? `${galerie.date}-` : '';
+  return `${date}${base ? `${base}-` : ''}${T.telechargement.suffixeFichier}.zip`;
 };
 // Deux photos de même nom : le second reçoit -2, -3… pour ne pas s'écraser dans le zip.
 function nomsUniques() {

@@ -4,7 +4,7 @@
 //   POST            crée (sans id) ou met à jour  DELETE ?id=…  supprime la galerie et tous ses fichiers
 import {
   ID_VALIDE, nouvelId, verifierIlona, lireGalerie, ecrireGalerie,
-  listerGaleries, supprimerGalerie, supprimerFichiers, prolongerGalerie,
+  listerGaleries, supprimerGalerie, supprimerFichiers, prolongerGalerie, trierPhotos, priseValide, dateDuProjet, TRIS,
 } from './_lib/galeries.js';
 
 const ORIGINE = 'https://ilonagaigne.com';
@@ -34,7 +34,7 @@ function urlDeLaGalerie(url, id, dossier) {
 
 function nettoyerPhotos(photos, id) {
   if (!Array.isArray(photos)) throw new Refus('La liste des photos est invalide.');
-  if (photos.length > 1000) throw new Refus('Une galerie ne peut pas dépasser 1 000 photos.');
+  if (photos.length > 1000) throw new Refus('Un projet ne peut pas dépasser 1 000 photos.');
   return photos.map((p, i) => {
     const original = urlDeLaGalerie(p?.original, id, 'originaux');
     const vue = urlDeLaGalerie(p?.vue, id, 'vues');
@@ -46,6 +46,7 @@ function nettoyerPhotos(photos, id) {
       largeur: entier(p.largeur, 1, 100000) ?? 0,
       hauteur: entier(p.hauteur, 1, 100000) ?? 0,
       poids: entier(p.poids, 0, 2_000_000_000) ?? 0,
+      prise: priseValide(p.prise), // date de prise de vue « AAAA-MM-JJTHH:MM:SS », ou null
       original, vue, miniature,
     };
   });
@@ -53,10 +54,10 @@ function nettoyerPhotos(photos, id) {
 
 function lireChamps(corps) {
   const titre = texte(corps.titre, 120);
-  if (!titre) throw new Refus('Donnez un nom à la galerie. Ex. : Léa et Caramel');
-  if (!MODES.includes(corps.mode)) throw new Refus('Choisissez « Téléchargement » ou « Sélection ».');
+  if (!titre) throw new Refus('Donnez un nom au projet. Ex. : Léa et Caramel');
+  if (!MODES.includes(corps.mode)) throw new Refus('Choisissez « Téléchargement » ou « Sélection ».');
   if (corps.date && !dateValide(corps.date)) throw new Refus('La date de la séance est invalide.');
-  if (!dateValide(corps.expireLe)) throw new Refus('Indiquez la date jusqu’à laquelle la galerie reste disponible.');
+  if (!dateValide(corps.expireLe)) throw new Refus('Indiquez la date jusqu’à laquelle le projet reste disponible.');
   if (corps.expireLe < aujourdhui()) throw new Refus('La date de fin doit être aujourd’hui ou plus tard.');
   const quota = entier(corps.quota, 0, 1000);
   const prixPhoto = entier(corps.prixPhoto, 0, 10000);
@@ -64,10 +65,29 @@ function lireChamps(corps) {
   return { titre, seance: texte(corps.seance, 120), date: corps.date || '', mode: corps.mode, quota, prixPhoto, expireLe: corps.expireLe };
 }
 
+// Ordre choisi : absent ou inconnu dans une ancienne fiche = par date ; une valeur envoyée doit être « date » ou « nom ».
+function lireTri(v) {
+  if (v === undefined) return undefined;
+  if (!TRIS.includes(v)) throw new Refus('Choisissez « Par date de prise de vue » ou « Par nom de fichier ».');
+  return v;
+}
+
+// Les numéros de la sélection du client désignent des photos de la liste ; si l'ordre ou la liste change,
+// on les recalcule pour qu'ils désignent les mêmes photos (repérées par l'adresse de l'original).
+function recalculerSelection(selection, avant, apres) {
+  if (!selection || !Array.isArray(selection.photos)) return selection ?? null;
+  const place = new Map(apres.map((p, i) => [p.original, i]));
+  const photos = selection.photos.map((n) => place.get(avant[n]?.original)).filter(Number.isInteger).sort((a, b) => a - b);
+  return { ...selection, photos };
+}
+
 const resume = (g) => ({
   id: g.id, titre: g.titre, seance: g.seance, date: g.date, mode: g.mode,
   nbPhotos: g.photos?.length ?? 0,
+  tri: TRIS.includes(g.tri) ? g.tri : 'date',
+  vignette: trierPhotos(g.photos, g.tri)[0]?.miniature ?? null,
   poids: (g.photos || []).reduce((t, p) => t + (p.poids || 0), 0),
+  dateProjet: dateDuProjet(g),
   expireLe: g.expireLe, expiree: g.expireLe < aujourdhui(),
   creeLe: g.creeLe, majLe: g.majLe, lien: lienClient(g.id),
   selectionRecue: Boolean(g.selection), selectionLe: g.selection?.envoyeeLe ?? null,
@@ -77,15 +97,18 @@ async function creerOuMettreAJour(corps) {
   const champs = lireChamps(corps);
   if (corps.id === undefined || corps.id === null || corps.id === '') {
     const maintenant = new Date().toISOString();
-    return ecrireGalerie({ id: nouvelId(), ...champs, creeLe: maintenant, majLe: maintenant, photos: [], selection: null });
+    return ecrireGalerie({ id: nouvelId(), ...champs, tri: lireTri(corps.tri) ?? 'date', creeLe: maintenant, majLe: maintenant, photos: [], selection: null });
   }
-  if (!ID_VALIDE.test(corps.id)) throw new Refus('Galerie introuvable.', 404);
+  if (!ID_VALIDE.test(corps.id)) throw new Refus('Projet introuvable.', 404);
   const ancienne = await lireGalerie(corps.id);
-  if (!ancienne) throw new Refus('Galerie introuvable.', 404);
-  const photos = corps.photos === undefined ? ancienne.photos : nettoyerPhotos(corps.photos, corps.id);
+  if (!ancienne) throw new Refus('Projet introuvable.', 404);
+  const tri = lireTri(corps.tri) ?? (TRIS.includes(ancienne.tri) ? ancienne.tri : 'date');
+  // La fiche est enregistrée déjà triée : les numéros « N° 01… » du client sont des places dans cette liste.
+  const photos = trierPhotos(corps.photos === undefined ? ancienne.photos : nettoyerPhotos(corps.photos, corps.id), tri);
+  const vuParLeClient = trierPhotos(ancienne.photos, ancienne.tri); // l'ordre que le client voyait quand il a choisi
   const galerie = await ecrireGalerie({
-    ...ancienne, ...champs, id: ancienne.id, creeLe: ancienne.creeLe, photos,
-    selection: ancienne.selection ?? null, // une sélection reçue entre-temps n'est jamais écrasée
+    ...ancienne, ...champs, id: ancienne.id, creeLe: ancienne.creeLe, tri, photos,
+    selection: recalculerSelection(ancienne.selection, vuParLeClient, photos), // une sélection reçue entre-temps n'est jamais écrasée
   });
   // Photos retirées : leurs trois fichiers sont supprimés.
   const gardees = new Set(photos.flatMap((p) => [p.original, p.vue, p.miniature]));
@@ -113,7 +136,7 @@ export default async function handler(req, res) {
     }
     if (req.method === 'GET') {
       const galerie = ID_VALIDE.test(id) ? await lireGalerie(id) : null;
-      if (!galerie) return repondre(404, { ok: false, erreur: 'Galerie introuvable.' });
+      if (!galerie) return repondre(404, { ok: false, erreur: 'Projet introuvable.' });
       return repondre(200, { ok: true, galerie, lien: lienClient(id) });
     }
     if (req.method === 'POST') {
@@ -123,7 +146,7 @@ export default async function handler(req, res) {
       return repondre(200, { ok: true, galerie, lien: lienClient(galerie.id) });
     }
     if (req.method === 'DELETE') {
-      if (!ID_VALIDE.test(id) || !(await lireGalerie(id))) return repondre(404, { ok: false, erreur: 'Galerie introuvable.' });
+      if (!ID_VALIDE.test(id) || !(await lireGalerie(id))) return repondre(404, { ok: false, erreur: 'Projet introuvable.' });
       await supprimerGalerie(id);
       return repondre(200, { ok: true });
     }
