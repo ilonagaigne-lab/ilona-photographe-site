@@ -333,6 +333,7 @@ function afficherVue(nouvelle) {
     if (mon !== jeton) return;
     vimg.src = p.vue;
     vimg.alt = g(T.visionneuse.photoAlt, { n: pos + 1, total: liste.length });
+    passerEnHD(p, mon);
   };
   (suivante.decode ? suivante.decode().then(poser, poser) : poser());
   $('[data-compteur]', dlg).textContent = g(T.visionneuse.compteur, { n: pos + 1, total: liste.length });
@@ -345,6 +346,17 @@ function afficherVue(nouvelle) {
   }
   // Préchargement de la suivante (et de la précédente).
   for (const k of [pos + 1, pos - 1]) if (liste.length > 1) new Image().src = photos[liste[(k + liste.length) % liste.length]].vue;
+}
+
+// Qualité HD : une fois la version légère affichée, la photo originale (celle qu'Ilona a envoyée) la remplace
+// dès qu'elle est chargée. Pas pour un fichier très lourd ni quand le visiteur a demandé d'économiser ses données.
+const POIDS_MAX_HD = 25e6;
+function passerEnHD(p, mon) {
+  if (!p.original || p.original === p.vue || (p.poids && p.poids > POIDS_MAX_HD) || navigator.connection?.saveData) return;
+  const hd = new Image();
+  hd.src = p.original;
+  const poser = () => { if (mon === jeton && hd.naturalWidth) vimg.src = p.original; };
+  (hd.decode ? hd.decode().then(poser, () => {}) : (hd.onload = poser));
 }
 
 function majCoeurVue(on, flash = true) {
