@@ -185,7 +185,7 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
 </html>
 
 <script>
-  import { upload } from '@vercel/blob/client';
+  import { uploadPresigned as upload } from '@vercel/blob/client';
   import { lirePrise, formaterPrise, trierPhotos } from '../../scripts/projets-photos.js';
 
   const $ = (id) => document.getElementById(id);

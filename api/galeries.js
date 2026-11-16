@@ -125,7 +125,7 @@ export default async function handler(req, res) {
     if (!(await verifierIlona(req))) {
       return repondre(401, { ok: false, erreur: 'Connexion requise. Connectez-vous d’abord au back office.' });
     }
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    if (!process.env.BLOB_READ_WRITE_TOKEN && !process.env.BLOB_STORE_ID) {
       return repondre(503, { ok: false, erreur: 'Le stockage des photos n’est pas encore relié au site.' });
     }
     const id = typeof req.query?.id === 'string' ? req.query.id : '';
