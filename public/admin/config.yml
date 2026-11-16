@@ -1262,6 +1262,114 @@ collections:
               - { label: Description de la photo, name: alt, widget: string, required: false, hint: "Pour les personnes malvoyantes et Google." }
               - { label: Déjà en favori (démo), name: on, widget: boolean, default: false }
 
+      - name: page-galerie-privee
+        label: "Galerie privée (textes)"
+        file: src/contenu/pages/galerie-privee.json
+        description: "Les textes communs à toutes les galeries clients. Le nom, la séance, les photos et le mode de chaque galerie se règlent dans « Galeries clients » (bouton en bas à droite, à côté de « Aide »)."
+        fields:
+          - label: Onglet du navigateur
+            name: referencement
+            widget: object
+            hint: "Les galeries sont privées : Google ne les référence pas."
+            fields:
+              - { label: "Titre de la page (onglet du navigateur)", name: titre, widget: string, hint: "Ex. : Votre galerie privée" }
+              - { label: "Description", name: description, widget: text, hint: "Ex. : Galerie privée : retrouvez les photos de votre séance." }
+          - label: En-tête de la galerie
+            name: entete
+            widget: object
+            hint: "Le nom de la galerie, la séance et le mode se règlent dans « Galeries clients », pas ici."
+            fields:
+              - { label: "Lien pour quitter la galerie", name: retour, widget: string, hint: "Mène à l’accueil du site. Ex. : Retour au site" }
+              - { label: "Petit titre", name: surtitre, widget: string, hint: "Petite ligne en capitales au-dessus du titre. Ex. : Votre galerie privée" }
+              - { label: "Nombre de photos", name: nombrePhotos, widget: string, hint: "{n} = le nombre de photos de la galerie : ne le retirez pas. Ex. : {n} photos" }
+              - { label: "Une seule photo", name: unePhoto, widget: string, hint: "Utilisé quand la galerie ne contient qu’une photo. Ex. : 1 photo" }
+              - { label: "Numéro de chaque photo", name: numero, widget: string, hint: "{n} = le numéro : ne le retirez pas. Ex. : N° {n}" }
+              - { label: "Pendant le chargement", name: chargement, widget: string, hint: "Ex. : Chargement de votre galerie…" }
+              - { label: "Si JavaScript est désactivé", name: sansScript, widget: text, hint: "Affiché seulement si le navigateur du client bloque les scripts. Ex. : Cette galerie a besoin de JavaScript pour s’afficher." }
+          - label: Galerie à télécharger
+            name: telechargement
+            widget: object
+            hint: "Titres, boutons et messages des galeries où le client télécharge ses photos."
+            fields:
+              - { label: "Titre", name: titre, widget: string, hint: "*mot* = surligné en rose. Ex. : Vos *photos*" }
+              - { label: "Phrase d’explication", name: consigne, widget: text, hint: "Affichée sous le titre. Ex. : Ouvrez une photo pour la voir en grand. Chaque photo se télécharge en pleine qualité." }
+              - { label: "Bouton de chaque photo", name: telecharger, widget: string, hint: "Ex. : Télécharger" }
+              - { label: "Nom du bouton pour les lecteurs d’écran", name: telechargerPhoto, widget: string, hint: "{n} = le numéro de la photo : ne le retirez pas. Jamais affiché. Ex. : Télécharger la photo {n}" }
+              - { label: "Bouton « tout télécharger »", name: toutTelecharger, widget: string, hint: "{n} = le nombre de photos, {poids} = le poids total (ex. 312 Mo) : ne les retirez pas. Ex. : Tout télécharger ({n} photos · {poids})" }
+              - { label: "Bouton « tout télécharger » pour une seule photo", name: toutTelechargerUne, widget: string, hint: "{poids} = le poids : ne le retirez pas. Ex. : Tout télécharger (1 photo · {poids})" }
+              - { label: "Nombre de photos et poids", name: poidsTotal, widget: string, hint: "{n} = le nombre de photos, {poids} = le poids total : ne les retirez pas. Ex. : {n} photos · {poids}" }
+              - { label: "Message de préparation", name: preparation, widget: string, hint: "Affiché juste après avoir cliqué sur « tout télécharger ». Ex. : Préparation du fichier…" }
+              - { label: "Progression du téléchargement", name: progression, widget: string, hint: "{fait} = photos déjà prêtes, {total} = nombre total : ne les retirez pas. Ex. : {fait} / {total} photos…" }
+              - { label: "Bouton pour arrêter", name: annuler, widget: string, hint: "Ex. : Annuler" }
+              - { label: "Message après l’annulation", name: annule, widget: string, hint: "Ex. : Téléchargement annulé." }
+              - { label: "Message de fin", name: termine, widget: string, hint: "{nom} = le nom du fichier enregistré : ne le retirez pas. Ex. : C’est prêt : le fichier {nom} est enregistré." }
+              - { label: "Message si le téléchargement échoue", name: echec, widget: text, hint: "Ex. : Le téléchargement n’a pas abouti. Vérifiez votre connexion, puis réessayez." }
+              - { label: "Conseil sur téléphone", name: conseilTelephone, widget: text, hint: "Affiché sur téléphone quand la galerie pèse plus de 500 Mo. {poids} = le poids de la galerie : ne le retirez pas. Ex. : Cette galerie pèse {poids}. Sur téléphone, le plus sûr est de télécharger les photos une par une." }
+              - { label: "Conseil sur ordinateur pour une très grosse galerie", name: conseilMemoire, widget: text, hint: "Affiché sur ordinateur quand la galerie pèse plus de 1 Go : le navigateur doit alors tout garder en mémoire pour créer le fichier. {poids} = le poids de la galerie : ne le retirez pas. Ex. : Cette galerie pèse {poids}. Le plus sûr est de télécharger les photos une par une." }
+              - { label: "Fin du nom du fichier zip", name: suffixeFichier, widget: string, hint: "Le fichier téléchargé s’appelle « nom de la galerie-cette fin ». Sans espace ni accent. Ex. : ilona-photographe" }
+              - { label: "Unité : mégaoctets", name: uniteMo, widget: string, hint: "Ex. : Mo" }
+              - { label: "Unité : gigaoctets", name: uniteGo, widget: string, hint: "Ex. : Go" }
+          - label: Galerie à sélectionner
+            name: selection
+            widget: object
+            hint: "Titres, boutons et messages des galeries où le client choisit ses favoris."
+            fields:
+              - { label: "Titre", name: titre, widget: string, hint: "*mot* = surligné en rose. Ex. : Choisissez vos *favoris*" }
+              - { label: "Phrase d’explication", name: consigne, widget: text, hint: "{quota} = le nombre de photos incluses, {prix} = le prix d’une photo en plus. Ils viennent de la galerie (réglée dans « Galeries clients ») : ne les retirez pas. Ex. : Votre formule inclut {quota} photos. Touchez le cœur d’une photo pour la choisir. Au-delà, chaque photo s’ajoute à {prix} €." }
+              - { label: "Nom du groupe de filtres", name: filtres, widget: string, hint: "Lu seulement par les lecteurs d’écran, jamais affiché. Ex. : Filtrer les photos" }
+              - { label: "Bouton « toutes les photos »", name: toutes, widget: string, hint: "{n} = le nombre de photos : ne le retirez pas. Ex. : Toutes ({n})" }
+              - { label: "Bouton « favoris »", name: favoris, widget: string, hint: "{n} = le nombre de favoris, qui bouge tout seul : ne le retirez pas. Ex. : Favoris ({n})" }
+              - { label: "Message quand aucun favori", name: vide, widget: string, hint: "Ex. : Aucun favori pour l’instant. Touchez un cœur pour commencer." }
+              - { label: "Nom du cœur pour les lecteurs d’écran", name: favoriPhoto, widget: string, hint: "{n} = le numéro de la photo : ne le retirez pas. Jamais affiché. Ex. : Favori : photo {n}" }
+              - { label: "Texte après le compteur", name: inclus, widget: string, hint: "Le compteur (3 / 8) s’affiche devant. Ex. : photos incluses choisies" }
+              - { label: "Photos en supplément", name: supplement, widget: string, hint: "{extra} = les photos en plus, {prix} = le prix d’une photo, {total} = le montant (sans le symbole €). Ne les retirez pas. Ex. : + {extra} en supplément × {prix} € = {total} €" }
+              - { label: "Bouton de validation", name: valider, widget: string, hint: "Ex. : Valider ma sélection" }
+              - { label: "Bouton quand la sélection est déjà envoyée", name: renvoyer, widget: string, hint: "Ex. : Renvoyer ma sélection" }
+              - { label: "Message « sélection déjà reçue »", name: recue, widget: text, hint: "{date} = la date d’envoi : ne la retirez pas. Ex. : Votre sélection a été envoyée le {date}. Vous pouvez la modifier puis la renvoyer." }
+              - { label: "Titre de la fenêtre d’envoi", name: dialogueTitre, widget: string, hint: "Ex. : Envoyer ma sélection à Ilona" }
+              - { label: "Résumé dans la fenêtre d’envoi", name: dialogueResume, widget: string, hint: "{n} = photos choisies, {extra} = photos en supplément, {total} = montant (sans le symbole €). Ne les retirez pas. Ex. : {n} photos choisies, dont {extra} en supplément ({total} €)." }
+              - { label: "Résumé dans la fenêtre d’envoi (sans supplément)", name: dialogueResumeSansSupplement, widget: string, hint: "Quand toutes les photos choisies sont incluses. {n} = photos choisies. Ne le retirez pas. Ex. : {n} photos choisies, toutes incluses dans votre formule." }
+              - { label: "Phrase sur le règlement", name: dialogueReglement, widget: string, hint: "Ex. : Ilona revient vers vous pour le règlement des photos supplémentaires." }
+              - { label: "Titre de la zone de message", name: messageLibelle, widget: string, hint: "Ex. : Un message pour Ilona (facultatif)" }
+              - { label: "Exemple dans la zone de message", name: messageAide, widget: string, hint: "Ex. : « La photo 12 est ma préférée. »" }
+              - { label: "Message si aucune photo choisie", name: aucune, widget: string, hint: "Ex. : Choisissez au moins une photo avant d’envoyer votre sélection." }
+              - { label: "Bouton d’envoi", name: envoyer, widget: string, hint: "Ex. : Envoyer ma sélection" }
+              - { label: "Message pendant l’envoi", name: envoi, widget: string, hint: "Ex. : Envoi en cours…" }
+              - { label: "Bouton retour", name: retour, widget: string, hint: "Ferme la fenêtre d’envoi sans envoyer. Ex. : Retour" }
+              - { label: "Message si l’envoi échoue", name: erreur, widget: text, hint: "Ex. : L’envoi n’a pas abouti. Vérifiez votre connexion, puis réessayez." }
+              - { label: "Titre après l’envoi", name: confirmationTitre, widget: string, hint: "Ex. : C’est envoyé" }
+              - { label: "Message après l’envoi", name: confirmation, widget: text, hint: "{n} = le nombre de photos choisies : ne le retirez pas. Ex. : Ilona a bien reçu votre sélection de {n} photos et revient vers vous." }
+              - { label: "Bouton fermer", name: fermer, widget: string, hint: "Ex. : Fermer" }
+          - label: Photo en grand
+            name: visionneuse
+            widget: object
+            hint: "Textes de la fenêtre qui affiche une photo en grand. Plusieurs ne sont lus que par les lecteurs d’écran."
+            fields:
+              - { label: "Nom de la fenêtre", name: titre, widget: string, hint: "Jamais affiché, lu par les lecteurs d’écran. Ex. : Visionneuse de photos" }
+              - { label: "Description de la photo", name: photoAlt, widget: string, hint: "{n} = la photo affichée, {total} = le nombre de photos : ne les retirez pas. Ex. : Photo {n} sur {total}" }
+              - { label: "Compteur", name: compteur, widget: string, hint: "{n} = la photo affichée, {total} = le nombre de photos : ne les retirez pas. Ex. : {n} / {total}" }
+              - { label: "Bouton photo précédente", name: precedent, widget: string, hint: "Ex. : Photo précédente" }
+              - { label: "Bouton photo suivante", name: suivant, widget: string, hint: "Ex. : Photo suivante" }
+              - { label: "Bouton fermer", name: fermer, widget: string, hint: "Ex. : Fermer la visionneuse" }
+              - { label: "Nom de chaque photo de la grille", name: ouvrirPhoto, widget: string, hint: "{n} = le numéro : ne le retirez pas. Jamais affiché. Ex. : Voir la photo {n} en grand" }
+              - { label: "Bouton plein écran", name: pleinEcran, widget: string, hint: "N’apparaît pas sur les appareils qui ne le permettent pas. Ex. : Plein écran" }
+              - { label: "Bouton pour quitter le plein écran", name: quitterPleinEcran, widget: string, hint: "Ex. : Quitter le plein écran" }
+          - label: Messages quand la galerie ne s’affiche pas
+            name: etats
+            widget: object
+            hint: "Ce que voit le client si le lien est faux, si la galerie a expiré, ou en cas de problème."
+            fields:
+              - { label: "Titre « lien introuvable »", name: introuvableTitre, widget: string, hint: "*mot* = surligné en rose. Ex. : Galerie *introuvable*" }
+              - { label: "Texte « lien introuvable »", name: introuvable, widget: text, hint: "Affiché quand le lien est mal copié. Ex. : Ce lien ne mène à aucune galerie. Vérifiez qu’il est complet." }
+              - { label: "Titre « galerie expirée »", name: expireeTitre, widget: string, hint: "*mot* = surligné en rose. Ex. : Galerie *expirée*" }
+              - { label: "Texte « galerie expirée »", name: expiree, widget: text, hint: "Affiché après la date de fin de la galerie. Ex. : Cette galerie n’est plus disponible. Si vous avez encore besoin de vos photos, écrivez à Ilona." }
+              - { label: "Titre « problème de connexion »", name: erreurTitre, widget: string, hint: "*mot* = surligné en rose. Ex. : Galerie *indisponible*" }
+              - { label: "Texte « problème de connexion »", name: erreur, widget: text, hint: "Ex. : Votre galerie ne s’est pas chargée. Vérifiez votre connexion, puis réessayez." }
+              - { label: "Bouton pour réessayer", name: reessayer, widget: string, hint: "Ex. : Réessayer" }
+              - { label: "Titre « galerie sans photo »", name: videTitre, widget: string, hint: "*mot* = surligné en rose. Ex. : Galerie *en préparation*" }
+              - { label: "Texte « galerie sans photo »", name: vide, widget: text, hint: "Ex. : Il n’y a pas encore de photo dans cette galerie." }
+              - { label: "Lien pour écrire à Ilona", name: contacter, widget: string, hint: "Ouvre la messagerie du client avec votre adresse. Ex. : Écrire à Ilona" }
+
       - name: page-404
         label: "Page introuvable (404)"
         file: src/contenu/pages/404.json

@@ -11,6 +11,8 @@
   "dependencies": {
     "@fontsource/anton": "^5.1.0",
     "@fontsource/poppins": "^5.1.0",
-    "astro": "^5.7.0"
+    "@vercel/blob": "^2.9.0",
+    "astro": "^5.7.0",
+    "client-zip": "^2.5.1"
   }
 }

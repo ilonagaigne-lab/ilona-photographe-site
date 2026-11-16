@@ -1,0 +1,710 @@
+---
+// Page d'Ilona pour créer et gérer les galeries privées de ses clients (hors Decap).
+// Connexion : celle du back office (jeton GitHub gardé par Decap). Photos : envoyées directement au magasin Blob.
+import { seances, concours, galerieDemo } from '../../data';
+
+const formules = [
+  ...seances.map((s) => `Séance ${s.nom}`),
+  ...concours.map((c) => c.nom),
+];
+const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDemo.prixPhoto });
+---
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Galeries clients · Ilona Photographe</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body data-reglages={reglages}>
+  <header class="gal-haut">
+    <a class="gal-retour" href="/admin">← Retour au back office</a>
+    <p class="gal-marque">Ilona</p>
+  </header>
+
+  <main class="gal-page" id="app">
+    <p class="gal-info" id="chargement">Chargement…</p>
+
+    <section id="vue-connexion" hidden>
+      <h1>Galeries clients</h1>
+      <div class="gal-carte gal-centre">
+        <p id="texte-connexion">Connectez-vous d’abord au back office, puis revenez sur cette page.</p>
+        <a class="gal-bouton" href="/admin">Aller au back office</a>
+      </div>
+    </section>
+
+    <section id="vue-liste" hidden>
+      <div class="gal-entete">
+        <div>
+          <p class="gal-sur">Vos clients</p>
+          <h1>Galeries clients</h1>
+          <p class="gal-intro">Une galerie privée par client. Vous envoyez les photos, vous copiez le lien, et votre client les retrouve sur son téléphone ou son ordinateur.</p>
+        </div>
+        <button type="button" class="gal-bouton" id="nouvelle">Nouvelle galerie</button>
+      </div>
+      <p class="gal-erreur" id="erreur-liste" role="alert" hidden></p>
+      <ul class="gal-liste" id="liste"></ul>
+      <p class="gal-info" id="liste-vide" hidden>Aucune galerie pour l’instant. Cliquez sur « Nouvelle galerie » pour commencer.</p>
+    </section>
+
+    <section id="vue-editeur" hidden>
+      <button type="button" class="gal-lien" id="retour-liste">← Toutes les galeries</button>
+      <h1 id="titre-editeur">Nouvelle galerie</h1>
+
+      <form id="formulaire" class="gal-carte" novalidate>
+        <h2>1. Informations</h2>
+        <div class="gal-champ">
+          <label for="f-titre">Nom de la galerie</label>
+          <input id="f-titre" name="titre" type="text" maxlength="120" required autocomplete="off">
+          <p class="gal-aide">Votre client le voit en haut de sa galerie. Ex. : Léa et Caramel</p>
+        </div>
+        <div class="gal-champ">
+          <label for="f-seance">Séance</label>
+          <input id="f-seance" name="seance" type="text" maxlength="120" list="formules" autocomplete="off">
+          <datalist id="formules">
+            {formules.map((f) => <option value={f} />)}
+          </datalist>
+          <p class="gal-aide">Choisissez une formule dans la liste, ou écrivez ce que vous voulez. Ex. : Séance Signature</p>
+        </div>
+        <div class="gal-champ">
+          <label for="f-date">Date de la séance</label>
+          <input id="f-date" name="date" type="date">
+          <p class="gal-aide">Facultatif. Ex. : 14 novembre 2026</p>
+        </div>
+
+        <fieldset class="gal-champ">
+          <legend>Que fait votre client avec ses photos ?</legend>
+          <div class="gal-modes">
+            <label class="gal-mode">
+              <input type="radio" name="mode" value="telechargement" checked>
+              <span><strong>Il télécharge ses photos</strong>Il regarde ses photos en grand, puis les télécharge une par une ou toutes d’un coup.</span>
+            </label>
+            <label class="gal-mode">
+              <input type="radio" name="mode" value="selection">
+              <span><strong>Il choisit ses favoris</strong>Il marque ses photos préférées et sa liste vous arrive par e-mail.</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="gal-deux" id="bloc-selection" hidden>
+          <div class="gal-champ">
+            <label for="f-quota">Photos incluses dans la formule</label>
+            <input id="f-quota" name="quota" type="number" min="0" max="1000" step="1" inputmode="numeric">
+            <p class="gal-aide">Au-delà, chaque photo choisie est comptée en plus. Ex. : 8</p>
+          </div>
+          <div class="gal-champ">
+            <label for="f-prix">Prix d’une photo en plus (€)</label>
+            <input id="f-prix" name="prixPhoto" type="number" min="0" max="10000" step="1" inputmode="numeric">
+            <p class="gal-aide">Ces deux valeurs viennent de « Formules et coordonnées ». Changez-les ici seulement pour cette galerie. Ex. : 10</p>
+          </div>
+        </div>
+
+        <div class="gal-champ">
+          <label for="f-expire">Disponible jusqu’au</label>
+          <input id="f-expire" name="expireLe" type="date" required>
+          <p class="gal-aide">Après cette date, la galerie et ses photos disparaissent toutes seules. Par défaut : 3 mois. Ex. : 14 février 2027</p>
+        </div>
+
+        <p class="gal-erreur" id="erreur-formulaire" role="alert" hidden></p>
+        <div class="gal-actions">
+          <button type="submit" class="gal-bouton" id="enregistrer">Créer la galerie</button>
+        </div>
+      </form>
+
+      <section id="bloc-photos" class="gal-carte" hidden>
+        <h2>2. Photos</h2>
+        <div class="gal-depot" id="depot">
+          <p><strong>Glissez vos photos ici</strong>, ou</p>
+          <label class="gal-bouton gal-bouton-clair" for="f-fichiers">Choisir des photos</label>
+          <input id="f-fichiers" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple class="gal-cache">
+          <p class="gal-aide">Photos en JPG de préférence, 60 Mo au maximum chacune. Vous pouvez en envoyer plusieurs centaines : elles partent trois par trois. Votre client téléchargera les fichiers tels que vous les envoyez.</p>
+        </div>
+
+        <div id="envoi" hidden>
+          <progress id="progression" max="1" value="0" aria-labelledby="progression-texte"></progress>
+          <p id="progression-texte" class="gal-info" role="status"></p>
+          <div id="echecs" class="gal-erreur" role="alert" hidden>
+            <p id="echecs-texte"></p>
+            <ul id="echecs-liste"></ul>
+            <button type="button" class="gal-bouton gal-bouton-clair" id="reessayer">Réessayer</button>
+          </div>
+        </div>
+
+        <div class="gal-barre-photos">
+          <p id="compte-photos" class="gal-info"></p>
+          <div class="gal-actions">
+            <button type="button" class="gal-bouton gal-bouton-clair" id="trier">Trier par nom de fichier</button>
+            <button type="button" class="gal-bouton" id="sauver-photos" disabled>Enregistrer les photos</button>
+          </div>
+        </div>
+        <ul class="gal-photos" id="photos"></ul>
+      </section>
+
+      <section id="bloc-lien" class="gal-carte" hidden>
+        <h2>3. Lien à envoyer au client</h2>
+        <p class="gal-aide">Envoyez ce lien par message ou par e-mail. Il est impossible à deviner : seules les personnes qui le reçoivent voient la galerie.</p>
+        <div class="gal-lien-ligne">
+          <input id="lien" type="text" readonly aria-label="Lien de la galerie">
+          <button type="button" class="gal-bouton" id="copier">Copier le lien</button>
+          <a class="gal-bouton gal-bouton-clair" id="voir" href="/" target="_blank" rel="noopener">Voir la galerie</a>
+        </div>
+        <p class="gal-info" id="copie-ok" role="status"></p>
+      </section>
+
+      <section id="bloc-reception" class="gal-carte" hidden>
+        <h2>Sélection reçue</h2>
+        <p class="gal-info" id="reception-date"></p>
+        <p id="reception-message" class="gal-citation" hidden></p>
+        <ol id="reception-liste" class="gal-numeros"></ol>
+        <button type="button" class="gal-bouton gal-bouton-clair" id="copier-selection">Copier la liste des fichiers</button>
+      </section>
+    </section>
+  </main>
+
+  <div class="gal-toast" id="toast" role="status"></div>
+</body>
+</html>
+
+<script>
+  import { upload } from '@vercel/blob/client';
+
+  const $ = (id) => document.getElementById(id);
+  const NBSP = ' ';
+  const reglages = JSON.parse(document.body.dataset.reglages || '{}');
+  let galerie = null; // galerie ouverte (avec son id une fois créée)
+  let photos = []; // photos enregistrées ou en attente d'enregistrement
+  let sale = false; // des changements de photos ne sont pas encore enregistrés
+  let enCours = 0; // photos en cours d'envoi
+  let echecs = []; // fichiers à renvoyer
+  let occupe = false; // un lot de photos est en cours d'envoi
+
+  // ---------- Connexion : le jeton que Decap garde après la connexion GitHub ----------
+  function jeton() {
+    try { return JSON.parse(localStorage.getItem('decap-cms-user') || localStorage.getItem('netlify-cms-user') || 'null')?.token || ''; } catch { return ''; }
+  }
+  const enTete = () => ({ Authorization: `Bearer ${jeton()}` });
+
+  class Deconnecte extends Error {}
+  async function appel(url, options = {}) {
+    let r;
+    try {
+      r = await fetch(url, { ...options, headers: { ...enTete(), ...(options.body ? { 'Content-Type': 'application/json' } : {}) } });
+    } catch {
+      throw new Error('Impossible de joindre le site. Vérifiez votre connexion, puis réessayez.');
+    }
+    if (r.status === 401) throw new Deconnecte();
+    const donnees = await r.json().catch(() => ({}));
+    if (!r.ok || donnees.ok === false) throw new Error(donnees.erreur || 'Une erreur est survenue. Réessayez dans un instant.');
+    return donnees;
+  }
+
+  // ---------- Affichage ----------
+  const vues = ['vue-connexion', 'vue-liste', 'vue-editeur'];
+  function montrer(nom) {
+    $('chargement').hidden = true;
+    for (const v of vues) $(v).hidden = v !== nom;
+    window.scrollTo(0, 0);
+  }
+  function deconnecte(message) {
+    if (message) $('texte-connexion').textContent = message;
+    montrer('vue-connexion');
+  }
+  function toast(texte) {
+    const t = $('toast');
+    t.textContent = texte;
+    t.classList.add('visible');
+    clearTimeout(toast.minuteur);
+    toast.minuteur = setTimeout(() => t.classList.remove('visible'), 3500);
+  }
+  function erreur(id, texte) {
+    const e = $(id);
+    e.textContent = texte || '';
+    e.hidden = !texte;
+  }
+  const poids = (o) => (o >= 1e9 ? `${(o / 1e9).toFixed(1).replace('.', ',')}${NBSP}Go` : `${Math.max(1, Math.round(o / 1e6))}${NBSP}Mo`);
+  const jour = (iso) => (iso ? new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '');
+  const lienVoir = (g) => (/^(localhost|127\.|\[::1\])/.test(location.hostname) ? `/galerie-privee?id=${g.id}` : `/photos/${g.id}`);
+  const pluriel = (n, un, plusieurs) => `${n}${NBSP}${n > 1 ? plusieurs : un}`;
+
+  async function copier(texte) {
+    try {
+      await navigator.clipboard.writeText(texte);
+      return true;
+    } catch {
+      const t = document.createElement('textarea');
+      t.value = texte;
+      document.body.append(t);
+      t.select();
+      const ok = document.execCommand('copy');
+      t.remove();
+      return ok;
+    }
+  }
+
+  // ---------- Liste ----------
+  async function afficherListe() {
+    if (!jeton()) return deconnecte();
+    montrer('vue-liste');
+    erreur('erreur-liste', '');
+    const ul = $('liste');
+    ul.replaceChildren();
+    $('liste-vide').hidden = true;
+    let donnees;
+    try {
+      donnees = await appel('/api/galeries');
+    } catch (e) {
+      if (e instanceof Deconnecte) return deconnecte('Votre connexion au back office a expiré. Reconnectez-vous, puis revenez sur cette page.');
+      return erreur('erreur-liste', e.message);
+    }
+    $('liste-vide').hidden = donnees.galeries.length > 0;
+    for (const g of donnees.galeries) ul.append(carteGalerie(g));
+  }
+
+  function carteGalerie(g) {
+    const li = document.createElement('li');
+    li.className = 'gal-carte gal-ligne';
+    const infos = document.createElement('div');
+    const titre = document.createElement('h2');
+    titre.textContent = g.titre;
+    const meta = document.createElement('p');
+    meta.className = 'gal-aide';
+    meta.textContent = [g.seance, g.date && jour(g.date)].filter(Boolean).join(' · ') || 'Séance non précisée';
+    const etat = document.createElement('p');
+    etat.className = 'gal-pastilles';
+    const pastille = (t, classe = '') => { const s = document.createElement('span'); s.className = `gal-pastille ${classe}`; s.textContent = t; etat.append(s); };
+    pastille(g.mode === 'selection' ? 'Sélection' : 'Téléchargement');
+    pastille(`${pluriel(g.nbPhotos, 'photo', 'photos')} · ${poids(g.poids)}`);
+    pastille(g.expiree ? `Expirée le ${jour(g.expireLe)}` : `Expire le ${jour(g.expireLe)}`, g.expiree ? 'alerte' : '');
+    if (g.selectionRecue) pastille('Sélection reçue', 'bonne');
+    infos.append(titre, meta, etat);
+
+    const actions = document.createElement('div');
+    actions.className = 'gal-actions';
+    const bouton = (texte, fn, classe = 'gal-bouton-clair') => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `gal-bouton ${classe}`;
+      b.textContent = texte;
+      b.addEventListener('click', () => fn(b));
+      actions.append(b);
+    };
+    bouton('Ouvrir', () => ouvrir(g.id), '');
+    bouton('Copier le lien', async () => toast((await copier(g.lien)) ? 'Lien copié.' : 'Copie impossible : ouvrez la galerie pour copier le lien à la main.'));
+    const voir = document.createElement('a');
+    voir.className = 'gal-bouton gal-bouton-clair';
+    voir.href = lienVoir(g);
+    voir.target = '_blank';
+    voir.rel = 'noopener';
+    voir.textContent = 'Voir comme le client';
+    actions.append(voir);
+    bouton('Supprimer', async () => {
+      if (!confirm(`Supprimer la galerie « ${g.titre} » et toutes ses photos ?${'\n\n'}Cette action est définitive : le lien ne fonctionnera plus.`)) return;
+      try {
+        await appel(`/api/galeries?id=${g.id}`, { method: 'DELETE' });
+        toast('Galerie supprimée.');
+        afficherListe();
+      } catch (e) {
+        if (e instanceof Deconnecte) return deconnecte('Votre connexion au back office a expiré. Reconnectez-vous, puis revenez sur cette page.');
+        erreur('erreur-liste', e.message);
+      }
+    }, 'gal-bouton-danger');
+    li.append(infos, actions);
+    return li;
+  }
+
+  // ---------- Éditeur ----------
+  const formulaire = $('formulaire');
+  const mode = () => formulaire.elements.mode.value;
+  function majMode() { $('bloc-selection').hidden = mode() !== 'selection'; }
+  formulaire.addEventListener('change', (e) => { if (e.target.name === 'mode') majMode(); });
+
+  function dansTroisMois() {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 3);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  function remplir(g) {
+    galerie = g;
+    photos = g?.photos ? [...g.photos] : [];
+    sale = false;
+    enCours = 0;
+    echecs = [];
+    const f = formulaire.elements;
+    f.titre.value = g?.titre || '';
+    f.seance.value = g?.seance || '';
+    f.date.value = g?.date || '';
+    f.mode.value = g?.mode || 'telechargement';
+    f.quota.value = g?.quota ?? reglages.quota ?? 8;
+    f.prixPhoto.value = g?.prixPhoto ?? reglages.prixPhoto ?? 10;
+    f.expireLe.value = g?.expireLe || dansTroisMois();
+    majMode();
+    erreur('erreur-formulaire', '');
+    $('titre-editeur').textContent = g ? g.titre : 'Nouvelle galerie';
+    $('enregistrer').textContent = g ? 'Enregistrer les informations' : 'Créer la galerie';
+    $('bloc-photos').hidden = !g;
+    $('bloc-lien').hidden = !g;
+    $('envoi').hidden = true;
+    $('echecs').hidden = true;
+    if (g) {
+      $('lien').value = `${location.origin.startsWith('http://localhost') ? location.origin : 'https://ilonagaigne.com'}/photos/${g.id}`;
+      $('voir').href = lienVoir(g);
+      $('copie-ok').textContent = '';
+      dessinerPhotos();
+    }
+    reception(g);
+    montrer('vue-editeur');
+  }
+
+  async function ouvrir(id) {
+    try {
+      const r = await appel(`/api/galeries?id=${id}`);
+      remplir(r.galerie);
+      $('lien').value = r.lien;
+    } catch (e) {
+      if (e instanceof Deconnecte) return deconnecte('Votre connexion au back office a expiré. Reconnectez-vous, puis revenez sur cette page.');
+      toast(e.message);
+    }
+  }
+
+  function champsFormulaire() {
+    const f = formulaire.elements;
+    return {
+      titre: f.titre.value.trim(), seance: f.seance.value.trim(), date: f.date.value, mode: mode(),
+      quota: Number(f.quota.value), prixPhoto: Number(f.prixPhoto.value), expireLe: f.expireLe.value,
+    };
+  }
+
+  formulaire.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    erreur('erreur-formulaire', '');
+    const champs = champsFormulaire();
+    if (!champs.titre) return erreur('erreur-formulaire', 'Donnez un nom à la galerie. Ex. : Léa et Caramel');
+    if (!champs.expireLe) return erreur('erreur-formulaire', 'Indiquez la date jusqu’à laquelle la galerie reste disponible.');
+    if (!Number.isInteger(champs.quota) || !Number.isInteger(champs.prixPhoto)) return erreur('erreur-formulaire', 'Le nombre de photos incluses et le prix d’une photo doivent être des nombres entiers.');
+    const bouton = $('enregistrer');
+    bouton.disabled = true;
+    try {
+      const corps = galerie ? { ...champs, id: galerie.id } : champs;
+      const r = await appel('/api/galeries', { method: 'POST', body: JSON.stringify(corps) });
+      const premiere = !galerie;
+      remplir({ ...r.galerie, photos: premiere ? [] : photos });
+      $('lien').value = r.lien;
+      toast(premiere ? 'Galerie créée. Ajoutez maintenant vos photos.' : 'Informations enregistrées.');
+      if (premiere) $('bloc-photos').scrollIntoView({ behavior: 'smooth' });
+    } catch (err) {
+      if (err instanceof Deconnecte) return deconnecte('Votre connexion au back office a expiré. Reconnectez-vous, puis revenez sur cette page.');
+      erreur('erreur-formulaire', err.message);
+    } finally {
+      bouton.disabled = false;
+    }
+  });
+
+  // ---------- Lien ----------
+  $('copier').addEventListener('click', async () => {
+    $('copie-ok').textContent = (await copier($('lien').value)) ? 'Lien copié. Collez-le dans votre message.' : 'Copie impossible : sélectionnez le lien et copiez-le à la main.';
+  });
+
+  // ---------- Sélection reçue ----------
+  function reception(g) {
+    const s = g?.selection;
+    $('bloc-reception').hidden = !s;
+    if (!s) return;
+    $('reception-date').textContent = `Reçue le ${jour(s.envoyeeLe)}. ${pluriel(s.photos.length, 'photo choisie', 'photos choisies')}, dont ${Math.max(0, s.photos.length - (g.quota || 0))} en supplément.`;
+    const m = $('reception-message');
+    m.hidden = !s.message;
+    m.textContent = s.message ? `« ${s.message} »` : '';
+    const ol = $('reception-liste');
+    ol.replaceChildren();
+    const noms = [];
+    for (const n of [...s.photos].sort((a, b) => a - b)) {
+      const p = g.photos[n];
+      if (!p) continue;
+      noms.push(p.nom);
+      const li = document.createElement('li');
+      li.textContent = `N°${NBSP}${String(n + 1).padStart(2, '0')} · ${p.nom}`;
+      ol.append(li);
+    }
+    $('copier-selection').onclick = async () => toast((await copier(noms.join('\n'))) ? 'Liste copiée.' : 'Copie impossible.');
+  }
+
+  // ---------- Photos : liste ----------
+  function dessinerPhotos() {
+    const ul = $('photos');
+    ul.replaceChildren();
+    photos.forEach((p, i) => {
+      const li = document.createElement('li');
+      li.className = 'gal-photo';
+      const img = document.createElement('img');
+      img.src = p.miniature;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      if (p.largeur && p.hauteur) { img.width = p.largeur; img.height = p.hauteur; }
+      const nom = document.createElement('p');
+      nom.className = 'gal-nom';
+      nom.textContent = `${String(i + 1).padStart(2, '0')} · ${p.nom}`;
+      const barre = document.createElement('div');
+      barre.className = 'gal-mini-actions';
+      const b = (texte, label, fn, off) => {
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.textContent = texte;
+        x.setAttribute('aria-label', `${label} : ${p.nom}`);
+        x.disabled = Boolean(off) || occupe;
+        x.addEventListener('click', fn);
+        barre.append(x);
+      };
+      b('←', 'Avancer la photo', () => deplacer(i, -1), i === 0);
+      b('→', 'Reculer la photo', () => deplacer(i, 1), i === photos.length - 1);
+      b('Retirer', 'Retirer la photo', () => { photos.splice(i, 1); changer(); });
+      li.append(img, nom, barre);
+      ul.append(li);
+    });
+    $('compte-photos').textContent = photos.length ? `${pluriel(photos.length, 'photo', 'photos')} · ${poids(photos.reduce((t, p) => t + (p.poids || 0), 0))}` : 'Aucune photo pour l’instant.';
+    $('trier').disabled = photos.length < 2 || occupe;
+    $('sauver-photos').disabled = !sale || occupe;
+    $('f-fichiers').disabled = occupe;
+    $('depot').classList.toggle('occupe', occupe);
+  }
+  function changer() { sale = true; dessinerPhotos(); }
+  function deplacer(i, sens) {
+    const j = i + sens;
+    if (j < 0 || j >= photos.length) return;
+    [photos[i], photos[j]] = [photos[j], photos[i]];
+    changer();
+  }
+  $('trier').addEventListener('click', () => {
+    photos.sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { numeric: true, sensitivity: 'base' }));
+    changer();
+  });
+
+  async function sauverPhotos(silencieux) {
+    if (!galerie) return;
+    try {
+      const r = await appel('/api/galeries', { method: 'POST', body: JSON.stringify({ ...champsFormulaire(), id: galerie.id, photos }) });
+      galerie = r.galerie;
+      photos = [...r.galerie.photos];
+      sale = false;
+      dessinerPhotos();
+      if (!silencieux) toast('Photos enregistrées.');
+    } catch (err) {
+      if (err instanceof Deconnecte) return deconnecte('Votre connexion au back office a expiré. Reconnectez-vous, puis revenez sur cette page.');
+      toast(err.message);
+    }
+  }
+  $('sauver-photos').addEventListener('click', () => sauverPhotos(false));
+
+  // ---------- Photos : fabrication des versions réduites dans le navigateur ----------
+  function reduire(bitmap, cote, qualite) {
+    const echelle = Math.min(1, cote / Math.max(bitmap.width, bitmap.height));
+    const l = Math.max(1, Math.round(bitmap.width * echelle));
+    const h = Math.max(1, Math.round(bitmap.height * echelle));
+    const toile = document.createElement('canvas');
+    toile.width = l;
+    toile.height = h;
+    const ctx = toile.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+    ctx.fillStyle = '#fff'; // fond des PNG transparents
+    ctx.fillRect(0, 0, l, h);
+    ctx.drawImage(bitmap, 0, 0, l, h);
+    return new Promise((ok, ko) => toile.toBlob((b) => (b ? ok(b) : ko(new Error('Aperçu impossible à préparer.'))), 'image/jpeg', qualite));
+  }
+
+  const alea = () => { const o = new Uint8Array(9); crypto.getRandomValues(o); return btoa(String.fromCharCode(...o)).replace(/\+/g, '-').replace(/\//g, '_'); };
+  // Nom propre, identique pour la photo seule et dans le zip : extension gardée, pas de « .. », 120 caractères au plus.
+  const nomSur = (n) => {
+    const propre = n.normalize('NFC').replace(/[^\p{L}\p{N}._-]+/gu, '-').replace(/\.{2,}/g, '.').replace(/^[-.]+|[-.]+$/g, '');
+    const ext = (propre.match(/\.[\p{L}\p{N}]{1,5}$/u) || [''])[0];
+    return (propre.slice(0, propre.length - ext.length).slice(0, 120 - ext.length) || 'photo') + ext;
+  };
+
+  async function envoyerPhoto(fichier) {
+    const id = galerie.id;
+    const base = nomSur(fichier.name);
+    const sansExt = base.replace(/\.[^.]*$/, '') || 'photo';
+    let bitmap;
+    try {
+      bitmap = await createImageBitmap(fichier);
+    } catch {
+      throw new Error('format non lisible par ce navigateur (essayez en JPG)');
+    }
+    const options = {
+      access: 'public',
+      handleUploadUrl: '/api/galeries-envoi',
+      headers: enTete(),
+      clientPayload: JSON.stringify({ expireLe: formulaire.elements.expireLe.value }),
+      multipart: fichier.size > 30e6,
+    };
+    try {
+      const vue = await reduire(bitmap, 2048, 0.85);
+      const miniature = await reduire(bitmap, 800, 0.8);
+      let o, v, m;
+      try {
+        [o, v, m] = await Promise.all([
+        upload(`galeries/${id}/originaux/${alea()}/${base}`, fichier, { ...options, contentType: fichier.type || 'image/jpeg' }),
+        upload(`galeries/${id}/vues/${alea()}/${sansExt}.jpg`, vue, { ...options, contentType: 'image/jpeg', multipart: false }),
+        upload(`galeries/${id}/miniatures/${alea()}/${sansExt}.jpg`, miniature, { ...options, contentType: 'image/jpeg', multipart: false }),
+        ]);
+      } catch (e) {
+        console.error('Envoi de photo', fichier.name, e);
+        throw new Error(e instanceof Deconnecte || /401|auth/i.test(String(e?.message)) ? 'connexion au back office expirée, reconnectez-vous' : 'l’envoi a été interrompu, vérifiez votre connexion');
+      }
+      return { nom: base, largeur: bitmap.width, hauteur: bitmap.height, poids: fichier.size, original: o.url, vue: v.url, miniature: m.url };
+    } finally {
+      bitmap.close?.();
+    }
+  }
+
+  async function envoyer(fichiers) {
+    if (!galerie || !fichiers.length) return;
+    if (occupe) return toast('Un envoi est déjà en cours. Attendez qu’il soit terminé.');
+    if (!jeton()) return deconnecte();
+    occupe = true;
+    const total = fichiers.length;
+    let faits = 0;
+    echecs = [];
+    const file = [...fichiers];
+    const depart = photos.length;
+    $('envoi').hidden = false;
+    $('echecs').hidden = true;
+    $('progression').max = total;
+    const maj = () => {
+      $('progression').value = faits + echecs.length;
+      $('progression-texte').textContent = `Envoi en cours : ${faits}${NBSP}/${NBSP}${total} photos envoyées.`;
+    };
+    maj();
+    const ouvriere = async () => {
+      while (file.length) {
+        const f = file.shift();
+        enCours += 1;
+        try {
+          photos.push(await envoyerPhoto(f));
+          faits += 1;
+        } catch (e) {
+          echecs.push({ fichier: f, raison: e?.message || 'envoi interrompu' });
+        }
+        enCours -= 1;
+        maj();
+      }
+    };
+    dessinerPhotos();
+    await Promise.all([ouvriere(), ouvriere(), ouvriere()]);
+    // Les photos arrivent dans l'ordre d'envoi des fichiers : on remet l'ordre du lot par nom.
+    const lot = photos.splice(depart).sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { numeric: true, sensitivity: 'base' }));
+    photos.push(...lot);
+    sale = true;
+    dessinerPhotos();
+    if (faits) await sauverPhotos(true);
+    occupe = false;
+    dessinerPhotos();
+    $('progression-texte').textContent = faits ? `${pluriel(faits, 'photo envoyée et enregistrée', 'photos envoyées et enregistrées')}.` : '';
+    if (echecs.length) {
+      $('echecs-texte').textContent = `${pluriel(echecs.length, 'photo n’a pas pu être envoyée', 'photos n’ont pas pu être envoyées')}.`;
+      const ul = $('echecs-liste');
+      ul.replaceChildren();
+      for (const x of echecs) { const li = document.createElement('li'); li.textContent = `${x.fichier.name} : ${x.raison}`; ul.append(li); }
+      $('echecs').hidden = false;
+    }
+  }
+
+  const choisis = (liste) => [...liste].filter((f) => /^image\/(jpeg|png|webp|heic|heif)$/.test(f.type) || /\.(jpe?g|png|webp|heic|heif)$/i.test(f.name));
+  $('f-fichiers').addEventListener('change', (e) => { envoyer(choisis(e.target.files)); e.target.value = ''; });
+  $('reessayer').addEventListener('click', () => envoyer(echecs.map((x) => x.fichier)));
+  const depot = $('depot');
+  depot.addEventListener('dragover', (e) => { e.preventDefault(); depot.classList.add('survol'); });
+  depot.addEventListener('dragleave', () => depot.classList.remove('survol'));
+  depot.addEventListener('drop', (e) => { e.preventDefault(); depot.classList.remove('survol'); if (occupe) return toast('Un envoi est déjà en cours. Attendez qu’il soit terminé.'); envoyer(choisis(e.dataTransfer.files)); });
+
+  window.addEventListener('beforeunload', (e) => {
+    if (occupe || sale) { e.preventDefault(); e.returnValue = ''; }
+  });
+
+  // ---------- Navigation ----------
+  $('nouvelle').addEventListener('click', () => remplir(null));
+  $('retour-liste').addEventListener('click', () => {
+    if ((occupe || sale) && !confirm('Des photos ne sont pas encore enregistrées. Quitter quand même ?')) return;
+    afficherListe();
+  });
+
+  afficherListe();
+</script>
+
+<style is:global>
+  :root {
+    --fond: #f6f6f8; --surface: #fff; --bord: #e6e6ea; --bord-fort: #d4d4da; --texte: #17171c; --doux: #5f5f6a;
+    --accent: #9e3a6c; --accent-fonce: #842f5a; --accent-pale: #fbeef4; --danger: #a12a2a; --bon: #1f6b3d; --rayon: 12px;
+    --ombre: 0 1px 2px rgba(16, 16, 24, .04), 0 1px 3px rgba(16, 16, 24, .06);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: var(--fond); color: var(--texte); font: 15px/1.55 Inter, system-ui, -apple-system, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; }
+  h1 { font-size: clamp(26px, 4vw, 34px); line-height: 1.15; letter-spacing: -.02em; margin: 4px 0 8px; }
+  h2 { font-size: 17px; margin: 0 0 12px; }
+  .gal-haut { display: flex; align-items: center; justify-content: space-between; padding: 14px clamp(16px, 4vw, 40px); background: var(--surface); border-bottom: 1px solid var(--bord); }
+  .gal-marque { margin: 0; font-weight: 700; letter-spacing: -.02em; }
+  .gal-retour, .gal-lien { color: var(--accent); font-weight: 600; text-decoration: none; background: none; border: 0; padding: 0; font: inherit; font-weight: 600; cursor: pointer; }
+  .gal-retour:hover, .gal-lien:hover { text-decoration: underline; }
+  .gal-page { max-width: 980px; margin: 0 auto; padding: 32px clamp(16px, 4vw, 40px) 96px; }
+  .gal-sur { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .gal-intro, .gal-aide, .gal-info { color: var(--doux); margin: 4px 0 0; font-size: 14px; }
+  .gal-entete { display: flex; gap: 24px; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; margin-bottom: 24px; }
+  .gal-carte { background: var(--surface); border: 1px solid var(--bord); border-radius: 20px; box-shadow: var(--ombre); padding: 24px; margin: 0 0 20px; }
+  .gal-centre { text-align: center; }
+  .gal-liste, .gal-photos, .gal-numeros { list-style: none; margin: 0; padding: 0; }
+  .gal-ligne { display: flex; gap: 20px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+  .gal-ligne h2 { margin: 0; }
+  .gal-pastilles { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 0; }
+  .gal-pastille { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--fond); border: 1px solid var(--bord); }
+  .gal-pastille.bonne { background: #e9f6ee; border-color: #bfe3cd; color: var(--bon); }
+  .gal-pastille.alerte { background: #fbeaea; border-color: #efc4c4; color: var(--danger); }
+  .gal-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .gal-bouton { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; border-radius: var(--rayon); border: 1px solid var(--accent); background: var(--accent); color: #fff; font: 600 14px Inter, system-ui, sans-serif; text-decoration: none; cursor: pointer; }
+  .gal-bouton:hover { background: var(--accent-fonce); }
+  .gal-bouton:disabled { opacity: .5; cursor: not-allowed; }
+  .gal-bouton-clair { background: var(--surface); color: var(--texte); border-color: var(--bord-fort); }
+  .gal-bouton-clair:hover { background: var(--fond); }
+  .gal-bouton-danger { background: var(--surface); color: var(--danger); border-color: #e3b5b5; }
+  .gal-bouton-danger:hover { background: #fbeaea; }
+  :is(a, button, input, select, textarea, summary):focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .gal-champ { border: 0; padding: 0; margin: 0 0 20px; min-width: 0; }
+  .gal-champ > label, .gal-champ > legend { display: block; font-weight: 600; margin-bottom: 6px; padding: 0; }
+  .gal-champ input[type='text'], .gal-champ input[type='number'], .gal-champ input[type='date'], #lien { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid var(--bord-fort); border-radius: var(--rayon); font: inherit; background: var(--surface); color: var(--texte); }
+  .gal-deux { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .gal-modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .gal-mode { display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--bord-fort); border-radius: 16px; padding: 14px 16px; cursor: pointer; font-weight: 400 !important; }
+  .gal-mode:has(input:checked) { border-color: var(--accent); background: var(--accent-pale); }
+  .gal-mode input { margin-top: 4px; accent-color: var(--accent); width: 18px; height: 18px; flex: none; }
+  .gal-mode strong { display: block; }
+  .gal-mode span { color: var(--doux); font-size: 14px; }
+  .gal-mode strong { color: var(--texte); }
+  .gal-erreur { color: var(--danger); font-weight: 600; margin: 8px 0; }
+  .gal-erreur ul { font-weight: 400; margin: 6px 0 12px; padding-left: 20px; }
+  .gal-depot { border: 2px dashed var(--bord-fort); border-radius: 16px; padding: 28px 20px; text-align: center; margin-bottom: 20px; }
+  .gal-depot.occupe { opacity: .6; }
+  .gal-depot.survol { border-color: var(--accent); background: var(--accent-pale); }
+  .gal-cache { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+  .gal-cache:focus-visible + * , .gal-depot:focus-within label.gal-bouton { outline: 3px solid var(--accent); outline-offset: 2px; }
+  progress { width: 100%; height: 10px; accent-color: var(--accent); }
+  .gal-barre-photos { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+  .gal-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; align-items: start; }
+  .gal-photo { background: var(--fond); border: 1px solid var(--bord); border-radius: 14px; padding: 8px; }
+  .gal-photo img { display: block; width: 100%; height: auto; max-height: 180px; object-fit: contain; border-radius: 8px; background: var(--surface); }
+  .gal-nom { margin: 8px 2px; font-size: 12px; word-break: break-all; }
+  .gal-mini-actions { display: flex; gap: 4px; }
+  .gal-mini-actions button { min-height: 36px; min-width: 36px; padding: 0 8px; border: 1px solid var(--bord-fort); border-radius: 8px; background: var(--surface); font: 600 12px Inter, system-ui, sans-serif; cursor: pointer; }
+  .gal-mini-actions button:last-child { margin-left: auto; color: var(--danger); }
+  .gal-mini-actions button:disabled { opacity: .4; cursor: default; }
+  .gal-lien-ligne { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; margin-top: 12px; }
+  .gal-citation { background: var(--accent-pale); border-radius: 12px; padding: 12px 16px; margin: 12px 0; }
+  .gal-numeros { columns: 2 220px; margin: 12px 0 16px; font-size: 14px; }
+  .gal-toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 16px); opacity: 0; pointer-events: none; background: var(--texte); color: #fff; padding: 12px 20px; border-radius: 999px; font-weight: 600; transition: opacity .2s, transform .2s; max-width: calc(100vw - 32px); }
+  .gal-toast.visible { opacity: 1; transform: translate(-50%, 0); }
+  @media (max-width: 640px) {
+    .gal-lien-ligne { grid-template-columns: 1fr; }
+    .gal-carte { padding: 18px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .gal-toast { transition: none; } }
+  [hidden] { display: none !important; }
+</style>

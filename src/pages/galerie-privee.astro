@@ -1,0 +1,254 @@
+---
+// Galerie privée d'un client : /photos/<id> (réécriture Vercel) ou /galerie-privee?id=<id> en local.
+// La page est statique et identique pour tous ; le contenu de la galerie arrive par /api/galerie.
+import Base from '../layouts/Base.astro';
+import { galerieDemo, contact } from '../data';
+import { surligne } from '../lib/contenu';
+import t from '../contenu/pages/galerie-privee.json';
+
+// Galerie de démonstration : uniquement en développement (npm run dev), jamais dans le site publié.
+let demo: string | null = null;
+if (import.meta.env.DEV) {
+  const { getImage } = await import('astro:assets');
+  const { photo } = await import('../lib/contenu');
+  const base = (await import('../contenu/pages/galerie.json')).default.photos.slice(0, 12);
+  const photos = [];
+  for (const [i, p] of base.entries()) {
+    const img = photo(p.image);
+    const miniature = await getImage({ src: img, width: 800 });
+    const vue = await getImage({ src: img, width: 2048 });
+    photos.push({
+      nom: p.image.split('/').pop(), largeur: img.width, hauteur: img.height, poids: 26_000_000 + i,
+      original: vue.src, vue: vue.src, miniature: miniature.src,
+    });
+  }
+  demo = JSON.stringify({
+    id: 'demo', titre: 'Léa et Caramel', seance: 'Séance Signature', date: '2026-11-14', mode: 'telechargement',
+    quota: galerieDemo.quota, prixPhoto: galerieDemo.prixPhoto, expireLe: '2099-12-31', photos, selection: null,
+  });
+}
+
+const textes = { ...t, contact: contact.email };
+const icone = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">';
+---
+<Base titre={t.referencement.titre} description={t.referencement.description} page="galerie" entete="simple" indexer={false}>
+  <script slot="head" is:inline>
+    // Lance l'appel à /api/galerie dès le <head> et précharge les premières miniatures : la grille n'attend plus le script de la page.
+    (function () {
+      var m = location.pathname.match(/^\/photos\/([^\/]+)\/?$/);
+      var id = m ? m[1] : new URLSearchParams(location.search).get('id') || '';
+      if (!/^[A-Za-z0-9_-]{22}$/.test(id)) return;
+      var p = fetch('/api/galerie?id=' + encodeURIComponent(id), { headers: { Accept: 'application/json' } });
+      window.__galeriePre = p;
+      p.then(function (r) { return r.ok ? r.clone().json() : null; }).then(function (d) {
+        var ph = d && d.galerie && d.galerie.photos;
+        if (!ph) return;
+        ph.slice(0, 3).forEach(function (x, i) {
+          if (!x.miniature) return;
+          var l = document.createElement('link');
+          l.rel = 'preload'; l.as = 'image'; l.href = x.miniature;
+          if (i < 2) l.fetchPriority = 'high';
+          document.head.appendChild(l);
+        });
+      }).catch(function () {});
+    })();
+  </script>
+  <a slot="entete-action" class="nl garde" href="/" style="font-size: 14px">{t.entete.retour}</a>
+
+  <section class="wrap zone" id="galerie" data-quota={galerieDemo.quota} data-prix={galerieDemo.prixPhoto} data-textes={JSON.stringify(textes)}>
+    {demo && <script type="application/json" id="galerie-demo" set:html={demo} />}
+
+    <noscript><p>{t.entete.sansScript}</p></noscript>
+
+    {(['introuvable', 'expiree', 'erreur', 'vide'] as const).map((etat) => (
+      <div class="stack g16 etat" data-etat={etat} hidden>
+        <p class="lbl">{t.entete.surtitre}</p>
+        <h1 class="d titre" tabindex="-1" set:html={surligne(t.etats[`${etat}Titre`])} />
+        <p class="texte" style="max-width: 620px">{t.etats[etat]}</p>
+        <div class="row g12">
+          {etat === 'erreur' && <button class="btn" type="button" data-reessayer>{t.etats.reessayer}</button>}
+          {(etat === 'expiree' || etat === 'introuvable' || etat === 'vide') && <a class="btn contour" href={`mailto:${contact.email}`}>{t.etats.contacter}</a>}
+        </div>
+      </div>
+    ))}
+
+    <!-- En-tête du mode téléchargement visible dès le HTML (affichage rapide) ; le script bascule en mode sélection si besoin. -->
+    <div data-contenu>
+      <p class="infos" data-infos role="status">{t.entete.chargement}</p>
+      <div class="row entre bas g24 haut">
+        <div class="stack g12">
+          <p class="lbl">{t.entete.surtitre}</p>
+          <h1 class="d titre" data-bloc="telechargement" set:html={surligne(t.telechargement.titre)} />
+          <h1 class="d titre" data-bloc="selection" set:html={surligne(t.selection.titre)} hidden />
+          <p class="texte" style="max-width: 620px; font-size: 16px" data-bloc="telechargement">{t.telechargement.consigne}</p>
+          <p class="texte" style="max-width: 620px; font-size: 16px" data-bloc="selection" data-consigne hidden></p>
+        </div>
+        <div class="row g8" role="group" aria-label={t.selection.filtres} data-bloc="selection" hidden>
+          <button class="pastille" type="button" data-filtre="toutes" aria-pressed="true"></button>
+          <button class="pastille" type="button" data-filtre="favoris" aria-pressed="false"></button>
+        </div>
+      </div>
+      <p class="recue" data-recue role="status" hidden></p>
+      <ul class="grille-photos" data-grille></ul>
+      <p data-sans-favori hidden style="margin: 24px 0 0">{t.selection.vide}</p>
+    </div>
+  </section>
+
+  <!-- Barre du bas, mode téléchargement -->
+  <div class="barre sombre" data-barre="telechargement" aria-live="polite" hidden>
+    <div class="wrap row entre centre" style="padding-block: 18px; gap: 14px 40px">
+      <div class="stack g8" style="flex: 1 1 320px">
+        <p style="margin: 0; font-size: 15px" data-poids></p>
+        <p style="margin: 0; font-size: 14px" data-conseil hidden></p>
+        <p style="margin: 0; font-size: 15px" data-statut role="status" hidden></p>
+        <div class="jauge" aria-hidden="true" data-jauge-zip hidden><span style="transform: scaleX(0)"></span></div>
+      </div>
+      <button class="btn clair" type="button" data-tout></button>
+      <button class="btn clair" type="button" data-annuler hidden>{t.telechargement.annuler}</button>
+    </div>
+  </div>
+
+  <!-- Barre du bas, mode sélection -->
+  <div class="barre sombre" data-barre="selection" aria-live="polite" hidden>
+    <div class="wrap row entre centre" style="padding-block: 18px; gap: 14px 40px">
+      <div class="stack g8" style="flex: 1 1 320px">
+        <p style="margin: 0; font-size: 15px"><span class="prix" style="font-size: 32px"><span data-inclus>0</span> / <span data-quota-texte>0</span></span> {t.selection.inclus}</p>
+        <div class="jauge" aria-hidden="true"><span data-jauge style="transform: scaleX(0)"></span></div>
+      </div>
+      <p data-supplement hidden style="margin: 0; font-size: 15px"></p>
+      <button class="btn clair" type="button" data-valider>{t.selection.valider}</button>
+    </div>
+  </div>
+
+  <!-- Visionneuse plein écran -->
+  <dialog class="visionneuse" data-visionneuse aria-label={t.visionneuse.titre}>
+   <div class="vconteneur" data-plein>
+    <div class="vh">
+      <p class="compteur" data-compteur aria-live="polite"></p>
+      <div class="row g8 vh-actions">
+        <button class="vbtn" type="button" data-plein-ecran hidden>
+          <span data-plein-texte>{t.visionneuse.pleinEcran}</span>
+        </button>
+        <a class="vbtn" href="#" data-vtelecharger download hidden>
+          <Fragment set:html={`${icone}<path d="M12 4v11M7 11l5 5 5-5M5 20h14" /></svg>`} />{t.telechargement.telecharger}
+        </a>
+        <button class="coeur vcoeur" type="button" data-vcoeur aria-pressed="false" hidden>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z" /></svg>
+        </button>
+        <button class="vbtn rond" type="button" data-vfermer aria-label={t.visionneuse.fermer}>
+          <Fragment set:html={`${icone}<path d="M6 6l12 12M18 6L6 18" /></svg>`} />
+        </button>
+      </div>
+    </div>
+    <div class="scene" data-scene>
+      <button class="vnav prec" type="button" data-vprec aria-label={t.visionneuse.precedent}>
+        <Fragment set:html={`${icone}<path d="M15 5l-7 7 7 7" /></svg>`} />
+      </button>
+      <div class="vue-cadre" data-cadre><img data-vimg alt="" /><span class="vflash" aria-hidden="true"></span></div>
+      <button class="vnav suiv" type="button" data-vsuiv aria-label={t.visionneuse.suivant}>
+        <Fragment set:html={`${icone}<path d="M9 5l7 7-7 7" /></svg>`} />
+      </button>
+    </div>
+   </div>
+  </dialog>
+
+  <!-- Envoi de la sélection -->
+  <dialog class="envoi" data-envoi aria-labelledby="envoi-titre">
+    <form method="dialog" data-envoi-form class="stack g16">
+      <h2 class="d" id="envoi-titre" style="font-size: clamp(32px, 5vw, 48px)">{t.selection.dialogueTitre}</h2>
+      <p class="texte" data-resume></p>
+      <p class="texte" style="font-size: 15px" data-reglement>{t.selection.dialogueReglement}</p>
+      <div class="stack g8">
+        <label for="message-ilona" style="font-weight: 500; font-size: 15px">{t.selection.messageLibelle}</label>
+        <textarea class="saisie" id="message-ilona" rows="4" maxlength="1000" style="padding-block: 12px; min-height: 110px" aria-describedby="message-aide"></textarea>
+        <p id="message-aide" style="margin: 0; font-size: 13px">{t.selection.messageAide}</p>
+      </div>
+      <p class="alerte" role="alert" data-envoi-erreur hidden></p>
+      <div class="row g12">
+        <button class="btn" type="submit" data-envoyer>{t.selection.envoyer}</button>
+        <button class="btn contour" type="button" data-envoi-retour>{t.selection.retour}</button>
+      </div>
+    </form>
+    <div class="stack g16" data-envoi-ok hidden>
+      <h2 class="d" style="font-size: clamp(32px, 5vw, 48px)" set:html={surligne(t.selection.confirmationTitre)} />
+      <p class="texte" data-confirmation></p>
+      <div class="row"><button class="btn" type="button" data-envoi-fermer>{t.selection.fermer}</button></div>
+    </div>
+  </dialog>
+</Base>
+
+<style>
+  .zone { padding-top: 24px; padding-bottom: 48px; min-height: 70vh; }
+  .infos { margin: 0 0 32px; font-size: 14px; }
+  .haut { margin-bottom: 32px; }
+  .titre { font-size: clamp(52px, 7vw, 104px); }
+  .recue { margin: 0 0 24px; padding: 12px 18px; border-radius: 12px; background: var(--encre); color: var(--gres); font-size: 15px; }
+  .alerte { margin: 0; color: var(--rose-profond); font-weight: 500; }
+  /* Photos entières, jamais recadrées, en colonnes */
+  .grille-photos { list-style: none; margin: 0; padding: 0; columns: 4 230px; column-gap: 14px; }
+  .grille-photos :global(.tuile) { aspect-ratio: auto; break-inside: avoid; margin: 0 0 14px; overflow: hidden; }
+  .grille-photos :global(.tuile img) { display: block; width: 100%; height: auto; object-fit: initial; }
+  .grille-photos :global(.tuile[hidden]) { display: none; }
+  .grille-photos :global(.ouvrir) { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
+  .grille-photos :global(.ouvrir:focus-visible) { outline: 3px solid var(--gres); outline-offset: -6px; }
+  .grille-photos :global(.tuile:has(.ouvrir:focus-visible)) { outline: 3px solid var(--rose-profond); outline-offset: 3px; }
+  .grille-photos :global(.dl) {
+    position: absolute; right: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px;
+    border-radius: 999px; background: color-mix(in srgb, var(--encre) 72%, transparent); color: var(--gres); font-size: 14px; font-weight: 500; text-decoration: none;
+  }
+  .grille-photos :global(.dl:hover) { color: var(--gres); background: var(--encre); }
+  .barre { position: sticky; bottom: 0; z-index: 10; box-shadow: 0 -20px 40px -20px color-mix(in srgb, var(--encre) 40%, transparent); }
+  :global(.pied) { display: none; }
+  :global(html) { scroll-padding-bottom: 140px; }
+
+  /* Visionneuse */
+  .visionneuse { padding: 0; border: 0; margin: 0; max-width: none; max-height: none; width: 100%; height: 100%; background: var(--encre); color: var(--gres); }
+  .vconteneur { display: flex; flex-direction: column; width: 100%; height: 100%; background: var(--encre); color: var(--gres); }
+  .visionneuse::backdrop { background: var(--encre); }
+  .vh { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; flex: none; }
+  .compteur { margin: 0; font-size: 15px; font-weight: 500; }
+  .vh-actions { flex-wrap: nowrap; align-items: center; }
+  .vbtn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border: 0; border-radius: 999px;
+    background: transparent; box-shadow: inset 0 0 0 1.5px var(--gres); color: var(--gres); font: 500 14px 'Poppins', sans-serif; cursor: pointer; text-decoration: none;
+  }
+  .vbtn:hover { background: var(--gres); color: var(--encre); }
+  .vbtn.rond { width: 44px; padding: 0; }
+  .visionneuse :global(:focus-visible) { outline: 3px solid var(--gres); outline-offset: 3px; }
+  .vcoeur { position: static; }
+  .scene { position: relative; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 0 64px 16px; touch-action: pan-y; }
+  .vue-cadre { position: relative; display: flex; line-height: 0; max-width: 100%; max-height: 100%; }
+  .vue-cadre img { display: block; max-width: 100%; max-height: calc(100dvh - 90px); width: auto; height: auto; object-fit: contain; transition: opacity .2s var(--lumiere); }
+  .vue-cadre.choisie img { box-shadow: 0 0 0 5px var(--rose); }
+  .vflash { position: absolute; inset: 0; background: var(--gres); opacity: 0; pointer-events: none; }
+  .vue-cadre.flashe .vflash { animation: flash .45s ease-out; }
+  .vnav {
+    position: absolute; top: 50%; width: 48px; height: 48px; margin-top: -24px; border: 0; border-radius: 50%; background: color-mix(in srgb, var(--gres) 16%, transparent);
+    color: var(--gres); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
+  }
+  .vnav:hover { background: var(--gres); color: var(--encre); }
+  .vnav.prec { left: 8px; } .vnav.suiv { right: 8px; }
+
+  /* Envoi de la sélection */
+  .envoi { width: min(560px, calc(100% - 32px)); padding: 28px; border: 0; border-radius: 16px; background: var(--gres); color: var(--encre); box-shadow: var(--ombre); }
+  .envoi::backdrop { background: color-mix(in srgb, var(--encre) 70%, transparent); }
+
+  @media (max-width: 560px) {
+    .grille-photos { columns: 2; column-gap: 8px; }
+    .grille-photos :global(.tuile) { margin-bottom: 8px; }
+    .grille-photos :global(.dl) { right: 6px; bottom: 6px; width: 44px; padding: 0; justify-content: center; }
+    /* Sur téléphone : icône seule (le nom reste lu par le lecteur d'écran), pour ne pas cacher le numéro. */
+    .grille-photos :global(.dl span) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .barre .wrap { padding-block: 12px !important; gap: 10px 16px !important; }
+    .barre .btn { min-height: 44px; }
+    :global(html) { scroll-padding-bottom: 180px; }
+    .scene { padding: 0 8px 76px; } .vue-cadre img { max-height: calc(100dvh - 150px); }
+    .vnav { top: auto; bottom: 16px; margin: 0; }
+    .vnav.prec { left: 16px; } .vnav.suiv { right: 16px; }
+    .vh { flex-wrap: wrap; }
+  }
+</style>
+
+<script>
+  import '../scripts/galerie-privee.js';
+</script>

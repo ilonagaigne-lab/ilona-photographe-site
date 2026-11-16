@@ -45,6 +45,33 @@
           "value": "public, max-age=86400, stale-while-revalidate=604800"
         }
       ]
+    },
+    {
+      "source": "/photos/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/galerie-privee",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/admin/galeries",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
     }
   ],
   "redirects": [
@@ -67,6 +94,12 @@
       "source": "/etudes-de-cas",
       "destination": "/etudes-de-cas/galoplan",
       "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/photos/:id",
+      "destination": "/galerie-privee"
     }
   ]
 }
