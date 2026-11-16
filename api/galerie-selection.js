@@ -2,7 +2,7 @@
 // Mêmes réglages que api/demande.js : RESEND_API_KEY, DEMANDES_TO, RESEND_FROM (jamais dans le code).
 // La sélection est enregistrée d'abord : si l'e-mail échoue, Ilona la retrouve dans /admin/galeries et le client
 // reçoit tout de même la confirmation.
-import { ID_VALIDE, lireGalerie, ecrireGalerie } from './_lib/galeries.js';
+import { ID_VALIDE, lireGalerie, ecrireGalerie, estProtegee, accesValide } from './_lib/galeries.js';
 import { estExpiree } from './galerie.js';
 
 const BUDGET = 8500; // ms depuis l'arrivée de la demande : la réponse est partie avant la coupure de Vercel (10 s)
@@ -72,6 +72,11 @@ export default async function handler(req, res) {
   }
   if (!galerie || galerie.id !== id) return res.status(404).json({ ok: false, erreur: 'Galerie introuvable.' });
   if (estExpiree(galerie.expireLe)) return res.status(410).json({ ok: false, erreur: 'Cette galerie a expiré.' });
+  // Galerie protégée : sans accès valide (en-tête X-Galerie-Acces), aucune sélection n'est enregistrée.
+  const acces = req.headers['x-galerie-acces'];
+  if (estProtegee(galerie) && !accesValide(galerie, typeof acces === 'string' ? acces : '')) {
+    return res.status(401).json({ ok: false, protegee: true, titre: String(galerie.titre ?? '') });
+  }
   if (galerie.mode !== 'selection') return res.status(409).json({ ok: false, erreur: 'Cette galerie ne demande pas de sélection.' });
 
   const total = Array.isArray(galerie.photos) ? galerie.photos.length : 0;

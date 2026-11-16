@@ -71,6 +71,17 @@
     "pleinEcran": "Plein écran",
     "quitterPleinEcran": "Quitter le plein écran"
   },
+  "protection": {
+    "titre": "Galerie *protégée*",
+    "texte": "Cette galerie est protégée par un mot de passe. Ilona vous l’a envoyé avec le lien : saisissez-le pour voir vos photos.",
+    "libelle": "Mot de passe",
+    "bouton": "Ouvrir la galerie",
+    "envoi": "Vérification…",
+    "erreur": "Ce mot de passe n’est pas le bon. Vérifiez-le, ou demandez-le de nouveau à Ilona.",
+    "tropDEssais": "Trop d’essais pour le moment. Patientez un quart d’heure avant de réessayer, ou écrivez à Ilona.",
+    "afficher": "Afficher",
+    "masquer": "Masquer"
+  },
   "etats": {
     "introuvableTitre": "Galerie *introuvable*",
     "introuvable": "Ce lien ne mène à aucune galerie. Il a peut-être été mal copié : vérifiez qu’il est complet, ou demandez-le de nouveau à Ilona.",

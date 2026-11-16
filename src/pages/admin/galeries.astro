@@ -107,6 +107,45 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
           <p class="gal-aide">Après cette date, le projet et ses photos disparaissent tous seuls. Par défaut : 3 mois. Ex. : 14 février 2027</p>
         </div>
 
+        <fieldset class="gal-champ" id="bloc-acces">
+          <legend>Accès à la galerie</legend>
+          <div id="acces-choix">
+            <div class="gal-modes">
+              <label class="gal-mode">
+                <input type="radio" name="acces" value="lien" checked>
+                <span><strong>Lien seul</strong>Toute personne qui a le lien voit la galerie. Vous pouvez la partager sans rien d’autre.</span>
+              </label>
+              <label class="gal-mode">
+                <input type="radio" name="acces" value="mot-de-passe">
+                <span><strong>Lien + mot de passe</strong>Il faut le lien et le mot de passe pour voir les photos.</span>
+              </label>
+            </div>
+            <div class="gal-champ" id="acces-champ" hidden>
+              <label for="f-mdp">Mot de passe de la galerie</label>
+              <input id="f-mdp" name="motDePasse" type="text" minlength="4" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="aide-mdp">
+              <p class="gal-aide" id="aide-mdp">De 4 à 64 caractères. Choisissez-le avant d’envoyer le lien à votre client. Notez-le et envoyez-le à votre client avec le lien. Il ne pourra plus être affiché ensuite : vous pourrez seulement le changer. Ex. : cheval2026</p>
+            </div>
+          </div>
+          <div id="acces-etat" hidden>
+            <p class="gal-pastilles"><span class="gal-pastille bonne">Protégée par un mot de passe</span></p>
+            <p class="gal-aide">Votre client a besoin du lien et du mot de passe. Si vous le changez ou le retirez, ceux qui l’avaient déjà saisi devront le ressaisir (ou n’en auront plus besoin).</p>
+            <div class="gal-actions">
+              <button type="button" class="gal-bouton gal-bouton-clair" id="acces-changer">Changer le mot de passe</button>
+              <button type="button" class="gal-bouton gal-bouton-danger" id="acces-retirer">Retirer le mot de passe</button>
+            </div>
+            <div class="gal-champ" id="acces-changement" hidden>
+              <label for="f-mdp-nouveau">Nouveau mot de passe</label>
+              <input id="f-mdp-nouveau" type="text" minlength="4" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="aide-mdp-nouveau">
+              <p class="gal-aide" id="aide-mdp-nouveau">De 4 à 64 caractères. L’ancien mot de passe ne fonctionnera plus. Notez le nouveau et envoyez-le à votre client. Ex. : poney2026</p>
+              <div class="gal-actions">
+                <button type="button" class="gal-bouton" id="acces-enregistrer">Enregistrer le nouveau mot de passe</button>
+                <button type="button" class="gal-bouton gal-bouton-clair" id="acces-annuler">Annuler</button>
+              </div>
+            </div>
+          </div>
+          <p class="gal-erreur" id="erreur-acces" role="alert" hidden></p>
+        </fieldset>
+
         <p class="gal-erreur" id="erreur-formulaire" role="alert" hidden></p>
         <div class="gal-actions">
           <button type="submit" class="gal-bouton" id="enregistrer">Créer le projet</button>
@@ -334,6 +373,7 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
     pastille(g.tri === 'nom' ? 'Par nom de fichier' : 'Par date de prise de vue');
     pastille(g.expiree ? `Expirée le ${jour(g.expireLe)}` : `Expire le ${jour(g.expireLe)}`, g.expiree ? 'alerte' : '');
     if (g.selectionRecue) pastille('Sélection reçue', 'bonne');
+    if (g.protegee) pastille('Mot de passe');
     infos.append(quand, titre, meta, etat);
 
     const actions = document.createElement('div');
@@ -375,7 +415,67 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
   const formulaire = $('formulaire');
   const mode = () => formulaire.elements.mode.value;
   function majMode() { $('bloc-selection').hidden = mode() !== 'selection'; }
-  formulaire.addEventListener('change', (e) => { if (e.target.name === 'mode') majMode(); });
+  // Accès : « lien seul » ou « lien + mot de passe ». Un projet déjà protégé montre son état et deux boutons.
+  const protegee = () => Boolean(galerie?.protegee);
+  function majAcces() {
+    const deja = protegee();
+    $('acces-choix').hidden = deja;
+    $('acces-etat').hidden = !deja;
+    $('acces-champ').hidden = deja || formulaire.elements.acces.value !== 'mot-de-passe';
+    if (!deja) $('acces-changement').hidden = true;
+  }
+  formulaire.addEventListener('change', (e) => {
+    if (e.target.name === 'mode') majMode();
+    if (e.target.name === 'acces') { majAcces(); if (!$('acces-champ').hidden) $('f-mdp').focus(); }
+  });
+  const mdpOk = (v) => { const n = [...v.trim()].length; return n >= 4 && n <= 64; };
+  const MSG_MDP = 'Le mot de passe doit contenir entre 4 et 64 caractères. Ex. : cheval2026';
+
+  // Changer ou retirer le mot de passe d'un projet protégé : enregistré tout de suite, sans toucher aux autres informations ni aux photos.
+  async function changerAcces(extra, ok, focus) {
+    erreur('erreur-acces', '');
+    if (bloque()) return erreur('erreur-acces', 'Un enregistrement de photos est en cours. Réessayez dans un instant.');
+    for (const b of ['acces-changer', 'acces-retirer', 'acces-enregistrer']) $(b).disabled = true;
+    try {
+      const r = await appel('/api/galeries', { method: 'POST', body: JSON.stringify({ ...champsEnregistres(), id: galerie.id, ...extra }) });
+      galerie.protegee = r.galerie.protegee;
+      $('f-mdp-nouveau').value = '';
+      $('acces-changement').hidden = true;
+      formulaire.elements.acces.value = 'lien';
+      majAcces();
+      toast(ok);
+      // Les boutons ne redeviennent actifs que dans « finally » : le focus est posé juste après.
+      const cible = focus() || $('acces-changer');
+      setTimeout(() => cible.focus(), 0);
+    } catch (err) {
+      if (err instanceof Deconnecte) return deconnecte('Votre connexion au back office a expiré. Reconnectez-vous, puis revenez sur cette page.');
+      erreur('erreur-acces', err.message);
+    } finally {
+      for (const b of ['acces-changer', 'acces-retirer', 'acces-enregistrer']) $(b).disabled = false;
+    }
+  }
+  $('acces-changer').addEventListener('click', () => {
+    erreur('erreur-acces', '');
+    $('acces-changement').hidden = false;
+    $('f-mdp-nouveau').focus();
+  });
+  $('acces-annuler').addEventListener('click', () => {
+    $('f-mdp-nouveau').value = '';
+    $('acces-changement').hidden = true;
+    erreur('erreur-acces', '');
+    $('acces-changer').focus();
+  });
+  const enregistrerMdp = () => {
+    const v = $('f-mdp-nouveau').value;
+    if (!mdpOk(v)) { erreur('erreur-acces', MSG_MDP); return $('f-mdp-nouveau').focus(); }
+    changerAcces({ motDePasse: v }, 'Nouveau mot de passe enregistré. Envoyez-le à votre client.', () => $('acces-changer'));
+  };
+  $('acces-enregistrer').addEventListener('click', enregistrerMdp);
+  $('f-mdp-nouveau').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); enregistrerMdp(); } });
+  $('acces-retirer').addEventListener('click', () => {
+    if (!confirm(`Retirer le mot de passe de ce projet ?${'\n\n'}Toute personne qui a le lien pourra voir la galerie sans mot de passe.`)) return;
+    changerAcces({ retirerMotDePasse: true }, 'Mot de passe retiré. Le lien seul suffit maintenant.', () => formulaire.elements.acces[0]);
+  });
 
   function dansTroisMois() {
     const d = new Date();
@@ -399,7 +499,12 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
     f.quota.value = g?.quota ?? reglages.quota ?? 8;
     f.prixPhoto.value = g?.prixPhoto ?? reglages.prixPhoto ?? 10;
     f.expireLe.value = g?.expireLe || dansTroisMois();
+    f.acces.value = 'lien';
+    f.motDePasse.value = '';
+    $('f-mdp-nouveau').value = '';
+    erreur('erreur-acces', '');
     majMode();
+    majAcces();
     erreur('erreur-formulaire', '');
     $('titre-editeur').textContent = g ? g.titre : 'Nouveau projet';
     for (const r of document.querySelectorAll('input[name="tri"]')) r.checked = r.value === tri;
@@ -441,6 +546,11 @@ const reglages = JSON.stringify({ quota: galerieDemo.quota, prixPhoto: galerieDe
     e.preventDefault();
     erreur('erreur-formulaire', '');
     const champs = champsFormulaire();
+    erreur('erreur-acces', '');
+    if (!protegee() && formulaire.elements.acces.value === 'mot-de-passe') {
+      if (!mdpOk(formulaire.elements.motDePasse.value)) { erreur('erreur-acces', MSG_MDP); return formulaire.elements.motDePasse.focus(); }
+      champs.motDePasse = formulaire.elements.motDePasse.value;
+    }
     if (!champs.titre) return erreur('erreur-formulaire', 'Donnez un nom au projet. Ex. : Léa et Caramel');
     if (!champs.expireLe) return erreur('erreur-formulaire', 'Indiquez la date jusqu’à laquelle le projet reste disponible.');
     if (!Number.isInteger(champs.quota) || !Number.isInteger(champs.prixPhoto)) return erreur('erreur-formulaire', 'Le nombre de photos incluses et le prix d’une photo doivent être des nombres entiers.');

@@ -38,7 +38,13 @@ const icone = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
       var m = location.pathname.match(/^\/photos\/([^\/]+)\/?$/);
       var id = m ? m[1] : new URLSearchParams(location.search).get('id') || '';
       if (!/^[A-Za-z0-9_-]{22}$/.test(id)) return;
-      var p = fetch('/api/galerie?id=' + encodeURIComponent(id), { headers: { Accept: 'application/json' } });
+      // Accès gardé (galerie protégée par un mot de passe) : envoyé dans X-Galerie-Acces, sinon la réponse est 401 « protegee ».
+      var h = { Accept: 'application/json' };
+      try {
+        var a = localStorage.getItem('galerie-acces-' + id) || '';
+        if (/^[\w.\-]{10,600}$/.test(a)) h['X-Galerie-Acces'] = a;
+      } catch (e) {}
+      var p = fetch('/api/galerie?id=' + encodeURIComponent(id), { headers: h });
       window.__galeriePre = p;
       p.then(function (r) { return r.ok ? r.clone().json() : null; }).then(function (d) {
         var ph = d && d.galerie && d.galerie.photos;
@@ -71,6 +77,28 @@ const icone = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
         </div>
       </div>
     ))}
+
+    <!-- Galerie protégée par un mot de passe : le script affiche ce bloc quand l'API répond 401 « protegee » -->
+    <div class="stack g16 etat" data-etat="protegee" hidden>
+      <p class="lbl">{t.entete.surtitre}</p>
+      <h1 class="d titre" tabindex="-1" set:html={surligne(t.protection.titre)} />
+      <p class="nom-galerie" data-protegee-nom hidden></p>
+      <p class="texte" style="max-width: 620px">{t.protection.texte}</p>
+      <form class="stack g16 mdp" data-protegee-form novalidate>
+        <div class="stack g8">
+          <label for="mdp-galerie" style="font-weight: 500; font-size: 15px">{t.protection.libelle}</label>
+          <div class="mdp-champ">
+            <input class="saisie" id="mdp-galerie" name="mdp-galerie" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" maxlength="200" required aria-describedby="mdp-erreur" />
+            {t.protection.afficher && t.protection.masquer && <button class="btn contour mdp-oeil" type="button" data-protegee-oeil aria-controls="mdp-galerie">{t.protection.afficher}</button>}
+          </div>
+          <p class="alerte" id="mdp-erreur" role="alert" data-protegee-erreur hidden></p>
+        </div>
+        <div class="row g12">
+          <button class="btn" type="submit" data-protegee-bouton>{t.protection.bouton}</button>
+          <a class="btn contour" href={`mailto:${contact.email}`}>{t.etats.contacter}</a>
+        </div>
+      </form>
+    </div>
 
     <!-- En-tête du mode téléchargement visible dès le HTML (affichage rapide) ; le script bascule en mode sélection si besoin. -->
     <div data-contenu>
@@ -184,6 +212,12 @@ const icone = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
   .titre { font-size: clamp(52px, 7vw, 104px); }
   .recue { margin: 0 0 24px; padding: 12px 18px; border-radius: 12px; background: var(--encre); color: var(--gres); font-size: 15px; }
   .alerte { margin: 0; color: var(--rose-profond); font-weight: 500; }
+  .nom-galerie { margin: 0; font-size: 18px; font-weight: 600; }
+  .mdp { max-width: 460px; }
+  .mdp-champ { display: flex; gap: 10px; align-items: stretch; }
+  .mdp-champ .saisie { flex: 1 1 auto; min-width: 0; }
+  .mdp-champ .mdp-oeil { flex: none; }
+  .saisie[aria-invalid="true"] { border-color: var(--rose-profond); }
   /* Photos entières, jamais recadrées, en colonnes */
   .grille-photos { list-style: none; margin: 0; padding: 0; columns: 4 230px; column-gap: 14px; }
   .grille-photos :global(.tuile) { aspect-ratio: auto; break-inside: avoid; margin: 0 0 14px; overflow: hidden; }

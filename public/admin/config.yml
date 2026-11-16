@@ -1354,6 +1354,20 @@ collections:
               - { label: "Nom de chaque photo de la grille", name: ouvrirPhoto, widget: string, hint: "{n} = le numéro : ne le retirez pas. Jamais affiché. Ex. : Voir la photo {n} en grand" }
               - { label: "Bouton plein écran", name: pleinEcran, widget: string, hint: "N’apparaît pas sur les appareils qui ne le permettent pas. Ex. : Plein écran" }
               - { label: "Bouton pour quitter le plein écran", name: quitterPleinEcran, widget: string, hint: "Ex. : Quitter le plein écran" }
+          - label: Galerie protégée par un mot de passe
+            name: protection
+            widget: object
+            hint: "Ce que voit votre client quand vous avez protégé sa galerie par un mot de passe (réglage dans « Projets clients », section « Accès à la galerie »). Les galeries sans mot de passe ne montrent pas cet écran."
+            fields:
+              - { label: "Titre", name: titre, widget: string, hint: "*mot* = surligné en rose. Ex. : Galerie *protégée*" }
+              - { label: "Phrase d’explication", name: texte, widget: text, hint: "Affichée sous le titre. Ex. : Cette galerie est protégée par un mot de passe. Ilona vous l’a envoyé avec le lien : saisissez-le pour voir vos photos." }
+              - { label: "Titre de la case du mot de passe", name: libelle, widget: string, hint: "Écrit au-dessus de la case. Ex. : Mot de passe" }
+              - { label: "Bouton pour ouvrir", name: bouton, widget: string, hint: "Ex. : Ouvrir la galerie" }
+              - { label: "Message pendant la vérification", name: envoi, widget: string, hint: "Ex. : Vérification…" }
+              - { label: "Message si le mot de passe est faux", name: erreur, widget: text, hint: "Ex. : Ce mot de passe n’est pas le bon. Vérifiez-le, ou demandez-le de nouveau à Ilona." }
+              - { label: "Message après trop d’essais", name: tropDEssais, widget: text, hint: "Affiché après 5 essais ratés : le client doit attendre un quart d’heure. Ex. : Trop d’essais pour le moment. Patientez un quart d’heure avant de réessayer, ou écrivez à Ilona." }
+              - { label: "Bouton pour voir le mot de passe", name: afficher, widget: string, required: false, hint: "Petit bouton qui montre ce qui est tapé dans la case. Il n’apparaît que si les deux textes (celui-ci et « Bouton pour cacher le mot de passe ») sont remplis. Ex. : Afficher" }
+              - { label: "Bouton pour cacher le mot de passe", name: masquer, widget: string, required: false, hint: "Remet les caractères cachés. Il n’apparaît que si les deux textes (celui-ci et « Bouton pour voir le mot de passe ») sont remplis. Ex. : Masquer" }
           - label: Messages quand la galerie ne s’affiche pas
             name: etats
             widget: object

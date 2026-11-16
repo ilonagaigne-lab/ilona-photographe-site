@@ -1,7 +1,42 @@
 // Renvoie à la page client (/photos/<id>) le contenu de SA galerie, et rien d'autre.
 // Public : le secret, c'est l'identifiant de 22 caractères dans le lien. On ne liste jamais les autres galeries,
 // et le message que le client écrit à Ilona (selection.message) ne repart jamais vers le navigateur.
-import { ID_VALIDE, lireGalerie, trierPhotos } from './_lib/galeries.js';
+// Galerie protégée par un mot de passe (facultatif) :
+//   GET  sans accès valide (en-tête X-Galerie-Acces) -> 401 { ok:false, protegee:true, titre } : ni photos, ni adresses.
+//   POST { id, motDePasse } -> bon : { ok:true, galerie, acces } ; mauvais : 401 après une pause d'une seconde ;
+//   5 échecs par adresse IP et par galerie sur un quart d'heure -> 429 (en mémoire, comme api/auth.js).
+import { ID_VALIDE, lireGalerie, trierPhotos, estProtegee, verifierMotDePasse, creerAcces, accesValide } from './_lib/galeries.js';
+
+const ECHECS_MAX = 5;
+const FENETRE_ECHECS = 15 * 60 * 1000;
+const PAUSE_ECHEC = 1000; // ms : ralentit les essais en série
+const echecs = new Map(); // « ip|id » -> { debut, n }
+
+function nbEchecs(cle) {
+  const maintenant = Date.now();
+  for (const [k, v] of echecs) if (maintenant - v.debut > FENETRE_ECHECS) echecs.delete(k);
+  return echecs.get(cle)?.n ?? 0;
+}
+function noterEchec(cle) {
+  const v = echecs.get(cle) ?? { debut: Date.now(), n: 0 };
+  v.n += 1;
+  echecs.set(cle, v);
+}
+
+// Mêmes règles d'origine que api/galerie-selection.js : la requête vient de ce site, ou d'un outil sans en-tête Origin.
+function origineRefusee(req) {
+  const origine = req.headers.origin;
+  if (origine) {
+    let hote = '';
+    try { hote = new URL(origine).host.toLowerCase(); } catch { /* origine illisible : refusée */ }
+    return !hote || hote !== String(req.headers.host || '').toLowerCase();
+  }
+  return req.headers['sec-fetch-site'] === 'cross-site';
+}
+const enTete = (req, nom) => {
+  const v = req.headers?.[nom];
+  return typeof v === 'string' ? v : '';
+};
 
 const MODES = ['telechargement', 'selection'];
 
@@ -49,11 +84,19 @@ export const estExpiree = (expireLe, maintenant = Date.now()) => {
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
-  if (req.method !== 'GET' && req.method !== 'HEAD') {
-    res.setHeader('Allow', 'GET, HEAD');
+  const ecriture = req.method === 'POST';
+  if (req.method !== 'GET' && req.method !== 'HEAD' && !ecriture) {
+    res.setHeader('Allow', 'GET, HEAD, POST');
     return res.status(405).json({ ok: false, erreur: 'Méthode non autorisée.' });
   }
-  const id = typeof req.query?.id === 'string' ? req.query.id : '';
+  let corps = null;
+  if (ecriture) {
+    if (origineRefusee(req)) return res.status(403).json({ ok: false, erreur: 'Demande refusée.' });
+    corps = req.body;
+    if (typeof corps === 'string') { try { corps = JSON.parse(corps); } catch { corps = null; } }
+    if (!corps || typeof corps !== 'object') return res.status(400).json({ ok: false, erreur: 'Demande illisible.' });
+  }
+  const id = ecriture ? (typeof corps.id === 'string' ? corps.id : '') : (typeof req.query?.id === 'string' ? req.query.id : '');
   if (!ID_VALIDE.test(id)) return res.status(404).json({ ok: false, erreur: 'Galerie introuvable.' });
 
   let galerie;
@@ -66,5 +109,31 @@ export default async function handler(req, res) {
   if (!galerie || galerie.id !== id) return res.status(404).json({ ok: false, erreur: 'Galerie introuvable.' });
   if (estExpiree(galerie.expireLe)) return res.status(410).json({ ok: false, erreur: 'Cette galerie a expiré.' });
 
+
+  if (ecriture) {
+    // Saisie du mot de passe. Une galerie sans mot de passe répond comme le GET (sans jeton d'accès).
+    if (!estProtegee(galerie)) return res.status(200).json({ ok: true, galerie: publique(galerie), acces: null });
+    const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'inconnue';
+    const cle = `${ip}|${id}`;
+    if (nbEchecs(cle) >= ECHECS_MAX) {
+      res.setHeader('Retry-After', String(Math.ceil(FENETRE_ECHECS / 1000)));
+      return res.status(429).json({ ok: false, protegee: true, titre: String(galerie.titre ?? ''), erreur: 'Trop d’essais, réessayez dans quelques minutes.' });
+    }
+    // L'essai est compté tout de suite, avant le calcul (qui prend du temps) : des essais envoyés en même temps
+    // ne peuvent pas tous passer le contrôle. Un bon mot de passe efface ensuite le compteur.
+    noterEchec(cle);
+    const bon = typeof corps.motDePasse === 'string' && corps.motDePasse.length <= 200 && await verifierMotDePasse(galerie, corps.motDePasse);
+    if (!bon) {
+      await new Promise((ok) => setTimeout(ok, PAUSE_ECHEC));
+      return res.status(401).json({ ok: false, protegee: true, titre: String(galerie.titre ?? ''), erreur: 'Mot de passe incorrect.' });
+    }
+    echecs.delete(cle);
+    return res.status(200).json({ ok: true, galerie: publique(galerie), acces: creerAcces(galerie) });
+  }
+
+  // Lecture : une galerie protégée n'est rendue qu'avec un accès valide. Sinon, seulement son titre.
+  if (estProtegee(galerie) && !accesValide(galerie, enTete(req, 'x-galerie-acces'))) {
+    return res.status(401).json({ ok: false, protegee: true, titre: String(galerie.titre ?? '') });
+  }
   return res.status(200).json({ ok: true, galerie: publique(galerie) });
 }

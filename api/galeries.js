@@ -2,9 +2,12 @@
 // le navigateur envoie le jeton de la connexion au back office dans l'en-tête Authorization.
 //   GET             liste des galeries            GET ?id=…   une galerie complète
 //   POST            crée (sans id) ou met à jour  DELETE ?id=…  supprime la galerie et tous ses fichiers
+// Mot de passe facultatif (POST) : « motDePasse » (4 à 64 caractères) le définit ou le change, « retirerMotDePasse: true » le retire,
+// sans l'un ni l'autre la protection existante est conservée. Aucune réponse ne contient le sel ni l'empreinte : seulement « protegee ».
 import {
   ID_VALIDE, nouvelId, verifierIlona, lireGalerie, ecrireGalerie,
   listerGaleries, supprimerGalerie, supprimerFichiers, prolongerGalerie, trierPhotos, priseValide, dateDuProjet, TRIS,
+  estProtegee, definirProtection, retirerProtection, normaliserMotDePasse, sansSecrets, MDP_MIN, MDP_MAX,
 } from './_lib/galeries.js';
 
 const ORIGINE = 'https://ilonagaigne.com';
@@ -72,6 +75,17 @@ function lireTri(v) {
   return v;
 }
 
+// Mot de passe demandé dans la requête : undefined = ne rien changer, sinon la fiche modifiée.
+async function appliquerProtection(fiche, corps) {
+  const retirer = corps.retirerMotDePasse === true;
+  const demande = corps.motDePasse !== undefined && corps.motDePasse !== null;
+  if (retirer && demande) throw new Refus('Choisissez un nouveau mot de passe ou retirez-le, pas les deux à la fois.');
+  if (retirer) return retirerProtection(fiche);
+  if (!demande) return fiche;
+  if (normaliserMotDePasse(corps.motDePasse) === null) throw new Refus(`Le mot de passe doit contenir entre ${MDP_MIN} et ${MDP_MAX} caractères. Ex. : cheval2026`);
+  return definirProtection(fiche, corps.motDePasse);
+}
+
 // Les numéros de la sélection du client désignent des photos de la liste ; si l'ordre ou la liste change,
 // on les recalcule pour qu'ils désignent les mêmes photos (repérées par l'adresse de l'original).
 function recalculerSelection(selection, avant, apres) {
@@ -91,13 +105,15 @@ const resume = (g) => ({
   expireLe: g.expireLe, expiree: g.expireLe < aujourdhui(),
   creeLe: g.creeLe, majLe: g.majLe, lien: lienClient(g.id),
   selectionRecue: Boolean(g.selection), selectionLe: g.selection?.envoyeeLe ?? null,
+  protegee: estProtegee(g),
 });
 
 async function creerOuMettreAJour(corps) {
   const champs = lireChamps(corps);
   if (corps.id === undefined || corps.id === null || corps.id === '') {
     const maintenant = new Date().toISOString();
-    return ecrireGalerie({ id: nouvelId(), ...champs, tri: lireTri(corps.tri) ?? 'date', creeLe: maintenant, majLe: maintenant, photos: [], selection: null });
+    const neuve = { id: nouvelId(), ...champs, tri: lireTri(corps.tri) ?? 'date', creeLe: maintenant, majLe: maintenant, photos: [], selection: null, protection: null };
+    return ecrireGalerie(await appliquerProtection(neuve, corps));
   }
   if (!ID_VALIDE.test(corps.id)) throw new Refus('Projet introuvable.', 404);
   const ancienne = await lireGalerie(corps.id);
@@ -106,10 +122,11 @@ async function creerOuMettreAJour(corps) {
   // La fiche est enregistrée déjà triée : les numéros « N° 01… » du client sont des places dans cette liste.
   const photos = trierPhotos(corps.photos === undefined ? ancienne.photos : nettoyerPhotos(corps.photos, corps.id), tri);
   const vuParLeClient = trierPhotos(ancienne.photos, ancienne.tri); // l'ordre que le client voyait quand il a choisi
-  const galerie = await ecrireGalerie({
+  const galerie = await ecrireGalerie(await appliquerProtection({
     ...ancienne, ...champs, id: ancienne.id, creeLe: ancienne.creeLe, tri, photos,
     selection: recalculerSelection(ancienne.selection, vuParLeClient, photos), // une sélection reçue entre-temps n'est jamais écrasée
-  });
+    protection: ancienne.protection ?? null, // conservée telle quelle sans demande de changement
+  }, corps));
   // Photos retirées : leurs trois fichiers sont supprimés.
   const gardees = new Set(photos.flatMap((p) => [p.original, p.vue, p.miniature]));
   const retirees = (ancienne.photos || []).flatMap((p) => [p.original, p.vue, p.miniature]).filter((u) => !gardees.has(u));
@@ -137,13 +154,13 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const galerie = ID_VALIDE.test(id) ? await lireGalerie(id) : null;
       if (!galerie) return repondre(404, { ok: false, erreur: 'Projet introuvable.' });
-      return repondre(200, { ok: true, galerie, lien: lienClient(id) });
+      return repondre(200, { ok: true, galerie: sansSecrets(galerie), lien: lienClient(id) });
     }
     if (req.method === 'POST') {
       const corps = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
       if (!corps || typeof corps !== 'object') throw new Refus('Demande illisible.');
       const galerie = await creerOuMettreAJour(corps);
-      return repondre(200, { ok: true, galerie, lien: lienClient(galerie.id) });
+      return repondre(200, { ok: true, galerie: sansSecrets(galerie), lien: lienClient(galerie.id) });
     }
     if (req.method === 'DELETE') {
       if (!ID_VALIDE.test(id) || !(await lireGalerie(id))) return repondre(404, { ok: false, erreur: 'Projet introuvable.' });

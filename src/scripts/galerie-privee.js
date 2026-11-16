@@ -15,6 +15,18 @@ const nombre = (n, max = 0) => new Intl.NumberFormat('fr-FR', { maximumFractionD
 const id = (location.pathname.match(/^\/photos\/([^/]+)\/?$/) || [])[1] || new URLSearchParams(location.search).get('id') || '';
 const demo = import.meta.env.DEV && id === 'demo';
 
+// Accès à une galerie protégée par un mot de passe : jeton signé par le serveur, gardé dans ce navigateur (30 jours),
+// envoyé dans l'en-tête X-Galerie-Acces. Le mot de passe lui-même n'est jamais gardé.
+const cleAcces = `galerie-acces-${id}`;
+const FORME_ACCES = /^[\w.\-]{10,600}$/;
+function lireAcces() {
+  try { const a = localStorage.getItem(cleAcces) || ''; return FORME_ACCES.test(a) ? a : ''; } catch { return ''; }
+}
+function garderAcces(a) {
+  try { if (a && FORME_ACCES.test(a)) localStorage.setItem(cleAcces, a); else localStorage.removeItem(cleAcces); } catch { /* stockage indisponible */ }
+}
+const entetesAcces = (base = {}) => { const a = lireAcces(); return a ? { ...base, 'X-Galerie-Acces': a } : base; };
+
 let galerie = null;
 let photos = [];
 let mode = 'telechargement';
@@ -53,9 +65,16 @@ async function charger() {
       // L'appel part dès le <head> (script en ligne de la page) ; un « Réessayer » refait un appel neuf.
       const deja = window.__galeriePre;
       window.__galeriePre = null;
-      const r = await (deja || fetch(`/api/galerie?id=${encodeURIComponent(id)}`, { headers: { Accept: 'application/json' } }));
+      const r = await (deja || fetch(`/api/galerie?id=${encodeURIComponent(id)}`, { headers: entetesAcces({ Accept: 'application/json' }) }));
       if (r.status === 404) return montrer('introuvable');
       if (r.status === 410) return montrer('expiree');
+      if (r.status === 401) {
+        // Galerie protégée, accès absent ou périmé (mot de passe changé) : on oublie l'ancien accès et on demande le mot de passe.
+        const rep = await r.json().catch(() => ({}));
+        if (!rep.protegee) return montrer('erreur');
+        garderAcces('');
+        return montrerProtegee(rep.titre);
+      }
       if (!r.ok) return montrer('erreur');
       donnees = (await r.json()).galerie;
     }
@@ -65,6 +84,63 @@ async function charger() {
   if (!donnees || !Array.isArray(donnees.photos)) return montrer('erreur');
   demarrer(donnees);
 }
+
+// ---------- Écran « Galerie protégée » ----------
+const formMdp = $('[data-protegee-form]');
+const champMdp = $('#mdp-galerie');
+const erreurMdp = $('[data-protegee-erreur]');
+const boutonMdp = $('[data-protegee-bouton]');
+const oeilMdp = $('[data-protegee-oeil]');
+
+function montrerProtegee(titre) {
+  const nom = $('[data-protegee-nom]');
+  nom.textContent = typeof titre === 'string' ? titre : '';
+  nom.hidden = !nom.textContent;
+  montrer('protegee');
+}
+function erreurProtegee(texte) {
+  erreurMdp.textContent = texte;
+  erreurMdp.hidden = false;
+  champMdp.setAttribute('aria-invalid', 'true');
+  champMdp.focus();
+  champMdp.select();
+}
+if (oeilMdp) {
+  oeilMdp.addEventListener('click', () => {
+    const voir = champMdp.type === 'password';
+    champMdp.type = voir ? 'text' : 'password';
+    oeilMdp.textContent = voir ? T.protection.masquer : T.protection.afficher;
+  });
+}
+formMdp.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const mdp = champMdp.value;
+  erreurMdp.hidden = true;
+  champMdp.removeAttribute('aria-invalid');
+  if (!mdp) return erreurProtegee(T.protection.erreur);
+  if (demo) return erreurProtegee(T.protection.erreur); // en démonstration, aucun mot de passe n'existe
+  boutonMdp.disabled = true;
+  boutonMdp.textContent = T.protection.envoi;
+  try {
+    const r = await fetch('/api/galerie', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ id, motDePasse: mdp }),
+    });
+    if (r.status === 429) { boutonMdp.disabled = false; boutonMdp.textContent = T.protection.bouton; return erreurProtegee(T.protection.tropDEssais); }
+    if (r.status === 401) { boutonMdp.disabled = false; boutonMdp.textContent = T.protection.bouton; return erreurProtegee(T.protection.erreur); }
+    const rep = await r.json().catch(() => null);
+    if (!r.ok || !rep || !rep.ok || !rep.galerie || !Array.isArray(rep.galerie.photos)) throw new Error('mot de passe');
+    garderAcces(rep.acces);
+    champMdp.value = '';
+    boutonMdp.disabled = false;
+    boutonMdp.textContent = T.protection.bouton;
+    demarrer(rep.galerie);
+    $('.ouvrir')?.focus(); // le formulaire disparaît : le focus passe sur la première photo
+  } catch {
+    boutonMdp.disabled = false;
+    boutonMdp.textContent = T.protection.bouton;
+    erreurProtegee(T.etats.erreur);
+  }
+});
 
 const sure = (u) => { try { return /^https?:$/.test(new URL(u, location.href).protocol); } catch { return false; } };
 
@@ -271,9 +347,11 @@ formEnvoi.addEventListener('submit', async (e) => {
       envoyeeLe = new Date().toISOString();
     } else {
       const r = await fetch('/api/galerie-selection', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(charge),
+        method: 'POST', headers: entetesAcces({ 'Content-Type': 'application/json' }), body: JSON.stringify(charge),
       });
       const rep = await r.json().catch(() => ({}));
+      // Accès perdu (mot de passe changé) : la sélection est déjà gardée dans ce navigateur, on redemande le mot de passe.
+      if (r.status === 401 && rep.protegee) { sauver(); garderAcces(''); location.reload(); return; }
       if (!r.ok || !rep.ok) throw new Error('envoi');
       envoyeeLe = rep.envoyeeLe || new Date().toISOString();
     }
