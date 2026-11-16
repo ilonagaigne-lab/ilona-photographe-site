@@ -6,7 +6,7 @@
 // sinon BLOB_READ_WRITE_TOKEN (créée quand on relie un magasin Blob au projet). Les clés suivantes servent à retrouver
 // les fiches écrites avec une ancienne règle (migration sans perte).
 import { randomBytes, createHash, createHmac, scrypt, timingSafeEqual } from 'node:crypto';
-import { put, get, head, list, del, setTtl, BlobNotFoundError } from '@vercel/blob';
+import { put, get, list, del, setTtl } from '@vercel/blob';
 
 import { trierProjets } from './tri.js';
 export { trierPhotos, trierProjets, dateDuProjet, TRIS, priseValide } from './tri.js';
@@ -84,21 +84,10 @@ export async function lireGalerie(id) {
   return fiches.reduce((a, b) => (String(b.majLe || '') > String(a.majLe || '') ? b : a));
 }
 
-// Lecture fraîche : pour un fichier public, le CDN de Vercel Blob garde une copie jusqu'à 60 s (useCache: false
-// ne vaut que pour les fichiers privés). On demande d'abord l'adresse au service (head, jamais en cache), puis on lit
-// cette adresse avec un paramètre unique : la copie lue est toujours la dernière enregistrée (mot de passe compris).
+// Lecture de la fiche par son chemin (méthode éprouvée en ligne). Limite connue : le CDN de Vercel Blob peut servir
+// une copie vieille de 60 s au plus après un enregistrement (useCache: false ne vaut que pour les fichiers privés).
 async function lireFiche(chemin) {
-  let meta;
-  try {
-    meta = await head(chemin);
-  } catch (e) {
-    // Fiche absente à ce chemin (cas normal pour les autres clés possibles) : la bibliothèque lève BlobNotFoundError,
-    // dont le nom reste « Error » ; on reconnaît donc la classe ou son message.
-    if (e instanceof BlobNotFoundError || /does not exist|not found/i.test(String(e?.message))) return null;
-    throw e;
-  }
-  if (!meta?.url) return null;
-  const r = await get(`${meta.url}?frais=${Date.now()}-${randomBytes(4).toString('hex')}`, { access: 'public' });
+  const r = await get(chemin, { access: 'public', useCache: false });
   if (!r || r.statusCode !== 200) return null;
   try {
     return JSON.parse(await new Response(r.stream).text());
