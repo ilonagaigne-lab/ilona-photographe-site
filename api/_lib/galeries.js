@@ -6,7 +6,7 @@
 // sinon BLOB_READ_WRITE_TOKEN (créée quand on relie un magasin Blob au projet). Les clés suivantes servent à retrouver
 // les fiches écrites avec une ancienne règle (migration sans perte).
 import { randomBytes, createHash, createHmac, scrypt, timingSafeEqual } from 'node:crypto';
-import { put, get, head, list, del, setTtl } from '@vercel/blob';
+import { put, get, head, list, del, setTtl, BlobNotFoundError } from '@vercel/blob';
 
 import { trierProjets } from './tri.js';
 export { trierPhotos, trierProjets, dateDuProjet, TRIS, priseValide } from './tri.js';
@@ -92,7 +92,9 @@ async function lireFiche(chemin) {
   try {
     meta = await head(chemin);
   } catch (e) {
-    if (e?.name === 'BlobNotFoundError' || /not found|introuvable/i.test(String(e?.message))) return null;
+    // Fiche absente à ce chemin (cas normal pour les autres clés possibles) : la bibliothèque lève BlobNotFoundError,
+    // dont le nom reste « Error » ; on reconnaît donc la classe ou son message.
+    if (e instanceof BlobNotFoundError || /does not exist|not found/i.test(String(e?.message))) return null;
     throw e;
   }
   if (!meta?.url) return null;
