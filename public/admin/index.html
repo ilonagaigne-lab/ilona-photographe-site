@@ -68,6 +68,21 @@
       window.addEventListener('hashchange', suivre);
       suivre();
     })();
+
+    // Écran de connexion : Ilona entre avec son mot de passe (fenêtre ouverte par api/auth.js),
+    // le bouton de Decap dit donc simplement « Se connecter » au lieu de « Se connecter avec GitHub ».
+    (function () {
+      var renommer = function () {
+        var bouton = document.querySelector('[class*="-LoginButton"]');
+        if (!bouton) return;
+        var marches = document.createTreeWalker(bouton, NodeFilter.SHOW_TEXT);
+        for (var n = marches.nextNode(); n; n = marches.nextNode()) {
+          if (/github/i.test(n.nodeValue)) n.nodeValue = 'Se connecter';
+        }
+      };
+      new MutationObserver(renommer).observe(document.body, { childList: true, subtree: true, characterData: true });
+      renommer();
+    })();
   </script>
 </body>
 </html>

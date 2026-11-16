@@ -221,6 +221,8 @@ html body [class*="-LoginButton"] {
   padding: 0 22px !important; font-size: 15px !important; font-weight: 600 !important; text-transform: none !important; box-shadow: var(--ombre-haute) !important;
 }
 html body [class*="-LoginButton"]:hover { background: #000 !important; }
+/* Connexion par mot de passe : l'icône GitHub n'a plus lieu d'être (et laissait un vide à gauche). */
+html body [class*="-LoginButtonIcon"] { display: none !important; }
 html body [class*="-GoBackButton"], html body [class*="-StyledAuthenticationPage"] a { color: var(--doux) !important; font-size: 14px !important; }
 
 /* ---------- Médiathèque ---------- */
